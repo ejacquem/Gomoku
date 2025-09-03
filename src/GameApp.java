@@ -10,8 +10,9 @@ public class GameApp extends Application {
     @Override
     public void start(Stage stage) {
         BoardGame game = new BoardGame();
+        GomokuAI AI = new GomokuAI(game);
 
-        GameUI gameUI = new GameUI(game);
+        GameUI gameUI = new GameUI(game, AI);
 
         Scene scene = new Scene(gameUI.getRoot());
 

@@ -37,13 +37,17 @@ public class GameUI {
     private Label infoLabel, playerLabel, winnerLabel;
     private Button restartButton;
     private Button startButton;
+    private Background background;
+    private VBox titlePane;
+    private StackPane evalBar;
+
+    private Font customFont = Font.loadFont("file:./resources/AttackOfMonster.ttf", 60); 
+    private Font robotoFont = Font.loadFont("file:./resources/Roboto.ttf", 20);
+
     private Canvas canvas;
     private BoardRenderer renderer;
     private BoardGame game;
-    private Background background;
-    private VBox titlePane;
-    private Font customFont = Font.loadFont("file:./resources/AttackOfMonster.ttf", 60); 
-    private Font robotoFont = Font.loadFont("file:./resources/Roboto.ttf", 20);
+    private GomokuAI AI;
 
     public class PlayerData {
         public final String name;
@@ -64,8 +68,9 @@ public class GameUI {
     private PlayerData data2;
 
 
-    public GameUI(BoardGame game) {
+    public GameUI(BoardGame game, GomokuAI AI) {
         this.game = game;
+        this.AI = AI;
 
         titlePane = createTitlePane();
 
@@ -90,19 +95,24 @@ public class GameUI {
         clip.setArcHeight(10);
         canvas.setClip(clip);
 
+        evalBar = createEvaluationBar(20);
+        setBarPercentage(evalBar, 0.5);
+
         renderer = new BoardRenderer(canvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
         rightPanel = new VBox(10, titlePane, infoLabel, restartButton, startButton, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
-        root = new HBox(0, leftPanel, rightPanel);
+        root = new HBox(0, evalBar, leftPanel, rightPanel);
         
         rightPanel.setMinWidth(300);
         player1Panel.setMinHeight(50);
         player2Panel.setMinHeight(50);
         root.setBackground(background);
 
-        HBox.setMargin(leftPanel, new Insets(0, 0, 0, 10)); // top right bot left
+        root.setAlignment(Pos.CENTER);
+
+        HBox.setMargin(evalBar, new Insets(0, 10, 0, 10)); // top right bot left
         HBox.setMargin(rightPanel, new Insets(10, 10, 10, 10)); // top right bot left
 
         bindStuff();
@@ -155,7 +165,6 @@ public class GameUI {
 
         // Vertical box with name and captured pieces
         VBox rightBox = new VBox(4, nameLabel, data.capturedPane);
-        // rightBox.setBackground(createBackground(Color.ORANGE));
         rightBox.setAlignment(Pos.TOP_LEFT);
 
         // player timer
@@ -208,6 +217,38 @@ public class GameUI {
         );
 
         return clockPanel;
+    }
+
+    private StackPane createEvaluationBar(double width) {
+        StackPane bar = new StackPane();
+        double height = canvas.getHeight();
+        bar.setPrefSize(width, height);
+        bar.setMaxHeight(height);
+        bar.setBackground(createBackground(GameSettings.PLAYER1_COLOR));
+
+        // bar.setBackground(new Background(
+        //     new BackgroundFill(GameSettings.PLAYER1_COLOR, new CornerRadii(2), Insets.EMPTY) // rounded corners
+        // ));
+    
+        Rectangle fill = new Rectangle(width, 50); // start at 0
+        fill.setFill(GameSettings.PLAYER2_COLOR);
+        StackPane.setAlignment(fill, Pos.BOTTOM_CENTER);
+    
+        bar.getChildren().add(fill);
+        bar.setUserData(fill);
+
+        Rectangle clip = new Rectangle(width, height);
+        clip.setArcWidth(5);
+        clip.setArcHeight(5);
+        bar.setClip(clip);
+    
+        return bar;
+    }
+    
+    private void setBarPercentage(StackPane bar, double percentage) {
+        Rectangle fill = (Rectangle) bar.getUserData();
+        double barHeight = bar.getPrefHeight();
+        fill.setHeight(Math.round(barHeight * percentage));
     }
 
     private Background createBackground(Color color){
@@ -264,6 +305,11 @@ public class GameUI {
                 alert.setContentText("Player " + newVal.intValue() + " is the Winner !!!");
                 alert.showAndWait();
             }
+        });
+
+        AI.percentageProperty().addListener((obs, oldVal, newVal) -> {
+            System.out.println("percentage score: " + newVal);
+            setBarPercentage(evalBar, (double)newVal);
         });
     }
 

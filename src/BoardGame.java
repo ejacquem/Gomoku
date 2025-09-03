@@ -9,11 +9,11 @@ import javafx.beans.property.SimpleLongProperty;
 import javafx.util.Duration;
 
 public class BoardGame {
-    private final int BOARD_SIZE = GameSettings.BOARD_SIZE;
-    private final int FIRST_PLAYER = GameSettings.FIRST_PLAYER;
-    private final int WINNING_PIECES = 5;
+    public final int BOARD_SIZE = GameSettings.BOARD_SIZE;
+    public final int FIRST_PLAYER = GameSettings.FIRST_PLAYER;
+    public final int WINNING_PIECES = 5;
     private Cell[][] board;
-    private final int[][] DIRECTION = {
+    public final int[][] DIRECTION = {
         {-1,  0}, // N
         {-1,  1}, // NE
         { 0,  1}, // E
@@ -310,9 +310,18 @@ public class BoardGame {
         }
     }
 
-    private boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir){
+    public boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir){
         for (int i = 0; i < len; i++){
             int cell = get_piece_at(r + (i - offset) * dir[0], c + (i + offset) * dir[1], -1);
+            if (pattern[i] != cell)
+                return false;
+        }
+        return true;
+    }
+
+    public boolean checkSequenceMatch(int r, int c, int len, int[] pattern, int[] dir, int defaultValue){
+        for (int i = 0; i < len; i++){
+            int cell = get_piece_at(r + i * dir[0], c + i * dir[1], defaultValue);
             if (pattern[i] != cell)
                 return false;
         }
