@@ -15,4 +15,5 @@ public abstract class GameSettings {
     static final int FIRST_PLAYER = 1;
     static final int WINNING_PIECES = 5;
     static final int WINNING_CAPTURED_PIECES = 10;
+    static final int START_TIMER = 300 * 1000; // sec
 }

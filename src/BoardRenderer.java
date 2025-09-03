@@ -91,7 +91,7 @@ public class BoardRenderer {
                     gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
                     //fill
                     int offset = -2;
-                    float r = radius * 0.90f;
+                    float r = radius * 0.88f;
                     gc.setFill(getPlayerColor(game.getTileState(row, col)));
                     gc.fillOval(px - r + offset, py - r + offset, r * 2f, r * 2f);
                     //outline
@@ -134,8 +134,8 @@ public class BoardRenderer {
         int row = (int)((e.getY() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         int col = (int)((e.getX() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         game.placePiece(row, col);
-        System.out.println("row: " + row + ", col: " + col);
-        System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
+        // System.out.println("row: " + row + ", col: " + col);
+        // System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
         draw();
     }
 }

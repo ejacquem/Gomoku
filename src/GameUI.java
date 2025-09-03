@@ -16,11 +16,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.Alert;
 import javafx.scene.Node;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 
 public class GameUI {
     private VBox rightPanel; // contains info about the game, reset button, winner, player turn
@@ -30,24 +36,46 @@ public class GameUI {
     private HBox player2Panel;
     private Label infoLabel, playerLabel, winnerLabel;
     private Button restartButton;
+    private Button startButton;
     private Canvas canvas;
     private BoardRenderer renderer;
     private BoardGame game;
     private Background background;
-    private FlowPane capturedPlayer1;
-    private FlowPane capturedPlayer2;
+    private VBox titlePane;
+    private Font customFont = Font.loadFont("file:./resources/AttackOfMonster.ttf", 60); 
+    private Font robotoFont = Font.loadFont("file:./resources/Roboto.ttf", 20);
+
+    public class PlayerData {
+        public final String name;
+        public final Color avatarColor;
+        public final FlowPane capturedPane;
+        public final LongProperty timerProperty;
+        public final IntegerProperty pointsProperty;
+
+        public PlayerData(String name, Color avatarColor, LongProperty timerProperty, IntegerProperty pointsProperty) {
+            this.name = name;
+            this.avatarColor = avatarColor;
+            this.capturedPane = new FlowPane();;
+            this.timerProperty = timerProperty;
+            this.pointsProperty = pointsProperty;
+        }
+    }
+    private PlayerData data1;
+    private PlayerData data2;
+
 
     public GameUI(BoardGame game) {
         this.game = game;
-        infoLabel = new Label("Game Info");
-        playerLabel = new Label("Player: ");
-        winnerLabel = new Label("");
-        infoLabel.setTextFill(Color.WHITE);
-        playerLabel.setTextFill(Color.WHITE);
-        winnerLabel.setTextFill(Color.WHITE);
+
+        titlePane = createTitlePane();
+
+        infoLabel = creatLabel("Game Info", robotoFont, Color.WHITE);
+        playerLabel = creatLabel("Player: ", robotoFont, Color.WHITE);
+        winnerLabel = creatLabel("", robotoFont, Color.WHITE);
         restartButton = new Button("Restart");
-        capturedPlayer1 = new FlowPane();
-        capturedPlayer2 = new FlowPane();
+        startButton = new Button("Start");
+        data1 = new PlayerData("Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1Property());
+        data2 = new PlayerData("Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2Property());
         
         background = new Background(new BackgroundFill(GameSettings.UI_BACKGROUND, CornerRadii.EMPTY, Insets.EMPTY));
         
@@ -63,11 +91,11 @@ public class GameUI {
         canvas.setClip(clip);
 
         renderer = new BoardRenderer(canvas, game);
-        player1Panel = createPlayerPanel("Player 1", GameSettings.PLAYER1_COLOR, GameSettings.PLAYER2_COLOR, capturedPlayer1);
-        player2Panel = createPlayerPanel("Player 2", GameSettings.PLAYER2_COLOR, GameSettings.PLAYER1_COLOR, capturedPlayer2);
-        rightPanel = new VBox(10, infoLabel, restartButton, playerLabel, winnerLabel);
+        player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
+        player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
+        rightPanel = new VBox(10, titlePane, infoLabel, restartButton, startButton, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
-        root = new HBox(10, leftPanel, rightPanel);
+        root = new HBox(0, leftPanel, rightPanel);
         
         rightPanel.setMinWidth(300);
         player1Panel.setMinHeight(50);
@@ -75,40 +103,115 @@ public class GameUI {
         root.setBackground(background);
 
         HBox.setMargin(leftPanel, new Insets(0, 0, 0, 10)); // top right bot left
+        HBox.setMargin(rightPanel, new Insets(10, 10, 10, 10)); // top right bot left
 
         bindStuff();
     }
 
-    private HBox createPlayerPanel(String name, Color avatarColor, Color capturedColor, FlowPane capturedPane) {
-        StackPane avatarBox = createAvatar(50, 18, avatarColor, Color.web("#403e3b"));
+    private Label creatLabel(String text, Font font, Color color){
+        Label label;
+        label = new Label(text);
+        label.setFont(font);
+        label.setTextFill(color);
+        return label;
+    }
 
-        Label nameLabel = new Label(name);
+    private VBox createTitlePane()
+    {
+        Label title = new Label("Gomoku");
+        title.setTextFill(Color.WHITE);
+        title.setFont(customFont);
+
+        Line underline = new Line();
+        underline.setStartX(0);
+        underline.setEndX(300); // width of the line
+        underline.setStroke(Color.WHITE);
+        underline.setStrokeWidth(3);
+        
+        VBox titleBox = new VBox(title, underline);
+        titleBox.setAlignment(Pos.CENTER); // center title + line
+        titleBox.setSpacing(5); // space between title and line
+        return titleBox;
+    }
+
+    private HBox createPlayerPanel(PlayerData data, Color capturedColor) {
+        StackPane avatarBox = createAvatar(50, 18, data.avatarColor, Color.web("#403e3b"));
+
+        Label nameLabel = new Label(data.name);
         nameLabel.setTextFill(Color.WHITE);
+        nameLabel.setFont(Font.font(robotoFont.getFamily(), FontWeight.NORMAL, 16));
 
-        VBox.setVgrow(capturedPane, Priority.ALWAYS);
-        capturedPane.setAlignment(Pos.BOTTOM_LEFT);
-        capturedPane.setHgap(4); // spacing between captured pieces
+        VBox.setVgrow(data.capturedPane, Priority.ALWAYS);
+        data.capturedPane.setAlignment(Pos.BOTTOM_LEFT);
+        data.capturedPane.setHgap(4); // spacing between captured pieces
 
         for (int i = 0; i < GameSettings.WINNING_CAPTURED_PIECES; i++) {
             Circle piece = new Circle(6, capturedColor); // small circle for captured piece
             piece.setStroke(GameSettings.PIECE_BORDER_COLOR); // border color
             piece.setStrokeWidth(1); // border thickness
             piece.setVisible(false); // hidden initially
-            capturedPane.getChildren().add(piece);
+            data.capturedPane.getChildren().add(piece);
         }
 
         // Vertical box with name and captured pieces
-        VBox rightBox = new VBox(4, nameLabel, capturedPane);
+        VBox rightBox = new VBox(4, nameLabel, data.capturedPane);
+        // rightBox.setBackground(createBackground(Color.ORANGE));
         rightBox.setAlignment(Pos.TOP_LEFT);
 
+        // player timer
+        HBox clockPanel = createClockPanel(data);
+
         // Main panel (avatar on left, rightBox on right)
-        HBox panel = new HBox(10, avatarBox, rightBox);
-        panel.setAlignment(Pos.CENTER_LEFT);
+        HBox panel = new HBox(0, avatarBox, rightBox, clockPanel);
+        // panel.setBackground(createBackground(Color.PINK));
+        panel.setAlignment(Pos.CENTER);
         VBox.setMargin(nameLabel, new Insets(5, 0, 0, 0));
-        VBox.setMargin(capturedPane, new Insets(0, 0, 5, 0));
+        VBox.setMargin(data.capturedPane, new Insets(0, 0, 5, 0));
         VBox.setMargin(panel, new Insets(10, 10, 10, 0)); // top right bot left
+        HBox.setMargin(avatarBox, new Insets(0, 10, 0, 0));
+
+        data.pointsProperty.addListener((obs, oldVal, newVal) -> {
+            updateCapturedPieces(newVal.intValue(), data.capturedPane);
+        });
+        // HBox.setHgrow(panel, Priority.ALWAYS);
+        // panel.setMaxWidth(Double.MAX_VALUE);
 
         return panel;
+    }
+
+    private HBox createClockPanel(PlayerData data){
+        Label clockLabel = new Label("0:00.0");
+        HBox clockPanel = new HBox(clockLabel);
+        // clockLabel.setBackground(createBackground(Color.BLACK));
+        clockLabel.setTextFill(Color.WHITESMOKE);
+        clockLabel.setFont(Font.font(robotoFont.getFamily(), FontWeight.EXTRA_BOLD, 30));
+        HBox.setHgrow(clockPanel, Priority.ALWAYS);
+        clockPanel.setMaxWidth(Double.MAX_VALUE);
+        clockPanel.setAlignment(Pos.CENTER_RIGHT);
+
+        clockLabel.setBackground(new Background(new BackgroundFill(
+            Color.web("#403e3b"),                // fill color
+            new CornerRadii(3),         // rounded corners
+            Insets.EMPTY                 // no internal padding (optional)
+        )));
+        clockLabel.setPadding(new Insets(2, 8, 2, 8));
+
+        clockLabel.textProperty().bind(
+            Bindings.createStringBinding(() -> {
+                long millis = data.timerProperty.get();
+                long totalSeconds = millis / 1000;
+                long minutes = totalSeconds / 60;
+                long seconds = totalSeconds % 60;
+                long tenth = (millis / 100) % 10;
+                return String.format("%d:%02d.%d", minutes, seconds, tenth);
+            }, data.timerProperty)
+        );
+
+        return clockPanel;
+    }
+
+    private Background createBackground(Color color){
+        return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
     }
 
     private StackPane createAvatar(int squareRadius, int circleRadius, Color circleColor, Color boxColor) {
@@ -135,8 +238,13 @@ public class GameUI {
     {
         // Restart button action
         restartButton.setOnAction(e -> {
-            game.reset();     // implement reset() in BoardGame
-            renderer.draw();  // redraw board
+            game.reset();
+            renderer.draw();
+        });
+
+        startButton.setOnAction(e -> {
+            game.startGame();
+            renderer.draw();
         });
 
         playerLabel.textProperty().bind(
@@ -156,13 +264,6 @@ public class GameUI {
                 alert.setContentText("Player " + newVal.intValue() + " is the Winner !!!");
                 alert.showAndWait();
             }
-        });
-
-        game.player1Property().addListener((obs, oldVal, newVal) -> {
-            updateCapturedPieces(newVal.intValue(), capturedPlayer1);
-        });
-        game.player2Property().addListener((obs, oldVal, newVal) -> {
-            updateCapturedPieces(newVal.intValue(), capturedPlayer2);
         });
     }
 

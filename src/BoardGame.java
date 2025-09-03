@@ -1,7 +1,12 @@
 // src/BoardGame.java
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.util.Duration;
 
 public class BoardGame {
     private final int BOARD_SIZE = GameSettings.BOARD_SIZE;
@@ -19,10 +24,22 @@ public class BoardGame {
         {-1, -1}  // NW
     };
 
+    public enum GameState {
+        NOT_STARTED,
+        STARTED,
+        GAME_OVER
+    }
+    private GameState gameState = GameState.NOT_STARTED;
+
     private final IntegerProperty currentPlayer = new SimpleIntegerProperty(FIRST_PLAYER);  // player = 1 or player = 2
     private final IntegerProperty winner = new SimpleIntegerProperty(0);
     private final IntegerProperty player1Points = new SimpleIntegerProperty(0);
     private final IntegerProperty player2Points = new SimpleIntegerProperty(0);
+    private final LongProperty player1Timer = new SimpleLongProperty(GameSettings.START_TIMER);
+    private final LongProperty player2Timer = new SimpleLongProperty(GameSettings.START_TIMER);
+    Timeline timeline1;
+    Timeline timeline2;
+
 
     public IntegerProperty currentPlayerProperty() {
         return currentPlayer;
@@ -36,6 +53,12 @@ public class BoardGame {
     public IntegerProperty player2Property() {
         return player2Points;
     }
+    public LongProperty player1TimerProperty() {
+        return player1Timer;
+    }
+    public LongProperty player2TimerProperty() {
+        return player2Timer;
+    }
 
     public BoardGame() {
         board = new Cell[BOARD_SIZE][BOARD_SIZE];
@@ -44,6 +67,32 @@ public class BoardGame {
                 board[r][c] = new Cell();
             }
         }
+
+        gameState = GameState.NOT_STARTED;
+        timeline1 = createTimeline(player1Timer);
+        timeline2 = createTimeline(player2Timer);
+    }
+
+    public void startGame(){
+        reset();
+        System.out.println("Game started");
+        gameState = GameState.STARTED;
+
+        // startTime = System.currentTimeMillis();
+        if (currentPlayer.get() == 1)
+            timeline1.play();
+        else
+            timeline2.play();
+    }
+
+    private Timeline createTimeline(LongProperty timer){
+        Timeline timeline =  new Timeline(
+            new KeyFrame(Duration.millis(100), e -> {
+                timer.set(timer.get() - 100);
+            })
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        return timeline;
     }
 
     public int getBoardSize() {
@@ -60,15 +109,17 @@ public class BoardGame {
 
     public void placePiece(int row, int col) {
         // Example: toggle between 0 and 1
-        if (!isInBound(row, col))
+        if (gameState == GameState.NOT_STARTED){
+            System.out.println("Game Not Started");
             return;
+        }
+        if (gameState == GameState.GAME_OVER) return;
+        if (!isInBound(row, col)) return;
+
         Cell cell = getCell(row, col);
-        if (cell.has_piece())
-            return;
-        if (winner.get() != 0)
-            return;
-        if (cell.isDoubleFreeThree())
-            return;
+
+        if (cell.has_piece()) return;
+        if (cell.isDoubleFreeThree()) return;
         System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
         board[row][col].player = getCurrentPlayer(); // place piece
         checkCaptureSequence(row, col, getCurrentPlayer());
@@ -79,14 +130,28 @@ public class BoardGame {
     }
 
     private void switchPlayer(){
-        currentPlayer.set((currentPlayer.get() == 1 ? 2 : 1));
+        if (currentPlayer.get() == 1){
+            currentPlayer.set(2);
+            timeline1.pause();
+            timeline2.play();
+        }
+        else{
+            currentPlayer.set(1);
+            timeline1.play();
+            timeline2.pause();
+        }
     }
 
     public void reset() 
     {
         initBoard();
+        gameState = GameState.NOT_STARTED;
         currentPlayer.set(FIRST_PLAYER);
         winner.set(0);
+        player1Timer.set(GameSettings.START_TIMER);
+        player2Timer.set(GameSettings.START_TIMER);
+        timeline1.pause();
+        timeline2.pause();
     }
 
     public void initBoard()
