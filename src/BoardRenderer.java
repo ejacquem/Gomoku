@@ -7,8 +7,8 @@ import javafx.scene.paint.Color;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = 40;
-    public static final int MARGIN = 80;
-    public Color[] playerColor= {Color.WHITE, Color.BLACK};
+    public static final int MARGIN = 40;
+    public Color[] playerColor= {GameSettings.PLAYER1_COLOR, GameSettings.PLAYER2_COLOR};
 
     private Canvas canvas;
     private BoardGame game;
@@ -24,7 +24,7 @@ public class BoardRenderer {
     }
 
     public void draw() {
-        gc.setFill(Color.WHITE);
+        gc.setFill(GameSettings.BOARD_COLOR2);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         drawBoard();
@@ -35,6 +35,7 @@ public class BoardRenderer {
         drawCheckBoard();
         drawGrid();
         drawPieces();
+        drawSymbols();
         gc.translate(-MARGIN, -MARGIN);
     }
 
@@ -53,14 +54,24 @@ public class BoardRenderer {
 
     private void drawCheckBoard(){
         int size = game.getBoardSize();
+        int half = game.getBoardSize() / 2;
         for (int row = 0; row < size - 1; row++) {
             for (int col = 0; col < size - 1; col++) {
                 if ((row + col) % 2 == 0) {
-                    gc.setFill(Color.WHITESMOKE);
+                    gc.setFill(GameSettings.BOARD_COLOR1);
                 } else {
-                    gc.setFill(Color.WHITE);
+                    gc.setFill(GameSettings.BOARD_COLOR2);
                 }
                 gc.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                // draw dots on board
+                int x = Math.abs(row - half); // symmetry around the center
+                int y = Math.abs(col - half);
+                if (x < half && y < half && (x % 6 == 0) && (y % 6 == 0))
+                {
+                    int radius = TILE_SIZE / 10;
+                    gc.setFill(Color.BLACK);
+                    gc.fillOval(col * TILE_SIZE - radius, row * TILE_SIZE - radius, radius * 2f, radius * 2f);
+                }
             }
         }
     }
@@ -72,12 +83,44 @@ public class BoardRenderer {
                 // Draw pieces
                 int state = game.getTileState(row, col);
                 float radius = TILE_SIZE * 0.8f / 2f;
+                int px = col * TILE_SIZE;
+                int py = row * TILE_SIZE;
                 if (state != 0) {
-                    gc.setFill(Color.BLACK);
-                    gc.fillOval(col * TILE_SIZE - radius, row * TILE_SIZE - radius, radius * 2f, radius * 2f);
-                    radius *= 0.8;
+                    //shadow
+                    gc.setFill(getPlayerColor(game.getTileState(row, col)).darker());
+                    gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+                    //fill
+                    int offset = -2;
+                    float r = radius * 0.90f;
                     gc.setFill(getPlayerColor(game.getTileState(row, col)));
-                    gc.fillOval(col * TILE_SIZE - radius, row * TILE_SIZE - radius, radius * 2f, radius * 2f);
+                    gc.fillOval(px - r + offset, py - r + offset, r * 2f, r * 2f);
+                    //outline
+                    gc.setStroke(GameSettings.PIECE_BORDER_COLOR);
+                    gc.setLineWidth(2); // thickness 
+                    gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
+                }
+            }
+        }
+    }
+    
+    private void drawSymbols(){
+        int size = game.getBoardSize();
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Cell cell = game.getCell(row, col);
+                int px = col * TILE_SIZE;
+                int py = row * TILE_SIZE;
+                if (cell.winning)
+                {
+                    UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
+                    UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
+                }
+                if (cell.isDoubleFreeThree())
+                    UtilsRenderer.drawX(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.RED);
+                else if (cell.isFreeThree())
+                    UtilsRenderer.drawPlus(gc, px, py, (int)(TILE_SIZE * 0.5), 5, Color.GREEN);
+                if (cell.can_be_captured){
+                    UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.PURPLE);
                 }
             }
         }
