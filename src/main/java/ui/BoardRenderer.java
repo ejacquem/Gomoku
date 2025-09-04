@@ -1,10 +1,13 @@
-package main.java;
+package main.java.ui;
 // src/BoardRenderer.java
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-// import javafx.scene.text.Font;
+import main.java.GameSettings;
+import main.java.game.BoardGame;
+import main.java.game.Cell;
+import main.java.game.Coords;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;
@@ -35,14 +38,15 @@ public class BoardRenderer {
         gc.translate(MARGIN, MARGIN);
         drawCheckBoard();
         drawGrid();
-        drawNumber();
+        drawLabel();
         drawPieces();
         drawSymbols();
+        drawDebugNumber();
         gc.translate(-MARGIN, -MARGIN);
     }
 
     private void drawGrid(){
-        int size = game.getBoardSize();
+        int size = game.BOARD_SIZE;
         for (int i = 0; i < size; i++)
         {
             gc.setStroke(Color.BLACK);
@@ -54,8 +58,8 @@ public class BoardRenderer {
         }
     }
 
-    private void drawNumber(){
-        int size = game.getBoardSize();
+    private void drawLabel(){
+        int size = game.BOARD_SIZE;
         for (int i = 0; i < size; i++)
         {
             gc.setStroke(Color.BLACK);
@@ -64,7 +68,7 @@ public class BoardRenderer {
             int length = (size - 1) * TILE_SIZE;
             gc.setFill(Color.BLACK);
             String n = Integer.toString(i + 10, 36);
-            final int w = 8, h = 8;
+            final int w = 8, h = 8; // size of a letter
             final int w2 = w / 2, h2 = h / 2, s2 = TILE_SIZE / 2;
             gc.fillText(n, start - w2, - s2);
             gc.fillText(n, start - w2, length + h + s2);
@@ -74,8 +78,8 @@ public class BoardRenderer {
     }
 
     private void drawCheckBoard(){
-        int size = game.getBoardSize();
-        int half = game.getBoardSize() / 2;
+        int size = game.BOARD_SIZE;
+        int half = game.BOARD_SIZE / 2;
         for (int row = 0; row < size - 1; row++) {
             for (int col = 0; col < size - 1; col++) {
                 if ((row + col) % 2 == 0) {
@@ -97,23 +101,41 @@ public class BoardRenderer {
         }
     }
 
+    private void drawDebugNumber(){
+        int size = game.BOARD_SIZE;
+        final int w = 8, h = 8; // size of a letter
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                
+                Cell cell = game.board.getCellAt(new Coords(col, row));
+                if (cell.has_piece()){
+                    // gc.setFill(Color.color(0.5f, 0, 0, 0.5f));
+                    // gc.fillRect(col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    String n = Integer.toString(row * game.BOARD_SIZE + col);
+                    gc.setFill(Color.ORANGE);
+                    gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
+                }
+            }
+        }
+    }
+
     private void drawPieces(){
-        int size = game.getBoardSize();
+        int size = game.BOARD_SIZE;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 // Draw pieces
-                int state = game.getTileState(row, col);
+                int state = game.board.getCellAt(new Coords(col, row)).player;
                 float radius = TILE_SIZE * 0.8f / 2f;
                 int px = col * TILE_SIZE;
                 int py = row * TILE_SIZE;
                 if (state != 0) {
                     //shadow
-                    gc.setFill(getPlayerColor(game.getTileState(row, col)).darker());
+                    gc.setFill(getPlayerColor(state).darker());
                     gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
                     //fill
                     int offset = -2;
                     float r = radius * 0.88f;
-                    gc.setFill(getPlayerColor(game.getTileState(row, col)));
+                    gc.setFill(getPlayerColor(state));
                     gc.fillOval(px - r + offset, py - r + offset, r * 2f, r * 2f);
                     //outline
                     gc.setStroke(GameSettings.PIECE_BORDER_COLOR);
@@ -125,10 +147,10 @@ public class BoardRenderer {
     }
     
     private void drawSymbols(){
-        int size = game.getBoardSize();
+        int size = game.BOARD_SIZE;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                Cell cell = game.getCell(row, col);
+                Cell cell = game.board.getCellAt(new Coords(col, row));
                 int px = col * TILE_SIZE;
                 int py = row * TILE_SIZE;
                 if (cell.isDoubleFreeThree())

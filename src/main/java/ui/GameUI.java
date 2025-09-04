@@ -1,4 +1,7 @@
-package main.java;
+package main.java.ui;
+import main.java.GameSettings;
+import main.java.GomokuAI;
+import main.java.game.BoardGame;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -35,7 +38,7 @@ public class GameUI {
     private HBox root;
     private HBox player1Panel;
     private HBox player2Panel;
-    private Label infoLabel, playerLabel, winnerLabel;
+    private Label infoLabel, moveLabel, playerLabel, winnerLabel;
     private Button restartButton, startButton, randomButton, undoButton;
     private Background background;
     private VBox titlePane;
@@ -77,6 +80,7 @@ public class GameUI {
         titlePane = createTitlePane();
 
         infoLabel = creatLabel("Game Info", robotoFont, Color.WHITE);
+        moveLabel = creatLabel("Move: ", robotoFont, Color.WHITE);
         playerLabel = creatLabel("Player: ", robotoFont, Color.WHITE);
         winnerLabel = creatLabel("", robotoFont, Color.WHITE);
         startButton = new Button("Start");
@@ -96,8 +100,8 @@ public class GameUI {
         background = new Background(new BackgroundFill(GameSettings.UI_BACKGROUND, CornerRadii.EMPTY, Insets.EMPTY));
         
         canvas = new Canvas(
-            (game.getBoardSize() - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2,
-            (game.getBoardSize() - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2);
+            (game.BOARD_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2,
+            (game.BOARD_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2);
             
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
         
@@ -112,7 +116,7 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
-        rightPanel = new VBox(15, titlePane, infoLabel, restartButton, startButton, randomButton, undoButton, playerLabel, winnerLabel);
+        rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, undoButton, infoLabel, moveLabel, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
         root = new HBox(0, evalBar, leftPanel, rightPanel);
         
@@ -311,15 +315,15 @@ public class GameUI {
 
         randomButton.setOnAction(e -> {
             game.startGame();
-            game.randomBoard(.3f);
+            game.board.random(.3f);
             AI.evaluate();
-            game.checkBoard();
+            game.board.analyse(game.getCurrentPlayer());
             renderer.draw();
         });
 
         undoButton.setOnAction(e -> {
             game.undo();
-            game.checkBoard();
+            game.board.analyse(game.getCurrentPlayer());
             renderer.draw();
         });
 
@@ -329,6 +333,10 @@ public class GameUI {
 
         winnerLabel.textProperty().bind(
             game.winnerProperty().asString("Winner is player %d")
+        );
+
+        moveLabel.textProperty().bind(
+            game.board.moveCountProperty().asString("Move count: %d")
         );
 
         game.winnerProperty().addListener((obs, oldVal, newVal) -> {

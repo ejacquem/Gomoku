@@ -3,6 +3,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
+import main.java.game.BoardGame;
+import main.java.game.Cell;
 
 public class GomokuAI {
     private BoardGame game;
@@ -87,23 +89,23 @@ public class GomokuAI {
         long sum = 100; //default score
         for (int r = 0; r < game.BOARD_SIZE; r++) {
             for (int c = 0; c < game.BOARD_SIZE; c++) {
-                for (int[] dir: game.DIRECTION){
-                    for (Pattern pat : patterns){
-                        if (game.checkSequenceMatch(r, c, pat.pattern.length, 0, pat.pattern, dir, (p, cell) -> p == cell.player && !cell.can_be_captured, opponent)){
-                            sum += pat.score[playerTurn];
-                            break;
-                        }
-                    }
-                }
+                // for (int[] dir: game.DIRECTION){
+                //     for (Pattern pat : patterns){
+                //         if (game.checkSequenceMatch(r, c, pat.pattern.length, 0, pat.pattern, dir, (p, cell) -> p == cell.player && !cell.can_be_captured, opponent)){
+                //             sum += pat.score[playerTurn];
+                //             break;
+                //         }
+                //     }
+                // }
                 // gain one point per piece
-                if (game.getTileState(r, c) == player){
-                    sum += 1;
-                }
-                Cell cell = game.getCell(r, c);
-                if (playerTurn == 1){
-                    sum += cell.can_be_captured ? 10 : 0; // 10 point per capturable piece
-                    sum += cell.isFreeThree() ? 5 : 0; // 5 point per isFreeThree
-                }
+                // if (game.getTileState(r, c) == player){
+                //     sum += 1;
+                // }
+                // Cell cell = game.getCell(r, c);
+                // if (playerTurn == 1){
+                //     sum += cell.can_be_captured ? 10 : 0; // 10 point per capturable piece
+                //     sum += cell.isFreeThree() ? 5 : 0; // 5 point per isFreeThree
+                // }
             }
         }
         return sum;

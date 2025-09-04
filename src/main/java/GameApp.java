@@ -1,10 +1,12 @@
 package main.java;
-// src/GameApp.java
+
 import javafx.application.Application;
 import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import main.java.game.BoardGame;
+import main.java.ui.GameUI;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 

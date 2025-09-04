@@ -1,9 +1,8 @@
-package main.java;
+package main.java.game;
 
 public class Cell {
     public int player = 0;
     public boolean winning = false;
-    public boolean invalid_move = false;
     public boolean can_be_captured = false;
     // true if a piece can be placed and it creates a free-three
     public boolean can_be_free3_h = false; // horizontal
@@ -39,7 +38,6 @@ public class Cell {
     public void reset(){
         player = 0;
         winning = false;
-        invalid_move = false;
         can_be_captured = false;
         resetFreeThree();
     }
@@ -49,5 +47,16 @@ public class Cell {
         can_be_free3_v = false;
         can_be_free3_p = false;
         can_be_free3_n = false;
+    }
+
+    // H -> 1, 0 || -1, 0
+    // V -> 0, 1 || 0, 1
+    // P -> 1, -1 || -1, 1
+    // N -> 1, 1 || -1, -1
+    public void setFreeThree(Coords dir){
+        if (dir.y == 0) can_be_free3_h = true;
+        else if (dir.x == 0) can_be_free3_v = true;
+        else if (dir.x == dir.y) can_be_free3_n = true;
+        else can_be_free3_p = true;
     }
 }

@@ -1,0 +1,184 @@
+package main.java.game;
+// src/BoardGame.java
+
+import java.util.Stack;
+import java.util.function.BiPredicate;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.util.Duration;
+import main.java.GameSettings;
+
+public class BoardGame {
+    public final int BOARD_SIZE = GameSettings.BOARD_SIZE;
+    public final int FIRST_PLAYER = GameSettings.FIRST_PLAYER;
+    public final int WINNING_PIECES = 5;
+    public Board board;
+
+    public enum GameState {
+        NOT_STARTED,
+        STARTED,
+        GAME_OVER
+    }
+    private GameState gameState = GameState.NOT_STARTED;
+
+    private final IntegerProperty currentPlayer = new SimpleIntegerProperty(FIRST_PLAYER);  // player = 1 or player = 2
+    private final IntegerProperty winner = new SimpleIntegerProperty(0);
+    private final IntegerProperty player1CapturedPieces = new SimpleIntegerProperty(0);
+    private final IntegerProperty player2CapturedPieces = new SimpleIntegerProperty(0);
+    private final LongProperty player1Timer = new SimpleLongProperty(GameSettings.START_TIMER);
+    private final LongProperty player2Timer = new SimpleLongProperty(GameSettings.START_TIMER);
+    Timeline timeline1;
+    Timeline timeline2;
+
+    public IntegerProperty currentPlayerProperty() {
+        return currentPlayer;
+    }
+    public IntegerProperty winnerProperty() {
+        return winner;
+    }
+    public IntegerProperty player1CapturedPiecesProperty() {
+        return player1CapturedPieces;
+    }
+    public IntegerProperty player2CapturedPiecesProperty() {
+        return player2CapturedPieces;
+    }
+    public LongProperty player1TimerProperty() {
+        return player1Timer;
+    }
+    public LongProperty player2TimerProperty() {
+        return player2Timer;
+    }
+
+    public BoardGame() {
+        board = new Board();
+        gameState = GameState.NOT_STARTED;
+        timeline1 = createTimeline(player1Timer);
+        timeline2 = createTimeline(player2Timer);
+    }
+
+    public void undo(){
+        if (board.moveCountProperty().get() == 0)
+            return;
+        if (gameState == GameState.GAME_OVER){
+            gameState = GameState.STARTED;
+        }
+        board.undoLastMove();
+        tick();
+    }
+
+    public void startGame(){
+        System.out.println("Game started");
+        reset();
+        gameState = GameState.STARTED;
+    }
+
+    public void setWinner(int player){
+        System.out.println("Winner is " + player);
+        winner.set(player);
+        setGameOver();
+    }
+
+    public void setGameOver(){
+        gameState = GameState.GAME_OVER;
+        timeline1.pause();
+        timeline2.pause();
+    }
+
+    public void checkWinnerCaptures()
+    {
+        if (player1CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES)
+            setWinner(1);
+        if (player2CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES)
+            setWinner(2);
+    }
+
+    public void placePieceAttempt(int row, int col) {
+        // Example: toggle between 0 and 1
+        Coords pos = new Coords(col, row);
+        if (gameState == GameState.NOT_STARTED){
+            startGame();
+            // System.out.println("Game Not Started");
+            // return;
+        }
+        if (gameState == GameState.GAME_OVER) return;
+        if (!board.isInBound(pos)) return;
+
+        Cell cell = board.getCellAt(pos);
+
+        if (cell.has_piece()) return;
+        if (cell.isDoubleFreeThree()) return;
+        board.placePiece(pos, getCurrentPlayer());
+        tick();
+    }
+
+    public void tick(){
+        player1CapturedPieces.set(board.getPlayer1CapturesCount());
+        player2CapturedPieces.set(board.getPlayer2CapturesCount());
+        switchPlayer();
+        board.analyse(getCurrentPlayer());
+        checkWinnerCaptures();
+    }
+
+    private void switchPlayer(){
+        if (currentPlayer.get() == 1){
+            currentPlayer.set(2);
+            timeline1.pause();
+            timeline2.play();
+        }
+        else{
+            currentPlayer.set(1);
+            timeline1.play();
+            timeline2.pause();
+        }
+    }
+
+    public void reset() 
+    {
+        // resetBoard();
+        board.reset();
+        gameState = GameState.NOT_STARTED;
+        currentPlayer.set(FIRST_PLAYER);
+        winner.set(0);
+        player1Timer.set(GameSettings.START_TIMER);
+        player2Timer.set(GameSettings.START_TIMER);
+        player1CapturedPieces.set(0);
+        player2CapturedPieces.set(0);
+        timeline1.pause();
+        timeline2.pause();
+    }
+
+    /* BOARD ACTION */
+
+    // private void placePiece(int row, int col){
+    //     System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
+    //     int p = getCurrentPlayer();
+    //     addPiece(row, col, p);
+    //     actions.add(new BoardAction(ActionType.ADD, row, col, p));
+    // }
+
+    // return 1 or 2
+    public int getCurrentPlayer(){
+        return currentPlayer.get();
+    }
+
+    public int getOpponent(int player){
+        return player == 1 ? 2 : 1;
+    }
+
+    // utils
+
+    private Timeline createTimeline(LongProperty timer){
+        Timeline timeline =  new Timeline(
+            new KeyFrame(Duration.millis(100), e -> {
+                timer.set(timer.get() - 100);
+            })
+        );
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        return timeline;
+    }
+
+} 

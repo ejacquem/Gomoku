@@ -1,4 +1,4 @@
-package main.java;
+package main.java.ui;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
