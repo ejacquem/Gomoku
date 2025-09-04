@@ -34,6 +34,7 @@ public class BoardRenderer {
         gc.translate(MARGIN, MARGIN);
         drawCheckBoard();
         drawGrid();
+        drawNumber();
         drawPieces();
         drawSymbols();
         gc.translate(-MARGIN, -MARGIN);
@@ -49,6 +50,25 @@ public class BoardRenderer {
             int length = (size - 1) * TILE_SIZE;
             gc.strokeLine(start, 0, start, length);
             gc.strokeLine(0, start, length, start);
+        }
+    }
+
+    private void drawNumber(){
+        int size = game.getBoardSize();
+        for (int i = 0; i < size; i++)
+        {
+            gc.setStroke(Color.BLACK);
+            gc.setLineWidth(2);
+            int start = i * TILE_SIZE;
+            int length = (size - 1) * TILE_SIZE;
+            gc.setFill(Color.BLACK);
+            String n = Integer.toString(i + 10, 36);
+            final int w = 8, h = 8;
+            final int w2 = w / 2, h2 = h / 2, s2 = TILE_SIZE / 2;
+            gc.fillText(n, start - w2, - s2);
+            gc.fillText(n, start - w2, length + h + s2);
+            gc.fillText(n, -w - s2, start + h2);
+            gc.fillText(n, length + s2, start + h2);
         }
     }
 
@@ -115,7 +135,7 @@ public class BoardRenderer {
                 else if (cell.isFreeThree())
                     UtilsRenderer.drawPlus(gc, px, py, (int)(TILE_SIZE * 0.5), 5, Color.GREEN);
                 if (cell.can_be_captured){
-                    UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.PURPLE);
+                    UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, cell.player == 1 ? GameSettings.PLAYER2_COLOR : GameSettings.PLAYER1_COLOR);
                 }
                 if (cell.winning)
                 {
@@ -128,14 +148,15 @@ public class BoardRenderer {
 
     public Color getPlayerColor(int player){
         return playerColor[player - 1];
-    } 
+    }
 
     private void handleClick(MouseEvent e) {
         int row = (int)((e.getY() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         int col = (int)((e.getX() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         game.placePieceAttempt(row, col);
-        // System.out.println("row: " + row + ", col: " + col);
-        // System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
+
+        System.out.println("row: " + row + ", col: " + col);
+        System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
         draw();
     }
 }

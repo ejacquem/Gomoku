@@ -465,4 +465,5 @@ public class BoardGame {
     public int getOpponent(int player){
         return player == 1 ? 2 : 1;
     }
+
 } 

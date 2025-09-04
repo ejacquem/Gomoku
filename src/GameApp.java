@@ -1,11 +1,16 @@
 // src/GameApp.java
 import javafx.application.Application;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 
 public class GameApp extends Application {
+
+    private ImageCursor cursorLight;
+    private ImageCursor cursorDark;
 
     @Override
     public void start(Stage stage) {
@@ -17,12 +22,31 @@ public class GameApp extends Application {
         Scene scene = new Scene(gameUI.getRoot());
 
         setupScene(scene);
+        setupCursor(scene, game);
     
         stage.setScene(scene);
         stage.setTitle("Board Game Template");
         stage.show();
 
         gameUI.update();
+    }
+
+    private void setupCursor(Scene scene, BoardGame game) {
+        Image cursorImageLight = new Image("file:./resources/CursorLight96_32.png", 96, 96, true, false);
+        Image cursorImageDark = new Image("file:./resources/CursorDark96_32.png", 96, 96, true, false);
+    
+        cursorLight = new ImageCursor(cursorImageLight);
+        cursorDark = new ImageCursor(cursorImageDark);
+    
+        scene.setCursor(cursorLight);
+    
+        game.currentPlayerProperty().addListener((obs, oldPlayer, newPlayer) -> {
+            if ((int)newPlayer == 1) {
+                scene.setCursor(cursorLight);
+            } else {
+                scene.setCursor(cursorDark);
+            }
+        });
     }
 
     private void setupScene(Scene scene)
