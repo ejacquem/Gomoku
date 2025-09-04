@@ -73,7 +73,10 @@ public class BoardGame {
     }
 
     public void startGame(){
-        reset();
+        if (gameState == GameState.STARTED){
+            System.out.println("Game already started");
+            return;
+        }
         System.out.println("Game started");
         gameState = GameState.STARTED;
 
@@ -106,11 +109,12 @@ public class BoardGame {
         return board[row][col];
     }
 
-    public void placePiece(int row, int col) {
+    public void placePieceAttempt(int row, int col) {
         // Example: toggle between 0 and 1
         if (gameState == GameState.NOT_STARTED){
-            System.out.println("Game Not Started");
-            return;
+            startGame();
+            // System.out.println("Game Not Started");
+            // return;
         }
         if (gameState == GameState.GAME_OVER) return;
         if (!isInBound(row, col)) return;
@@ -119,9 +123,17 @@ public class BoardGame {
 
         if (cell.has_piece()) return;
         if (cell.isDoubleFreeThree()) return;
-        System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
-        board[row][col].player = getCurrentPlayer(); // place piece
+        placePiece(row, col);
         checkCaptureSequence(row, col, getCurrentPlayer());
+        checkBoard();
+    }
+
+    private void placePiece(int row, int col){
+        System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
+        board[row][col].player = getCurrentPlayer();
+    }
+
+    public void checkBoard(){
         switchPlayer();
         checkCanCapture();
         checkFreeThree();
@@ -143,7 +155,7 @@ public class BoardGame {
 
     public void reset() 
     {
-        initBoard();
+        resetBoard();
         gameState = GameState.NOT_STARTED;
         currentPlayer.set(FIRST_PLAYER);
         winner.set(0);
@@ -153,11 +165,22 @@ public class BoardGame {
         timeline2.pause();
     }
 
-    public void initBoard()
+    public void resetBoard()
     {
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
                 board[r][c].reset();
+            }
+        }
+    }
+
+    public void randomBoard(float density)
+    {
+        for (int r = 0; r < BOARD_SIZE; r++) {
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                board[r][c].reset();
+                if (Math.random() < density)
+                    board[r][c].player = (int)(Math.random() * 2) + 1;
             }
         }
     }
