@@ -35,7 +35,7 @@ public class GameUI {
     private HBox player1Panel;
     private HBox player2Panel;
     private Label infoLabel, playerLabel, winnerLabel;
-    private Button restartButton, startButton, randomButton;
+    private Button restartButton, startButton, randomButton, undoButton;
     private Background background;
     private VBox titlePane;
     private StackPane evalBar;
@@ -81,6 +81,7 @@ public class GameUI {
         restartButton = new Button("Restart");
         startButton = new Button("Start");
         randomButton = new Button("Random");
+        undoButton = new Button("Undo");
         data1 = new PlayerData(1, "Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1CapturedPiecesProperty());
         data2 = new PlayerData(2, "Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2CapturedPiecesProperty());
         
@@ -103,7 +104,7 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
-        rightPanel = new VBox(10, titlePane, infoLabel, restartButton, startButton, randomButton, playerLabel, winnerLabel);
+        rightPanel = new VBox(10, titlePane, infoLabel, restartButton, startButton, randomButton, undoButton, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
         root = new HBox(0, evalBar, leftPanel, rightPanel);
         
@@ -303,6 +304,12 @@ public class GameUI {
             game.reset();
             game.randomBoard(.3f);
             game.startGame();
+            game.checkBoard();
+            renderer.draw();
+        });
+
+        undoButton.setOnAction(e -> {
+            game.undo();
             game.checkBoard();
             renderer.draw();
         });

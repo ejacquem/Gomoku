@@ -110,17 +110,17 @@ public class BoardRenderer {
                 Cell cell = game.getCell(row, col);
                 int px = col * TILE_SIZE;
                 int py = row * TILE_SIZE;
-                if (cell.winning)
-                {
-                    UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
-                    UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
-                }
                 if (cell.isDoubleFreeThree())
                     UtilsRenderer.drawX(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.RED);
                 else if (cell.isFreeThree())
                     UtilsRenderer.drawPlus(gc, px, py, (int)(TILE_SIZE * 0.5), 5, Color.GREEN);
                 if (cell.can_be_captured){
                     UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.PURPLE);
+                }
+                if (cell.winning)
+                {
+                    UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
+                    UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
                 }
             }
         }

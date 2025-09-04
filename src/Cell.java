@@ -14,6 +14,10 @@ public class Cell {
         
     }
 
+    Cell(int player){
+        this.player = player;
+    }
+
     public boolean isDoubleFreeThree() {
         int count = 0;
         if (can_be_free3_h) count++;

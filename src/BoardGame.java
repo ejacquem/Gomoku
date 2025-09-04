@@ -1,5 +1,9 @@
 // src/BoardGame.java
 
+import java.util.ArrayList;
+import java.util.Stack;
+import java.util.function.BiPredicate;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
@@ -23,6 +27,34 @@ public class BoardGame {
         { 0, -1}, // W
         {-1, -1}  // NW
     };
+    public final int[][] DIRECTION4 = {
+        { 0,  1}, // E
+        { 1,  0}, // S
+        { 1,  1}, // SE
+        {-1,  1}, // NE
+    };
+
+    public enum ActionType {
+        ADD,
+        REMOVE
+    }
+
+    public class BoardAction {
+        int r;
+        int c;
+        int player;
+        int link; // number of action to execute in a row
+        ActionType type;
+
+        BoardAction(ActionType type, int r, int c, int link){
+            this.type = type;
+            this.r = r;
+            this.c = c;
+            this.link = link;
+        }
+    }
+
+    Stack<BoardAction> actions;
 
     public enum GameState {
         NOT_STARTED,
@@ -67,9 +99,30 @@ public class BoardGame {
             }
         }
 
+        actions = new Stack<>();
+
         gameState = GameState.NOT_STARTED;
         timeline1 = createTimeline(player1Timer);
         timeline2 = createTimeline(player2Timer);
+    }
+
+    public void undo(){
+        System.out.println("Move: " + actions.size());
+        if (actions.size() == 0)
+            return;
+        for (int i = actions.peek().link; i > 0; i--) {
+            reverseAction(actions.pop());           
+        }
+        switchPlayer();
+    }
+
+    private void reverseAction(BoardAction action){
+        if (action.type == ActionType.ADD){
+            removePiece(action.r, action.c);
+        }
+        if (action.type == ActionType.REMOVE){
+            addPiece(action.r, action.c, action.player);
+        }
     }
 
     public void startGame(){
@@ -78,6 +131,7 @@ public class BoardGame {
             return;
         }
         System.out.println("Game started");
+        reset();
         gameState = GameState.STARTED;
 
         // startTime = System.currentTimeMillis();
@@ -85,6 +139,12 @@ public class BoardGame {
             timeline1.play();
         else
             timeline2.play();
+    }
+
+    public void setWinner(int player){
+        System.out.println("Winner is " + player);
+        winner.set(player);
+        gameState = GameState.GAME_OVER;
     }
 
     private Timeline createTimeline(LongProperty timer){
@@ -109,6 +169,26 @@ public class BoardGame {
         return board[row][col];
     }
 
+    // return defaultValue if out of bound
+    private int getPieceAt(int row, int col, int defaultValue){
+        if (!isInBound(row, col))
+            return defaultValue;
+        return board[row][col].player;
+    }
+
+    // return 0 if out of bound
+    private int getPieceAt(int row, int col){
+        return getPieceAt(row, col, 0);
+    }
+
+    // return 0 if out of bound
+    private Cell getCellAt(int row, int col, int defaultValue){
+        if (!isInBound(row, col)){
+            return new Cell(defaultValue);
+        }
+        return board[row][col];
+    }
+
     public void placePieceAttempt(int row, int col) {
         // Example: toggle between 0 and 1
         if (gameState == GameState.NOT_STARTED){
@@ -125,16 +205,11 @@ public class BoardGame {
         if (cell.isDoubleFreeThree()) return;
         placePiece(row, col);
         checkCaptureSequence(row, col, getCurrentPlayer());
+        switchPlayer();
         checkBoard();
     }
 
-    private void placePiece(int row, int col){
-        System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
-        board[row][col].player = getCurrentPlayer();
-    }
-
     public void checkBoard(){
-        switchPlayer();
         checkCanCapture();
         checkFreeThree();
         checkWinner();
@@ -156,6 +231,7 @@ public class BoardGame {
     public void reset() 
     {
         resetBoard();
+        actions.clear();
         gameState = GameState.NOT_STARTED;
         currentPlayer.set(FIRST_PLAYER);
         winner.set(0);
@@ -185,118 +261,73 @@ public class BoardGame {
         }
     }
 
-    private void checkWinner(){
-        // System.out.println("Checking Winner");
-        if (player1CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES){
-            winner.set(1);
-            return;
-        }
-        if (player2CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES){
-            winner.set(2);
-            return;
-        }
-        for (int r = 0; r < BOARD_SIZE; r++) {
-            for (int c = 0; c < BOARD_SIZE; c++) {
-                if (!board[r][c].has_piece())
-                    continue;
-                if (checkWinnerDirection(r, c, 0, 1) ||
-                    checkWinnerDirection(r, c, 1, 0) ||
-                    checkWinnerDirection(r, c, 1, 1) ||
-                    checkWinnerDirection(r, c, -1, 1)){
-                    winner.set(board[r][c].player);
-                    System.out.println("Winner is " + winner.get());
-                    return;
-                }
-            }
-        }
-        System.out.println("No Winner Found");
-    }
-
-    private boolean checkWinnerDirection(int r, int c, int deltaC, int deltaR){
-        int winningPieces = loopOverBoard(r, c, deltaC, deltaR);
-        if (winningPieces < WINNING_PIECES)
-            return false;
-        markWinningPieces(r, c, deltaC, deltaR, winningPieces);
-        return true;
-    }
-
-    private int loopOverBoard(int r, int c, int deltaR, int deltaC){
-        int i = 1;
-        while (get_piece_at(r, c) == get_piece_at(r + i * deltaR, c + i * deltaC))
-            i++;
-        return i;
-    }
-
-    private void markWinningPieces(int r, int c, int deltaR, int deltaC, int number){
+    private void markWinningPieces(int r, int c, int[] dir, int number){
         for (int i = 0; i < number; i++)
-            board[r + i * deltaR][c + i * deltaC].winning = true;
-    }
-
-    // return defaultValue if out of bound
-    private int get_piece_at(int row, int col, int defaultValue){
-        if (!isInBound(row, col))
-            return defaultValue;
-        return board[row][col].player;
-    }
-
-    // return 0 if out of bound
-    private int get_piece_at(int row, int col){
-        return get_piece_at(row, col, 0);
+            board[r + i * dir[0]][c + i * dir[1]].winning = true;
     }
 
     private boolean isInBound(int row, int col){
         return row >= 0 && col >= 0 && row < BOARD_SIZE && col < BOARD_SIZE;
     }
 
-    private void checkFreeThree(){
-        resetFreeThree();
-        int p = currentPlayer.get();
+    /* ---------- CHECKER ---------- */
+
+    private void checkWinByCapture(){
+        if (player1CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES) winner.set(1);
+        if (player2CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES) winner.set(2);
+    }
+
+    private void checkWinner(){
+        checkWinByCapture();
+        // System.out.println("Checking Winner");
+        final int[] pattern1 = new int[]{1,1,1,1,1};
+        final int[] pattern2 = new int[]{2,2,2,2,2};
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
-                // checkFreeThreeHorizontal(r, c, currentPlayer.get());
-                if (checkFreeSequence(r, c, 0, 1, p)) board[r][c].can_be_free3_h = true;
-                if (checkFreeSequence(r, c, 1, 0, p)) board[r][c].can_be_free3_v = true;
-                if (checkFreeSequence(r, c, 1, 1, p)) board[r][c].can_be_free3_p = true;
-                if (checkFreeSequence(r, c, -1, 1, p)) board[r][c].can_be_free3_n = true;
+                for (int[] dir : DIRECTION4){
+                    if (checkSequenceMatch(r, c, WINNING_PIECES, 0, pattern1, dir, (p, cell) -> p == cell.player && !cell.can_be_captured) ||
+                        checkSequenceMatch(r, c, WINNING_PIECES, 0, pattern2, dir, (p, cell) -> p == cell.player && !cell.can_be_captured)) {
+                    // if (checkSequenceMatch(r, c, WINNING_PIECES, 0, pattern1, dir) || checkSequenceMatch(r, c, WINNING_PIECES, 0, pattern2, dir)){
+                        markWinningPieces(r, c, dir, WINNING_PIECES);
+                        setWinner(board[r][c].player);
+                        return;
+                    }
+                }
             }
         }
     }
 
-    // 0 1 2 3 4 5
-    // the three case of free three
-    // 0 1 0 1 1 0
-    // 0 1 1 0 1 0
-    // 0 1 1 1 0 
-    // x is creating a free three if
-    // 0 x 0 1 1 0
-    // 0 x 1 0 1 0
-    // 0 x 1 1 0 
-    private boolean checkFreeSequence(int r, int c, int deltaR, int deltaC, int player){
+    private void checkFreeThree(){
+        resetFreeThree();
         int x = 0;
-        int p = player;
+        int p = currentPlayer.get();
         int[][] patterns = {
-            {6, 1, 0, x, 0, p, p, 0},
-            {6, 1, 0, x, p, 0, p, 0},
-            {5, 1, 0, x, p, p, 0},
-            // reverse
-            {6, 4, 0, p, p, 0, x, 0},
-            {6, 4, 0, p, 0, p, x, 0},
-            {5, 3, 0, p, p, x, 0},
+            {0, x, 0, p, p, 0},
+            {0, x, p, 0, p, 0},
+            {0, x, p, p, 0},
         };
-        for (int[] pattern : patterns){
-            int len = pattern[0];
-            int offset = pattern[1];
-            int i;
-            for (i = 0; i < len; i++){
-                if (get_piece_at(r + (i - offset) * deltaR, c + (i - offset) * deltaC, -1) != pattern[i + 2])
-                    break;
+        for (int r = 0; r < BOARD_SIZE; r++) {
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                for (int[] pattern : patterns){
+                    if (checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{0, 1}) || 
+                        checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{0, -1})){
+                        board[r][c].can_be_free3_h = true;
+                    }
+                    if (checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{1, 0}) || 
+                        checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{-1, 0})){
+                        board[r][c].can_be_free3_v = true;
+                    }
+                    if (checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{-1, 1}) || 
+                        checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{1, -1})){
+                        board[r][c].can_be_free3_p = true;
+                    }
+                    if (checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{1, 1}) || 
+                        checkSequenceMatch(r, c, pattern.length, -1, pattern, new int[]{-1, -1})){
+                        board[r][c].can_be_free3_n = true;
+                    }
+                }
             }
-            if (i == len)
-                return true;
-            // if (checkSequenceMatch(r, c, len, offset, ))
-            //     return true;
         }
-        return false;
     }
 
     private boolean checkCaptureSequence(int r, int c, int player){
@@ -334,29 +365,59 @@ public class BoardGame {
 
     public boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir){
         for (int i = 0; i < len; i++){
-            int cell = get_piece_at(r + (i - offset) * dir[0], c + (i + offset) * dir[1], -1);
+            int cell = getPieceAt(r + (i + offset) * dir[0], c + (i + offset) * dir[1], -1);
             if (pattern[i] != cell)
                 return false;
+        }
+        return true;
+    }
+
+    public boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir, BiPredicate<Integer, Cell> compare) {
+        for (int i = 0; i < len; i++) {
+            Cell cell = getCellAt(r + (i + offset) * dir[0], c + (i + offset) * dir[1], -1);
+            if (!compare.test(pattern[i], cell)) {
+                return false;
+            }
         }
         return true;
     }
 
     public boolean checkSequenceMatch(int r, int c, int len, int[] pattern, int[] dir, int defaultValue){
         for (int i = 0; i < len; i++){
-            int cell = get_piece_at(r + i * dir[0], c + i * dir[1], defaultValue);
+            int cell = getPieceAt(r + i * dir[0], c + i * dir[1], defaultValue);
             if (pattern[i] != cell)
                 return false;
         }
         return true;
     }
 
+    /* BOARD ACTION */
+
     private void capture(int r, int c, int[] dir){
-        board[r + 1 * dir[0]][c + 1 * dir[1]].reset();
-        board[r + 2 * dir[0]][c + 2 * dir[1]].reset();
+        removePiece(r + 1 * dir[0], c + 1 * dir[1]);
+        removePiece(r + 2 * dir[0], c + 2 * dir[1]);
+        actions.add(new BoardAction(ActionType.REMOVE, r + 1 * dir[0], c + 1 * dir[1], 1));
+        actions.add(new BoardAction(ActionType.REMOVE, r + 2 * dir[0], c + 2 * dir[1], 2));
         if (currentPlayer.get() == 1)
             player1CapturedPieces.set(player1CapturedPieces.get() + 2);
         else
             player2CapturedPieces.set(player2CapturedPieces.get() + 2);
+    }
+
+    private void placePiece(int row, int col){
+        System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
+        addPiece(row, col, getCurrentPlayer());
+        actions.add(new BoardAction(ActionType.ADD, row, col, 1));
+    }
+
+    private void removePiece(int r, int c)
+    {
+        board[r][c].reset();
+    }
+
+    private void addPiece(int r, int c, int player)
+    {
+        board[r][c].player = player;
     }
 
     private void markCapture(int r, int c, int[] dir){
