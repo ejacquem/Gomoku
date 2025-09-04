@@ -17,6 +17,9 @@ public class GomokuAI {
     Pattern[] patterns = {
         new Pattern(new int[]{1,1,1,1,1}, Integer.MAX_VALUE),
         new Pattern(new int[]{0,1,1,1,1,0}, 10000, Integer.MAX_VALUE),
+        new Pattern(new int[]{0,1,1,1,0,1}, 10000, Integer.MAX_VALUE),
+        new Pattern(new int[]{0,1,1,0,1,1}, 10000, Integer.MAX_VALUE),
+        new Pattern(new int[]{0,1,0,1,1,1}, 10000, Integer.MAX_VALUE),
         new Pattern(new int[]{2,1,1,1,1,0}, 150, Integer.MAX_VALUE),
         new Pattern(new int[]{0,1,1,1,0,0}, 150, 10000),
         new Pattern(new int[]{0,1,1,1,0}, 100, 150),
@@ -85,7 +88,7 @@ public class GomokuAI {
             for (int c = 0; c < game.BOARD_SIZE; c++) {
                 for (int[] dir: game.DIRECTION){
                     for (Pattern pat : patterns){
-                        if (game.checkSequenceMatch(r, c, pat.pattern.length, pat.pattern, dir, opponent)){
+                        if (game.checkSequenceMatch(r, c, pat.pattern.length, 0, pat.pattern, dir, (p, cell) -> p == cell.player && !cell.can_be_captured, opponent)){
                             sum += pat.score[playerTurn];
                             break;
                         }

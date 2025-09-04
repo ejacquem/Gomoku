@@ -301,9 +301,9 @@ public class GameUI {
         });
 
         randomButton.setOnAction(e -> {
-            game.reset();
-            game.randomBoard(.3f);
             game.startGame();
+            game.randomBoard(.3f);
+            AI.evaluate();
             game.checkBoard();
             renderer.draw();
         });

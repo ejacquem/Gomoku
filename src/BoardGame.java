@@ -1,9 +1,7 @@
 // src/BoardGame.java
 
-import java.util.ArrayList;
 import java.util.Stack;
 import java.util.function.BiPredicate;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
@@ -43,14 +41,13 @@ public class BoardGame {
         int r;
         int c;
         int player;
-        int link; // number of action to execute in a row
         ActionType type;
 
-        BoardAction(ActionType type, int r, int c, int link){
+        BoardAction(ActionType type, int r, int c, int player){
             this.type = type;
             this.r = r;
             this.c = c;
-            this.link = link;
+            this.player = player;
         }
     }
 
@@ -110,9 +107,16 @@ public class BoardGame {
         System.out.println("Move: " + actions.size());
         if (actions.size() == 0)
             return;
-        for (int i = actions.peek().link; i > 0; i--) {
-            reverseAction(actions.pop());           
+        if (actions.peek().type == ActionType.ADD) // remove the added piece
+            reverseAction(actions.pop());
+        else { // add back the captured pieces and remove the piece used to do the capture
+            while(actions.peek().type == ActionType.REMOVE) {
+                reverseAction(actions.pop());
+            }
+            reverseAction(actions.pop());
         }
+        resetWinner();
+        gameState = GameState.STARTED;
         switchPlayer();
     }
 
@@ -121,15 +125,19 @@ public class BoardGame {
             removePiece(action.r, action.c);
         }
         if (action.type == ActionType.REMOVE){
+            if (action.player == 2)
+                player1CapturedPieces.set(player1CapturedPieces.get() - 1);
+            if (action.player == 1)
+                player2CapturedPieces.set(player2CapturedPieces.get() - 1);
             addPiece(action.r, action.c, action.player);
         }
     }
 
     public void startGame(){
-        if (gameState == GameState.STARTED){
-            System.out.println("Game already started");
-            return;
-        }
+        // if (gameState == GameState.STARTED){
+        //     System.out.println("Game already started");
+        //     return;
+        // }
         System.out.println("Game started");
         reset();
         gameState = GameState.STARTED;
@@ -170,18 +178,18 @@ public class BoardGame {
     }
 
     // return defaultValue if out of bound
-    private int getPieceAt(int row, int col, int defaultValue){
-        if (!isInBound(row, col))
-            return defaultValue;
-        return board[row][col].player;
-    }
+    // private int getPieceAt(int row, int col, int defaultValue){
+    //     if (!isInBound(row, col))
+    //         return defaultValue;
+    //     return board[row][col].player;
+    // }
 
     // return 0 if out of bound
-    private int getPieceAt(int row, int col){
-        return getPieceAt(row, col, 0);
-    }
+    // private int getPieceAt(int row, int col){
+    //     return getPieceAt(row, col, 0);
+    // }
 
-    // return 0 if out of bound
+    // return defaultValue if out of bound
     private Cell getCellAt(int row, int col, int defaultValue){
         if (!isInBound(row, col)){
             return new Cell(defaultValue);
@@ -237,6 +245,8 @@ public class BoardGame {
         winner.set(0);
         player1Timer.set(GameSettings.START_TIMER);
         player2Timer.set(GameSettings.START_TIMER);
+        player1CapturedPieces.set(0);
+        player2CapturedPieces.set(0);
         timeline1.pause();
         timeline2.pause();
     }
@@ -355,26 +365,27 @@ public class BoardGame {
 
     private void checkCanCapture(){
         resetCapture();
-        int p = currentPlayer.get();
+        // int p = currentPlayer.get();
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
-                checkCanCaptureSequence(r, c, p);
+                // checkCanCaptureSequence(r, c, p);
+                checkCanCaptureSequence(r, c, 1);
+                checkCanCaptureSequence(r, c, 2);
             }
         }
     }
 
     public boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir){
-        for (int i = 0; i < len; i++){
-            int cell = getPieceAt(r + (i + offset) * dir[0], c + (i + offset) * dir[1], -1);
-            if (pattern[i] != cell)
-                return false;
-        }
-        return true;
+        return checkSequenceMatch(r, c, len, offset, pattern, dir, (p, cell) -> p == cell.player, -1);
     }
 
     public boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir, BiPredicate<Integer, Cell> compare) {
+        return checkSequenceMatch(r, c, len, offset, pattern, dir, compare, -1);
+    }
+
+    public boolean checkSequenceMatch(int r, int c, int len, int offset, int[] pattern, int[] dir, BiPredicate<Integer, Cell> compare, int defaultValue) {
         for (int i = 0; i < len; i++) {
-            Cell cell = getCellAt(r + (i + offset) * dir[0], c + (i + offset) * dir[1], -1);
+            Cell cell = getCellAt(r + (i + offset) * dir[0], c + (i + offset) * dir[1], defaultValue);
             if (!compare.test(pattern[i], cell)) {
                 return false;
             }
@@ -382,22 +393,18 @@ public class BoardGame {
         return true;
     }
 
-    public boolean checkSequenceMatch(int r, int c, int len, int[] pattern, int[] dir, int defaultValue){
-        for (int i = 0; i < len; i++){
-            int cell = getPieceAt(r + i * dir[0], c + i * dir[1], defaultValue);
-            if (pattern[i] != cell)
-                return false;
-        }
-        return true;
-    }
-
     /* BOARD ACTION */
 
     private void capture(int r, int c, int[] dir){
-        removePiece(r + 1 * dir[0], c + 1 * dir[1]);
-        removePiece(r + 2 * dir[0], c + 2 * dir[1]);
-        actions.add(new BoardAction(ActionType.REMOVE, r + 1 * dir[0], c + 1 * dir[1], 1));
-        actions.add(new BoardAction(ActionType.REMOVE, r + 2 * dir[0], c + 2 * dir[1], 2));
+        int x1 = c + 1 * dir[1];
+        int y1 = r + 1 * dir[0];
+        int x2 = c + 2 * dir[1];
+        int y2 = r + 2 * dir[0];
+        int p = getOpponent(getCurrentPlayer());
+        actions.add(new BoardAction(ActionType.REMOVE, y1, x1, p));
+        actions.add(new BoardAction(ActionType.REMOVE, y2, x2, p));
+        removePiece(y1, x1);
+        removePiece(y2, x2);
         if (currentPlayer.get() == 1)
             player1CapturedPieces.set(player1CapturedPieces.get() + 2);
         else
@@ -406,8 +413,9 @@ public class BoardGame {
 
     private void placePiece(int row, int col){
         System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
-        addPiece(row, col, getCurrentPlayer());
-        actions.add(new BoardAction(ActionType.ADD, row, col, 1));
+        int p = getCurrentPlayer();
+        addPiece(row, col, p);
+        actions.add(new BoardAction(ActionType.ADD, row, col, p));
     }
 
     private void removePiece(int r, int c)
@@ -437,6 +445,14 @@ public class BoardGame {
         for (int r = 0; r < BOARD_SIZE; r++) {
             for (int c = 0; c < BOARD_SIZE; c++) {
                 board[r][c].can_be_captured = false;
+            }
+        }
+    }
+
+    public void resetWinner(){
+        for (int r = 0; r < BOARD_SIZE; r++) {
+            for (int c = 0; c < BOARD_SIZE; c++) {
+                board[r][c].winning = false;
             }
         }
     }
