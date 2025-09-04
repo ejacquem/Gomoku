@@ -1,6 +1,6 @@
 JAVAC=javac
 JAVA=java
-SRC=src
+SRC=src/main/java
 BIN=bin
 JAVA_FX_PATH=/home/ljacquem/javafx-sdk-17.0.16/lib
 
@@ -12,11 +12,13 @@ SOURCES=$(wildcard $(SRC)/*.java)
 CLASSES=$(SOURCES:$(SRC)/%.java=$(BIN)/%.class)
 
 all:
-	javac --module-path /home/ljacquem/javafx-sdk-17.0.16/lib \
-		--add-modules javafx.controls,javafx.fxml \
-		-d bin src/*.java
-	java --module-path /home/ljacquem/javafx-sdk-17.0.16/lib \
-		--add-modules javafx.controls,javafx.fxml -cp bin GameApp
+	javac --module-path $(JAVA_FX_PATH) \
+		--add-modules $(MODULES) \
+		-d $(BIN) $(SRC)/*.java
+	java --module-path $(JAVA_FX_PATH) \
+		--add-modules $(MODULES) -cp $(BIN) main.java.GameApp
+
+
 
 run: $(CLASSES)
 	$(JAVA) --module-path $(JAVA_FX_PATH) --add-modules $(MODULES) -cp $(BIN) HelloFX

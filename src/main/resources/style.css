@@ -1,0 +1,39 @@
+/* Base button style */
+.button-base {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-font-size: 16px;
+    -fx-pref-width: 150px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 16 8 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 0, 0, 0, 5);
+}
+
+.simple-button {
+    /* -fx-background-color: #D4A017; */
+    -fx-background-color: #a8693f;
+    -fx-text-fill: white;
+}
+
+.simple-button:hover {
+    /* -fx-background-color: #E0B12A; */
+    -fx-background-color: #ce8250;
+}
+
+.simple-button:pressed {
+    /* -fx-background-color: #A97C00; */
+    -fx-background-color: rgb(141, 88, 52);
+}
+
+.undo-button {
+    -fx-background-color: #E0E0E0;
+    -fx-text-fill: black;
+}
+
+.undo-button:hover {
+    -fx-background-color: #CCCCCC;
+}
+
+.undo-button:pressed {
+    -fx-background-color: #B3B3B3;
+}

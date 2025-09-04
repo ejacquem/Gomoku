@@ -1,3 +1,4 @@
+package main.java;
 // src/BoardGame.java
 
 import java.util.Stack;

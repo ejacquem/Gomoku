@@ -1,3 +1,4 @@
+package main.java;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -40,8 +41,8 @@ public class GameUI {
     private VBox titlePane;
     private StackPane evalBar;
 
-    private Font customFont = Font.loadFont("file:./resources/AttackOfMonster.ttf", 60); 
-    private Font robotoFont = Font.loadFont("file:./resources/Roboto.ttf", 20);
+    private Font customFont = Font.loadFont("file:src/main/resources/AttackOfMonster.ttf", 60); 
+    private Font robotoFont = Font.loadFont("file:src/main/resources/Roboto.ttf", 20);
 
     private Canvas canvas;
     private BoardRenderer renderer;
@@ -78,10 +79,17 @@ public class GameUI {
         infoLabel = creatLabel("Game Info", robotoFont, Color.WHITE);
         playerLabel = creatLabel("Player: ", robotoFont, Color.WHITE);
         winnerLabel = creatLabel("", robotoFont, Color.WHITE);
-        restartButton = new Button("Restart");
         startButton = new Button("Start");
+        restartButton = new Button("Restart");
         randomButton = new Button("Random");
         undoButton = new Button("Undo");
+        restartButton.getStyleClass().addAll("button-base", "simple-button");
+        startButton.getStyleClass().addAll("button-base", "simple-button");
+        randomButton.getStyleClass().addAll("button-base", "simple-button");
+        undoButton.getStyleClass().addAll("button-base", "undo-button");
+
+        // Button button = new Button("Click Me");
+    
         data1 = new PlayerData(1, "Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1CapturedPiecesProperty());
         data2 = new PlayerData(2, "Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2CapturedPiecesProperty());
         
@@ -104,11 +112,12 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
-        rightPanel = new VBox(10, titlePane, infoLabel, restartButton, startButton, randomButton, undoButton, playerLabel, winnerLabel);
+        rightPanel = new VBox(15, titlePane, infoLabel, restartButton, startButton, randomButton, undoButton, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
         root = new HBox(0, evalBar, leftPanel, rightPanel);
         
         rightPanel.setMinWidth(300);
+        rightPanel.setAlignment(Pos.TOP_CENTER);
         player1Panel.setMinHeight(50);
         player2Panel.setMinHeight(50);
         root.setBackground(background);

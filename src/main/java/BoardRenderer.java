@@ -1,3 +1,4 @@
+package main.java;
 // src/BoardRenderer.java
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -6,8 +7,8 @@ import javafx.scene.paint.Color;
 // import javafx.scene.text.Font;
 
 public class BoardRenderer {
-    public static final int TILE_SIZE = 40;
-    public static final int MARGIN = 40;
+    public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;
+    public static final int MARGIN = TILE_SIZE;
     public Color[] playerColor= {GameSettings.PLAYER1_COLOR, GameSettings.PLAYER2_COLOR};
 
     private Canvas canvas;

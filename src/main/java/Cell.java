@@ -1,3 +1,4 @@
+package main.java;
 
 public class Cell {
     public int player = 0;

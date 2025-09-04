@@ -1,3 +1,4 @@
+package main.java;
 // src/GameApp.java
 import javafx.application.Application;
 import javafx.scene.ImageCursor;
@@ -32,8 +33,8 @@ public class GameApp extends Application {
     }
 
     private void setupCursor(Scene scene, BoardGame game) {
-        Image cursorImageLight = new Image("file:./resources/CursorLight96_32.png", 96, 96, true, false);
-        Image cursorImageDark = new Image("file:./resources/CursorDark96_32.png", 96, 96, true, false);
+        Image cursorImageLight = new Image("file:src/main/resources/CursorLight96_32.png", 96, 96, true, false);
+        Image cursorImageDark = new Image("file:src/main/resources/CursorDark96_32.png", 96, 96, true, false);
     
         cursorLight = new ImageCursor(cursorImageLight);
         cursorDark = new ImageCursor(cursorImageDark);
@@ -56,6 +57,9 @@ public class GameApp extends Application {
                 Platform.exit();
             }
         });
+
+        scene.getStylesheets().add("file:src/main/resources/style.css");
+
     }
 
     public static void main(String[] args) {

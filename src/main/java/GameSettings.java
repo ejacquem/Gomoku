@@ -1,3 +1,4 @@
+package main.java;
 import javafx.scene.paint.Color;
 
 public abstract class GameSettings {
@@ -11,6 +12,7 @@ public abstract class GameSettings {
     static final Color PLAYER2_COLOR = Color.web("#202020");
     static final Color PIECE_BORDER_COLOR = Color.web("#101010");
 
+    static final int BOARD_PIXEL_SIZE = 19 * 40;
     static final int BOARD_SIZE = 19;
     static final int FIRST_PLAYER = 1;
     static final int WINNING_PIECES = 5;
