@@ -33,13 +33,12 @@ public class BoardGame {
 
     private final IntegerProperty currentPlayer = new SimpleIntegerProperty(FIRST_PLAYER);  // player = 1 or player = 2
     private final IntegerProperty winner = new SimpleIntegerProperty(0);
-    private final IntegerProperty player1Points = new SimpleIntegerProperty(0);
-    private final IntegerProperty player2Points = new SimpleIntegerProperty(0);
+    private final IntegerProperty player1CapturedPieces = new SimpleIntegerProperty(0);
+    private final IntegerProperty player2CapturedPieces = new SimpleIntegerProperty(0);
     private final LongProperty player1Timer = new SimpleLongProperty(GameSettings.START_TIMER);
     private final LongProperty player2Timer = new SimpleLongProperty(GameSettings.START_TIMER);
     Timeline timeline1;
     Timeline timeline2;
-
 
     public IntegerProperty currentPlayerProperty() {
         return currentPlayer;
@@ -47,11 +46,11 @@ public class BoardGame {
     public IntegerProperty winnerProperty() {
         return winner;
     }
-    public IntegerProperty player1Property() {
-        return player1Points;
+    public IntegerProperty player1CapturedPiecesProperty() {
+        return player1CapturedPieces;
     }
-    public IntegerProperty player2Property() {
-        return player2Points;
+    public IntegerProperty player2CapturedPiecesProperty() {
+        return player2CapturedPieces;
     }
     public LongProperty player1TimerProperty() {
         return player1Timer;
@@ -165,11 +164,11 @@ public class BoardGame {
 
     private void checkWinner(){
         // System.out.println("Checking Winner");
-        if (player1Points.get() >= GameSettings.WINNING_CAPTURED_PIECES){
+        if (player1CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES){
             winner.set(1);
             return;
         }
-        if (player2Points.get() >= GameSettings.WINNING_CAPTURED_PIECES){
+        if (player2CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES){
             winner.set(2);
             return;
         }
@@ -332,9 +331,9 @@ public class BoardGame {
         board[r + 1 * dir[0]][c + 1 * dir[1]].reset();
         board[r + 2 * dir[0]][c + 2 * dir[1]].reset();
         if (currentPlayer.get() == 1)
-            player1Points.set(player1Points.get() + 2);
+            player1CapturedPieces.set(player1CapturedPieces.get() + 2);
         else
-            player2Points.set(player2Points.get() + 2);
+            player2CapturedPieces.set(player2CapturedPieces.get() + 2);
     }
 
     private void markCapture(int r, int c, int[] dir){

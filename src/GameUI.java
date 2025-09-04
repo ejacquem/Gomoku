@@ -50,13 +50,15 @@ public class GameUI {
     private GomokuAI AI;
 
     public class PlayerData {
+        public final int id;
         public final String name;
         public final Color avatarColor;
         public final FlowPane capturedPane;
         public final LongProperty timerProperty;
         public final IntegerProperty pointsProperty;
 
-        public PlayerData(String name, Color avatarColor, LongProperty timerProperty, IntegerProperty pointsProperty) {
+        public PlayerData(int id, String name, Color avatarColor, LongProperty timerProperty, IntegerProperty pointsProperty) {
+            this.id = id;
             this.name = name;
             this.avatarColor = avatarColor;
             this.capturedPane = new FlowPane();;
@@ -79,8 +81,8 @@ public class GameUI {
         winnerLabel = creatLabel("", robotoFont, Color.WHITE);
         restartButton = new Button("Restart");
         startButton = new Button("Start");
-        data1 = new PlayerData("Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1Property());
-        data2 = new PlayerData("Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2Property());
+        data1 = new PlayerData(1, "Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1CapturedPiecesProperty());
+        data2 = new PlayerData(2, "Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2CapturedPiecesProperty());
         
         background = new Background(new BackgroundFill(GameSettings.UI_BACKGROUND, CornerRadii.EMPTY, Insets.EMPTY));
         
@@ -215,6 +217,15 @@ public class GameUI {
                 return String.format("%d:%02d.%d", minutes, seconds, tenth);
             }, data.timerProperty)
         );
+
+        game.currentPlayerProperty().addListener((obs, oldVal, newVal) -> {
+            // Example: highlight if it's this player's turn
+            if (newVal.intValue() == data.id) {
+                clockLabel.setTextFill(Color.WHITESMOKE); // active player
+            } else {
+                clockLabel.setTextFill(Color.GRAY); // inactive player
+            }
+        });
 
         return clockPanel;
     }
