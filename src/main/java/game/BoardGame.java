@@ -153,6 +153,7 @@ public class BoardGame {
     public void reset() 
     {
         // resetBoard();
+        AI.reset();
         bestMove = new Coords(-1,-1);
         board.reset();
         gameState = GameState.NOT_STARTED;

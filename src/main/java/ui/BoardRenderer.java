@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import main.java.GameSettings;
+import main.java.GomokuAI.EvaluatedPosition;
 import main.java.game.BoardGame;
 import main.java.game.Cell;
 import main.java.game.Coords;
@@ -44,6 +45,7 @@ public class BoardRenderer {
         drawDebugNumber();
         drawBestMove();
         drawNeighbour();
+        drawEvaluatedPosition();
         gc.translate(-MARGIN, -MARGIN);
     }
 
@@ -171,6 +173,21 @@ public class BoardRenderer {
                 gc.setFill(Color.BLUE);
                 gc.fillOval(pos.x * TILE_SIZE - radius, pos.y * TILE_SIZE - radius, radius * 2f, radius * 2f);
             }
+        }
+    }
+
+    private void drawEvaluatedPosition(){
+        final int w = 8, h = 8; // size of a letter
+        for (EvaluatedPosition evalpos : game.AI.evaluatedPos){
+            float radius = TILE_SIZE * 0.8f / 2f;
+            int px = evalpos.pos.x * TILE_SIZE;
+            int py = evalpos.pos.y * TILE_SIZE;
+            gc.setFill(Color.rgb(0, 0, 0, 0.3f));
+            gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+
+            String n = Integer.toString(evalpos.score);
+            gc.setFill(Color.WHITE);
+            gc.fillText(n, px - w * n.length() / 2, py + h / 2);
         }
     }
     

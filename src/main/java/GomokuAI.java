@@ -1,4 +1,7 @@
 package main.java;
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -18,11 +21,23 @@ public class GomokuAI {
     public DoubleProperty percentageProperty() { return percentage; }
 
     public final long TIME_LIMIT = 10000;
-    public final int MAX_DEPTH = 5;
+    public final int MAX_DEPTH = 1;
     public boolean limitExcceeded = false;
     public long start;
     public long end;
     public int[] iterationPerDepth = new int[MAX_DEPTH + 1];
+
+    public List<EvaluatedPosition> evaluatedPos = new ArrayList<>();
+
+    public class EvaluatedPosition{
+        public Coords pos;
+        public int score;
+
+        EvaluatedPosition (Coords pos, int score){
+            this.pos = pos; 
+            this.score = score; 
+        }
+    }
 
     Pattern[] patterns = {
         new Pattern(new int[]{1,1,1,1,1}, Integer.MAX_VALUE),
@@ -80,7 +95,15 @@ public class GomokuAI {
         }
     }
 
+    public void reset(){
+        evaluatedPos.clear();
+        limitExcceeded = false;
+        start = 0;
+        end = 0;
+    }
+
     public Coords getBestMove(){
+        evaluatedPos.clear();
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
         limitExcceeded = false;
@@ -91,8 +114,10 @@ public class GomokuAI {
 
         for (Coords move : moves){
             board.placePiece(move);
-            int score = -search(0);
+            int score = -search(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1); // negamax(rootNode, depth, −∞, +∞, 1)
+            evaluatedPos.add(new EvaluatedPosition(move, score));
             // int score = evaluate();
+            System.out.println("Move score: " + score);
             if (score > bestEval){
                 bestEval = score;
                 bestMove = move;
@@ -124,7 +149,7 @@ public class GomokuAI {
 
     public int evaluate(){
         int positionScore = board.getPlayer1PiecesCount() - board.getPlayer2PiecesCount();
-        return positionScore;
+        return positionScore * 1;
     }
 
     private long findAndSumMatch(Pattern[] patterns, int player, int opponent, int playerTurn){
@@ -153,26 +178,54 @@ public class GomokuAI {
         return sum;
     }
 
-    public int search(int depth){
+    /*
+    https://en.wikipedia.org/wiki/Negamax
+    function negamax(node, depth, α, β, color) is
+    if depth = 0 or node is a terminal node then
+        return color × the heuristic value of node
+
+    childNodes := generateMoves(node)
+    childNodes := orderMoves(childNodes)
+    value := −∞
+    foreach child in childNodes do
+        value := max(value, −negamax(child, depth − 1, −β, −α, −color))
+        α := max(α, value)
+        if α ≥ β then
+            break (* cut-off *)
+    return value
+
+
+    (* Initial call for Player A's root node *)
+    negamax(rootNode, depth, −∞, +∞, 1)
+
+     */
+
+    public boolean timeLimitExceeded(){
         if ((System.currentTimeMillis() - start) >= TIME_LIMIT) {
             limitExcceeded = true;
-            return Integer.MIN_VALUE;
         }
+        return limitExcceeded;
+    }
+
+    public int search(int depth, int alpha, int beta, int color){
         iterationPerDepth[depth]++;
-        if (depth == MAX_DEPTH){
-            return evaluate();
+        if (depth == MAX_DEPTH || timeLimitExceeded()){
+            return color * evaluate();
         }
 
         Coords[] moves = getPossibleMove();
 
-        int bestEval = Integer.MIN_VALUE;
-
+        int value = Integer.MIN_VALUE;
         for (Coords move : moves){
             board.placePiece(move);
-            bestEval = Math.max(bestEval, -search(depth + 1));
+            value = Math.max(value, -search(depth + 1, -beta, -alpha, -color));
+            alpha = Math.max(alpha, value);
             board.undoLastMove();
+            if (alpha >= beta){
+                break;
+            }
         }
-        return bestEval;
+        return value;
     }
 
     public Coords[] getPossibleMove(){
