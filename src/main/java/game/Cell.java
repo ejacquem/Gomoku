@@ -9,6 +9,21 @@ public class Cell {
     public boolean can_be_free3_v = false; // vertical
     public boolean can_be_free3_p = false; // positive
     public boolean can_be_free3_n = false; // negative
+    
+    private int neighbours;
+
+    public boolean isNeighbour(){
+        return neighbours != 0;
+    }
+
+    public void setNeighbour(Coords pos, int bit){
+        setNeighbour(pos.getId(3), bit);
+    }
+
+    public void setNeighbour(int index, int bit){
+        neighbours = ((neighbours & ~(1 << index)) | (bit << index));
+        neighbours |= (bit << index);
+    }
 
     Cell(){
         
@@ -39,6 +54,7 @@ public class Cell {
         player = 0;
         winning = false;
         can_be_captured = false;
+        neighbours = 0;
         resetFreeThree();
     }
 

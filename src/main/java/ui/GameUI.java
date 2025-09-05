@@ -316,14 +316,13 @@ public class GameUI {
         randomButton.setOnAction(e -> {
             game.startGame();
             game.board.random(.3f);
-            AI.evaluate();
-            game.board.analyse(game.getCurrentPlayer());
+            game.board.analyse();
             renderer.draw();
         });
 
         undoButton.setOnAction(e -> {
             game.undo();
-            game.board.analyse(game.getCurrentPlayer());
+            game.board.analyse();
             renderer.draw();
         });
 

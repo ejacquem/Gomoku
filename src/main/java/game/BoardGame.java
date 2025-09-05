@@ -9,12 +9,16 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.util.Duration;
 import main.java.GameSettings;
+import main.java.GomokuAI;
 
 public class BoardGame {
     public final int BOARD_SIZE = GameSettings.BOARD_SIZE;
     public final int FIRST_PLAYER = GameSettings.FIRST_PLAYER;
     public final int WINNING_PIECES = 5;
     public Board board;
+    public GomokuAI AI;
+
+    public Coords bestMove = new Coords(-1,-1);
 
     public enum GameState {
         NOT_STARTED,
@@ -41,8 +45,9 @@ public class BoardGame {
     public LongProperty player1TimerProperty() { return player1Timer; }
     public LongProperty player2TimerProperty() { return player2Timer; }
 
-    public BoardGame() {
-        board = new Board();
+    public BoardGame(GomokuAI AI, Board board) {
+        this.board = board;
+        this.AI = AI;
         gameState = GameState.NOT_STARTED;
         timeline1 = createTimeline(player1Timer);
         timeline2 = createTimeline(player2Timer);
@@ -115,30 +120,31 @@ public class BoardGame {
 
         if (cell.has_piece()) return;
         if (cell.isDoubleFreeThree()) return;
-        board.placePiece(pos, getCurrentPlayer());
+        board.placePiece(pos);
         tick();
     }
 
     public void tick(){
         player1CapturedPieces.set(board.getPlayer1CapturesCount());
         player2CapturedPieces.set(board.getPlayer2CapturesCount());
-        switchPlayer();
-        board.analyse(getCurrentPlayer());
+        switchPlayerTo(board.getCurrentPlayer());
+        board.analyse();
         checkWinner();
         if (isWinner()) {
             setGameOver();
         }
         moveCount.set(board.getMoveCount());
+        bestMove = AI.getBestMove();
     }
 
-    private void switchPlayer(){
-        if (currentPlayer.get() == 1){
-            currentPlayer.set(2);
+    private void switchPlayerTo(int player){
+        if (player == 1){
+            currentPlayer.set(1);
             timeline1.pause();
             timeline2.play();
         }
         else{
-            currentPlayer.set(1);
+            currentPlayer.set(2);
             timeline1.play();
             timeline2.pause();
         }
@@ -147,6 +153,7 @@ public class BoardGame {
     public void reset() 
     {
         // resetBoard();
+        bestMove = new Coords(-1,-1);
         board.reset();
         gameState = GameState.NOT_STARTED;
         currentPlayer.set(FIRST_PLAYER);
@@ -167,11 +174,6 @@ public class BoardGame {
     //     addPiece(row, col, p);
     //     actions.add(new BoardAction(ActionType.ADD, row, col, p));
     // }
-
-    // return 1 or 2
-    public int getCurrentPlayer(){
-        return currentPlayer.get();
-    }
 
     public int getOpponent(int player){
         return player == 1 ? 2 : 1;

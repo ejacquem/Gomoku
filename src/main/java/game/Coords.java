@@ -179,6 +179,14 @@ public class Coords {
         return GameSettings.BOARD_SIZE * x + y;
     }
     
+    public int getId(int gridSize) {
+        return gridSize * x + y;
+    }
+
+    public static Coords getCoordsById(int id, int gridSize){
+        return new Coords(id / gridSize, id % gridSize);
+    }
+    
     // Static factory methods
     public static Coords origin() {
         return new Coords(0, 0);

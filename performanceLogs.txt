@@ -1,0 +1,12 @@
+Performance on the second move
+
+Pure MinMax - evaluate return p1_pieces - p2_pieces
+Execution time: 3287 ms
+Iteration at depth 0: 8
+Iteration at depth 1: 88
+Iteration at depth 2: 1200
+Iteration at depth 3: 19272
+Iteration at depth 4: 353872
+Iteration at depth 5: 7282080
+
+

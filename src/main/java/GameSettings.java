@@ -19,6 +19,11 @@ public abstract class GameSettings {
     public static final int WINNING_CAPTURED_PIECES = 10;
     public static final int START_TIMER = 300 * 1000; // sec
 
+    public static final int LABEL_X_BASE = 10;
+    public static final int LABEL_Y_BASE = 10;
+    public static final int LABEL_X_OFFSET = 0;
+    public static final int LABEL_Y_OFFSET = 0;
+
     public static int isPlayer1First(){
         return FIRST_PLAYER == 1 ? 1 : 0;
     }

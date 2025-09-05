@@ -42,6 +42,8 @@ public class BoardRenderer {
         drawPieces();
         drawSymbols();
         drawDebugNumber();
+        drawBestMove();
+        drawNeighbour();
         gc.translate(-MARGIN, -MARGIN);
     }
 
@@ -67,13 +69,14 @@ public class BoardRenderer {
             int start = i * TILE_SIZE;
             int length = (size - 1) * TILE_SIZE;
             gc.setFill(Color.BLACK);
-            String n = Integer.toString(i + 10, 36);
-            final int w = 8, h = 8; // size of a letter
-            final int w2 = w / 2, h2 = h / 2, s2 = TILE_SIZE / 2;
-            gc.fillText(n, start - w2, - s2);
-            gc.fillText(n, start - w2, length + h + s2);
-            gc.fillText(n, -w - s2, start + h2);
-            gc.fillText(n, length + s2, start + h2);
+            String n = Integer.toString(i + GameSettings.LABEL_X_OFFSET, GameSettings.LABEL_X_BASE);
+            int w = 8 * n.length(), h = 8 * n.length(), s2 = TILE_SIZE / 2; // 8 = size of a letter
+            gc.fillText(n, start - w / 2, - s2);
+            gc.fillText(n, start - w / 2, length + h + s2);
+            n = Integer.toString(i + GameSettings.LABEL_Y_OFFSET, GameSettings.LABEL_Y_BASE);
+            w = 8 * n.length(); h = 8 * n.length(); // 8 = size of a letter 
+            gc.fillText(n, -w - s2, start + h / 2);
+            gc.fillText(n, length + s2, start + h / 2);
         }
     }
 
@@ -142,6 +145,31 @@ public class BoardRenderer {
                     gc.setLineWidth(2); // thickness 
                     gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
                 }
+            }
+        }
+    }
+
+    private void drawBestMove(){
+        if (!game.board.isInBound(game.bestMove))
+            return;
+        float radius = TILE_SIZE * 0.8f / 2f;
+        int px = game.bestMove.x * TILE_SIZE;
+        int py = game.bestMove.y * TILE_SIZE;
+        gc.setFill(Color.rgb(255, 255, 255, 0.5f));
+        gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+        //outline
+        gc.setStroke(Color.RED);
+        gc.setLineWidth(2); // thickness 
+        gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
+    }
+
+    private void drawNeighbour(){
+        for (Coords pos : game.board.neighbourCellIndexSet){
+            Cell cell = game.board.getCellAt(pos);
+            float radius = TILE_SIZE * 0.2f / 2f;
+            if (cell.isNeighbour()) {
+                gc.setFill(Color.BLUE);
+                gc.fillOval(pos.x * TILE_SIZE - radius, pos.y * TILE_SIZE - radius, radius * 2f, radius * 2f);
             }
         }
     }

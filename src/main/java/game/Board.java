@@ -1,9 +1,12 @@
 package main.java.game;
 
 import main.java.GameSettings;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiPredicate;
 
@@ -12,10 +15,12 @@ public class Board {
     public final int BOARD_SIZE = GameSettings.BOARD_SIZE;
     public final int WINNING_PIECES = 5;
     private Cell[][] board;
+    public Set<Coords> neighbourCellIndexSet;
     private Stack<Move> moves;
     private int moveCount = 0;
     private int player1PiecesCount = 0;
     private int player2PiecesCount = 0;
+    private int currentPlayer = GameSettings.FIRST_PLAYER;
 
     private boolean hasCaptures = false;
     private int winner = 0;
@@ -38,7 +43,7 @@ public class Board {
         new Coords(1,  -1),   // NE
     };
 
-    Board(){
+    public Board(){
         board = new Cell[BOARD_SIZE][BOARD_SIZE];
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
@@ -47,10 +52,12 @@ public class Board {
         }
 
         moves = new Stack<>();
+        neighbourCellIndexSet = new HashSet<>();
     }
 
     public int getPlayer1PiecesCount(){ return player1PiecesCount; }
     public int getPlayer2PiecesCount(){ return player2PiecesCount; }
+    public int getCurrentPlayer(){ return currentPlayer; }
     public int getWinner(){ return winner; }
     public int getMoveCount(){ return moveCount; }
     public boolean hasCaptures(){ return hasCaptures; }
@@ -87,25 +94,61 @@ public class Board {
         for (Coords pos : m.capturesCoords){
             addPiece(pos, opponent);
         }
+        switchPlayer();
     }
 
-    public void placePiece(Coords pos, int player){
+    private void switchPlayer(){
+        currentPlayer = currentPlayer == 1 ? 2 : 1;
+    }
+
+    public void placePiece(Coords pos){
         moveCount++;
+        int player = currentPlayer;
+        if (getCellAt(pos).has_piece()){
+            throw new IllegalCallerException("REPLACING EXISTING PIECE");
+        }
         addPiece(pos, player);
         hasCaptures = false;
         List<Coords> captures = capturePieces(pos, player);
         moves.add(new Move(player, pos, captures));
+        switchPlayer();
     }
 
     private void addPiece(Coords pos, int player){
+        // System.out.println("Place " + player + " at " + pos);
         countPieces(1, player);
         board[pos.y][pos.x].player = player;
+        neighbourCellIndexSet.remove(pos);
+        markCellNeighbours(pos, 1);
     }
 
     private void removePiece(Coords pos){
-        countPieces(-1, board[pos.y][pos.x].player);
-        board[pos.y][pos.x].player = 0;
+        Cell cell = getCellAt(pos);
+        // System.out.println("remove " + cell.player + " at " + pos);
+        countPieces(-1, cell.player);
+        cell.player = 0;
+        if (cell.isNeighbour())
+            neighbourCellIndexSet.add(pos);
+        markCellNeighbours(pos, 0);
     }
+
+    private void markCellNeighbours(Coords pos, int bit){
+        for (int i = 0; i < 9; i++){
+            Coords relativePos = Coords.getCoordsById(i,3).subtract(1, 1); //
+            Coords neighbourPos = pos.add(relativePos);
+            if (!isInBound(neighbourPos)){
+                continue;
+            }
+            Cell c = getCellAt(neighbourPos);
+            c.setNeighbour(8 - i, bit);
+            if (bit == 0 && !c.isNeighbour())
+                neighbourCellIndexSet.remove(neighbourPos);
+            else if (bit == 1 && !c.has_piece())
+                neighbourCellIndexSet.add(neighbourPos);
+        }
+    }
+
+
 
     private void countPieces(int amount, int player){
         if (player == 1)
@@ -144,6 +187,7 @@ public class Board {
         player1PiecesCount = 0;
         player2PiecesCount = 0;
         moves.clear();
+        neighbourCellIndexSet.clear();
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 board[y][x].reset();
@@ -153,11 +197,12 @@ public class Board {
 
     public void random(float density)
     {
+        reset();
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
-                board[y][x].reset();
-                if (Math.random() < density)
-                    board[y][x].player = (int)(Math.random() * 2) + 1;
+                if (Math.random() < density){
+                    addPiece(new Coords(x, y), (int)(Math.random() * 2) + 1);
+                }
             }
         }
     }
@@ -187,12 +232,12 @@ public class Board {
         }
     }
 
-    public void analyse(int player) {
+    public void analyse() {
         resetCapture();
         resetFreeThree();
         resetWinner();
-        famAllFreeThreeForPlayer(player);
-        famAllCaptureForPlayer(player);
+        famAllFreeThreeForPlayer(currentPlayer);
+        famAllCaptureForPlayer(currentPlayer);
         famWinner();
     }
 
