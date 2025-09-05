@@ -4,7 +4,6 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import main.java.game.BoardGame;
-import main.java.game.Cell;
 
 public class GomokuAI {
     private BoardGame game;
@@ -73,12 +72,11 @@ public class GomokuAI {
     }
 
     public void evaluate(){
-        System.out.println("Evaluating");
+        // System.out.println("Evaluating");
         player1Score.set(findAndSumMatch(patterns, 1, 2, game.getCurrentPlayer() == 1 ? 1 : 0));
         player2Score.set(findAndSumMatch(patterns2, 2, 1, game.getCurrentPlayer() == 2 ? 1 : 0));
 
-        System.out.println("Player1 score: " + player1Score.get());
-        System.out.println("Player2 score: " + player2Score.get());
+        System.out.println("Eval: P1 " + player1Score.get() + " P2 " + player2Score.get());
 
         double score1 = (double)player1Score.get();
         double score2 = (double)player2Score.get();

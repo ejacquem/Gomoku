@@ -178,8 +178,8 @@ public class BoardRenderer {
         int col = (int)((e.getX() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         game.placePieceAttempt(row, col);
 
-        System.out.println("row: " + row + ", col: " + col);
-        System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
+        // System.out.println("row: " + row + ", col: " + col);
+        // System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
         draw();
     }
 }

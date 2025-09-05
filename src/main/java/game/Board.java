@@ -7,20 +7,18 @@ import java.util.List;
 import java.util.Stack;
 import java.util.function.BiPredicate;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-
 public class Board {
     
     public final int BOARD_SIZE = GameSettings.BOARD_SIZE;
     public final int WINNING_PIECES = 5;
     private Cell[][] board;
     private Stack<Move> moves;
-    private IntegerProperty moveCount = new SimpleIntegerProperty(0);
+    private int moveCount = 0;
     private int player1PiecesCount = 0;
     private int player2PiecesCount = 0;
 
-    public IntegerProperty moveCountProperty() { return moveCount; }
+    private boolean hasCaptures = false;
+    private int winner = 0;
 
     public final Coords[] DIRECTION8 = {
         new Coords(0,  -1), // N
@@ -53,13 +51,16 @@ public class Board {
 
     public int getPlayer1PiecesCount(){ return player1PiecesCount; }
     public int getPlayer2PiecesCount(){ return player2PiecesCount; }
+    public int getWinner(){ return winner; }
+    public int getMoveCount(){ return moveCount; }
+    public boolean hasCaptures(){ return hasCaptures; }
     
     public int getPlayer1CapturesCount(){ 
-        return (moveCount.get() + GameSettings.isPlayer2First()) / 2 - player2PiecesCount;
+        return (moveCount + GameSettings.isPlayer2First()) / 2 - player2PiecesCount;
     }
 
     public int getPlayer2CapturesCount(){ 
-        return (moveCount.get() + GameSettings.isPlayer1First()) / 2 - player1PiecesCount;
+        return (moveCount + GameSettings.isPlayer1First()) / 2 - player1PiecesCount;
     }
 
     public Cell getCellAt(Coords pos){
@@ -79,7 +80,7 @@ public class Board {
     }
 
     public void undoLastMove(){
-        moveCount.set(moveCount.get() - 1);
+        moveCount--;
         Move m = moves.pop();
         removePiece(m.coords);
         int opponent = getOpponent(m.player);
@@ -89,8 +90,9 @@ public class Board {
     }
 
     public void placePiece(Coords pos, int player){
-        moveCount.set(moveCount.get() + 1);
+        moveCount++;
         addPiece(pos, player);
+        hasCaptures = false;
         List<Coords> captures = capturePieces(pos, player);
         moves.add(new Move(player, pos, captures));
     }
@@ -126,6 +128,7 @@ public class Board {
     }
 
     private Coords[] capture(Coords pos1, Coords pos2){
+        hasCaptures = true;
         removePiece(pos1);
         removePiece(pos2);
         return new Coords[]{pos1, pos2};
@@ -137,7 +140,7 @@ public class Board {
 
     public void reset()
     {
-        moveCount.set(0);
+        moveCount = 0;
         player1PiecesCount = 0;
         player2PiecesCount = 0;
         moves.clear();
@@ -176,6 +179,7 @@ public class Board {
     }
 
     public void resetWinner(){
+        winner = 0;
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 board[y][x].winning = false;
@@ -248,6 +252,7 @@ public class Board {
         for (Coords dir : DIRECTION4) {
             for (int[] pat : patterns){
                 if (checkSequenceMatch(pos, dir, pat.length, 0, pat, (c, cell) -> c == cell.player && !cell.can_be_captured, -1)){
+                    winner = pat[0];
                     for (int i = 0; i < WINNING_PIECES; i++)
                         getCellAt(pos.add(dir.multiply(i))).winning = true;
                     // return;

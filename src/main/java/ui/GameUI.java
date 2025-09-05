@@ -336,7 +336,7 @@ public class GameUI {
         );
 
         moveLabel.textProperty().bind(
-            game.board.moveCountProperty().asString("Move count: %d")
+            game.moveCountProperty().asString("Move count: %d")
         );
 
         game.winnerProperty().addListener((obs, oldVal, newVal) -> {

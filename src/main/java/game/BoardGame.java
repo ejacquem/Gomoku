@@ -1,8 +1,6 @@
 package main.java.game;
 // src/BoardGame.java
 
-import java.util.Stack;
-import java.util.function.BiPredicate;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.IntegerProperty;
@@ -27,6 +25,7 @@ public class BoardGame {
 
     private final IntegerProperty currentPlayer = new SimpleIntegerProperty(FIRST_PLAYER);  // player = 1 or player = 2
     private final IntegerProperty winner = new SimpleIntegerProperty(0);
+    private final IntegerProperty moveCount = new SimpleIntegerProperty(0);
     private final IntegerProperty player1CapturedPieces = new SimpleIntegerProperty(0);
     private final IntegerProperty player2CapturedPieces = new SimpleIntegerProperty(0);
     private final LongProperty player1Timer = new SimpleLongProperty(GameSettings.START_TIMER);
@@ -34,24 +33,13 @@ public class BoardGame {
     Timeline timeline1;
     Timeline timeline2;
 
-    public IntegerProperty currentPlayerProperty() {
-        return currentPlayer;
-    }
-    public IntegerProperty winnerProperty() {
-        return winner;
-    }
-    public IntegerProperty player1CapturedPiecesProperty() {
-        return player1CapturedPieces;
-    }
-    public IntegerProperty player2CapturedPiecesProperty() {
-        return player2CapturedPieces;
-    }
-    public LongProperty player1TimerProperty() {
-        return player1Timer;
-    }
-    public LongProperty player2TimerProperty() {
-        return player2Timer;
-    }
+    public IntegerProperty currentPlayerProperty() { return currentPlayer; }
+    public IntegerProperty winnerProperty() { return winner; }
+    public IntegerProperty moveCountProperty() { return moveCount; }
+    public IntegerProperty player1CapturedPiecesProperty() { return player1CapturedPieces; }
+    public IntegerProperty player2CapturedPiecesProperty() { return player2CapturedPieces; }
+    public LongProperty player1TimerProperty() { return player1Timer; }
+    public LongProperty player2TimerProperty() { return player2Timer; }
 
     public BoardGame() {
         board = new Board();
@@ -61,16 +49,19 @@ public class BoardGame {
     }
 
     public void undo(){
-        if (board.moveCountProperty().get() == 0)
+        System.out.println("Undo Called");
+        if (board.getMoveCount() == 0)
             return;
         if (gameState == GameState.GAME_OVER){
+            System.out.println("Undo Game Over");
             gameState = GameState.STARTED;
+            winner.set(0);
         }
         board.undoLastMove();
         tick();
     }
 
-    public void startGame(){
+    public void startGame(){    
         System.out.println("Game started");
         reset();
         gameState = GameState.STARTED;
@@ -79,17 +70,24 @@ public class BoardGame {
     public void setWinner(int player){
         System.out.println("Winner is " + player);
         winner.set(player);
-        setGameOver();
     }
 
     public void setGameOver(){
+        System.out.println("Game Over");
         gameState = GameState.GAME_OVER;
         timeline1.pause();
         timeline2.pause();
     }
 
-    public void checkWinnerCaptures()
-    {
+    public boolean isWinner() {
+        return winner.get() != 0;
+    }
+
+    public void checkWinner(){
+        if (board.getWinner() != 0){
+            setWinner(board.getWinner());
+        }
+
         if (player1CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES)
             setWinner(1);
         if (player2CapturedPieces.get() >= GameSettings.WINNING_CAPTURED_PIECES)
@@ -104,8 +102,14 @@ public class BoardGame {
             // System.out.println("Game Not Started");
             // return;
         }
-        if (gameState == GameState.GAME_OVER) return;
-        if (!board.isInBound(pos)) return;
+        if (gameState == GameState.GAME_OVER){
+            System.out.println("Can't place piece: Game Over");
+            return;
+        } 
+        if (!board.isInBound(pos)){
+            System.out.println("Can't place piece: Out of Bound");
+            return;
+        } 
 
         Cell cell = board.getCellAt(pos);
 
@@ -120,7 +124,11 @@ public class BoardGame {
         player2CapturedPieces.set(board.getPlayer2CapturesCount());
         switchPlayer();
         board.analyse(getCurrentPlayer());
-        checkWinnerCaptures();
+        checkWinner();
+        if (isWinner()) {
+            setGameOver();
+        }
+        moveCount.set(board.getMoveCount());
     }
 
     private void switchPlayer(){
