@@ -24,6 +24,29 @@ public abstract class GameSettings {
     public static final int LABEL_X_OFFSET = 0;
     public static final int LABEL_Y_OFFSET = 0;
 
+    public static final float HEATMAP_ALPHA = 0.5f;
+    public static final Color[] HEATMAP_COLOR = new Color[]{
+        Color.rgb(0,0,255,0.5),
+        Color.rgb(0,125,255,0.5),
+        Color.rgb(0,125,125,0.5),
+        Color.rgb(0,255,125,0.5),
+        Color.rgb(0,255,0,0.5),
+        Color.rgb(125,225,0,0.5),
+        Color.rgb(255,255,0,0.5),
+        Color.rgb(255,125,0,0.5),
+        Color.rgb(255,0,0,0.5),
+    };
+
+    public static Color getHeatMapColor(int value, int maxValue){
+        float fvalue = Math.min((float)value / (float)maxValue, 1);
+        fvalue *= (HEATMAP_COLOR.length - 1);
+        int colorStartIndex = (int)Math.floor(fvalue);
+        int colorEndIndex = (int)Math.ceil(fvalue);
+        Color colorStart = HEATMAP_COLOR[colorStartIndex];
+        Color colorEnd = HEATMAP_COLOR[colorEndIndex];
+        return colorStart.interpolate(colorEnd, fvalue - colorStartIndex);
+    }
+
     public static int isPlayer1First(){
         return FIRST_PLAYER == 1 ? 1 : 0;
     }

@@ -1,6 +1,6 @@
 Performance on the second move
 
-Pure MinMax - evaluate return p1_pieces - p2_pieces
+Pure MinMax | evaluate return p1_pieces - p2_pieces
 Execution time: 3287 ms
 Iteration at depth 0: 8
 Iteration at depth 1: 88
@@ -9,4 +9,25 @@ Iteration at depth 3: 19272
 Iteration at depth 4: 353872
 Iteration at depth 5: 7282080
 
+MinMax | alpha beta prunning | evaluate evaluate return p1_pieces - p2_pieces
+Execution time: 502 ms
+Iteration at depth 1: 8
+Iteration at depth 2: 88
+Iteration at depth 3: 88
+Iteration at depth 4: 1428
+Iteration at depth 5: 1429
+Iteration at depth 6: 29048
+Iteration at depth 7: 29130
+Iteration at depth 8: 692588
+
+MinMax | alpha beta prunning | bestScore sorting | evaluate evaluate return p1_pieces - p2_pieces
+Execution time: 833 ms
+Iteration at depth 1: 8
+Iteration at depth 2: 88
+Iteration at depth 3: 88
+Iteration at depth 4: 1296
+Iteration at depth 5: 1298
+Iteration at depth 6: 22732
+Iteration at depth 7: 23297
+Iteration at depth 8: 473429
 

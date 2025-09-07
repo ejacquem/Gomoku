@@ -1,0 +1,6 @@
+heatmap
+analyse board per move
+
+AI:
+filter best move
+better evaluate function

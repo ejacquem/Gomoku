@@ -42,10 +42,12 @@ public class BoardRenderer {
         drawLabel();
         drawPieces();
         drawSymbols();
-        drawDebugNumber();
+        // drawDebugNumber();
         drawBestMove();
         drawNeighbour();
-        drawEvaluatedPosition();
+        // drawEvaluatedPosition();
+        // drawHeatmapNeighbour();
+        drawHeatmapScore();
         gc.translate(-MARGIN, -MARGIN);
     }
 
@@ -72,11 +74,11 @@ public class BoardRenderer {
             int length = (size - 1) * TILE_SIZE;
             gc.setFill(Color.BLACK);
             String n = Integer.toString(i + GameSettings.LABEL_X_OFFSET, GameSettings.LABEL_X_BASE);
-            int w = 8 * n.length(), h = 8 * n.length(), s2 = TILE_SIZE / 2; // 8 = size of a letter
+            int w = 8 * n.length(), h = 8, s2 = TILE_SIZE / 2; // 8 = size of a letter
             gc.fillText(n, start - w / 2, - s2);
             gc.fillText(n, start - w / 2, length + h + s2);
             n = Integer.toString(i + GameSettings.LABEL_Y_OFFSET, GameSettings.LABEL_Y_BASE);
-            w = 8 * n.length(); h = 8 * n.length(); // 8 = size of a letter 
+            w = 8 * n.length(); h = 8; // 8 = size of a letter 
             gc.fillText(n, -w - s2, start + h / 2);
             gc.fillText(n, length + s2, start + h / 2);
         }
@@ -188,6 +190,43 @@ public class BoardRenderer {
             String n = Integer.toString(evalpos.score);
             gc.setFill(Color.WHITE);
             gc.fillText(n, px - w * n.length() / 2, py + h / 2);
+        }
+    }
+
+    private void drawHeatmapNeighbour(){
+        int size = game.BOARD_SIZE;
+        // int half = game.BOARD_SIZE / 2;
+        // final int w = 8, h = 8; // size of a letter
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Cell cell = game.board.getCellAt(new Coords(col, row));
+                Color color = GameSettings.HEATMAP_COLOR[cell.getNeighbourNumber()];
+                gc.setFill(color);
+                gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+
+                // String n = Integer.toString(cell.getNeighbourNumber());
+                // gc.setFill(Color.ORANGE);
+                // gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
+            }
+        }
+    }
+
+    private void drawHeatmapScore(){
+        int size = game.BOARD_SIZE;
+        int half = game.BOARD_SIZE / 2;
+        final int w = 8, h = 8; // size of a letter
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Cell cell = game.board.getCellAt(new Coords(col, row));
+                int score = game.board.getCellScoreAt(new Coords(col, row));
+                Color color = GameSettings.getHeatMapColor(score, 20);
+                gc.setFill(color);
+                gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+
+                String n = Integer.toString(score);
+                gc.setFill(Color.ORANGE);
+                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
+            }
         }
     }
     

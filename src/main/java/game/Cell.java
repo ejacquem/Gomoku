@@ -10,7 +10,7 @@ public class Cell {
     public boolean can_be_free3_p = false; // positive
     public boolean can_be_free3_n = false; // negative
     
-    private int neighbours;
+    private int neighbours; // count of the eight neibours
 
     public boolean isNeighbour(){
         return neighbours != 0;
@@ -23,6 +23,14 @@ public class Cell {
     public void setNeighbour(int index, int bit){
         neighbours = ((neighbours & ~(1 << index)) | (bit << index));
         neighbours |= (bit << index);
+    }
+
+    public int getNeighbourNumber(){
+        int count = 0;
+        for (int i = 0; i < 9; i++){
+            count += (neighbours >> i) & 1;
+        }
+        return count;
     }
 
     Cell(){
@@ -47,7 +55,11 @@ public class Cell {
     }
 
     public boolean has_piece(){
-        return player != 0;
+        return player == 1 || player == 2;
+    }
+
+    public boolean empty(){
+        return player == 0;
     }
 
     public void reset(){

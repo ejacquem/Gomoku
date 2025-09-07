@@ -22,7 +22,6 @@ public class Board {
     private int player2PiecesCount = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER;
 
-    private boolean hasCaptures = false;
     private int winner = 0;
 
     public final Coords[] DIRECTION8 = {
@@ -55,12 +54,13 @@ public class Board {
         neighbourCellIndexSet = new HashSet<>();
     }
 
+    /* ----- GETTERS ----- */
+
     public int getPlayer1PiecesCount(){ return player1PiecesCount; }
     public int getPlayer2PiecesCount(){ return player2PiecesCount; }
     public int getCurrentPlayer(){ return currentPlayer; }
     public int getWinner(){ return winner; }
     public int getMoveCount(){ return moveCount; }
-    public boolean hasCaptures(){ return hasCaptures; }
     
     public int getPlayer1CapturesCount(){ 
         return (moveCount + GameSettings.isPlayer2First()) / 2 - player2PiecesCount;
@@ -86,6 +86,19 @@ public class Board {
         return pos.y >= 0 && pos.x >= 0 && pos.y < BOARD_SIZE && pos.x < BOARD_SIZE;
     }
 
+    private int getOpponent(int player){
+        return player == 1 ? 2 : 1;
+    }
+
+    private void countPieces(int amount, int player){
+        if (player == 1)
+            player1PiecesCount += amount;
+        else if (player == 2)
+            player2PiecesCount += amount;
+    }
+
+    /* ----- ACTIONS ----- */
+
     public void undoLastMove(){
         moveCount--;
         Move m = moves.pop();
@@ -94,6 +107,7 @@ public class Board {
         for (Coords pos : m.capturesCoords){
             addPiece(pos, opponent);
         }
+        resetWinner();
         switchPlayer();
     }
 
@@ -108,9 +122,9 @@ public class Board {
             throw new IllegalCallerException("REPLACING EXISTING PIECE");
         }
         addPiece(pos, player);
-        hasCaptures = false;
         List<Coords> captures = capturePieces(pos, player);
         moves.add(new Move(player, pos, captures));
+        checkWinnerAt(pos);
         switchPlayer();
     }
 
@@ -132,6 +146,25 @@ public class Board {
         markCellNeighbours(pos, 0);
     }
 
+    private List<Coords> capturePieces(Coords pos, int player){
+        List<Coords> captures = new ArrayList<>();
+        int opponent = getOpponent(player);
+        int[] pattern = new int[]{player, opponent, opponent, player};
+        for (Coords dir : DIRECTION8){
+            if (checkSequenceMatch(pos, dir, pattern, (p, cell) -> p == cell.player)){
+                Coords[] pair = capture(pos.add(dir), pos.add(dir.multiply(2)));
+                Collections.addAll(captures, pair);
+            }
+        }
+        return captures;
+    }
+
+    private Coords[] capture(Coords pos1, Coords pos2){
+        removePiece(pos1);
+        removePiece(pos2);
+        return new Coords[]{pos1, pos2};
+    }
+
     private void markCellNeighbours(Coords pos, int bit){
         for (int i = 0; i < 9; i++){
             Coords relativePos = Coords.getCoordsById(i,3).subtract(1, 1); //
@@ -148,45 +181,13 @@ public class Board {
         }
     }
 
-
-
-    private void countPieces(int amount, int player){
-        if (player == 1)
-            player1PiecesCount += amount;
-        else if (player == 2)
-            player2PiecesCount += amount;
-    }
-
-    private List<Coords> capturePieces(Coords pos, int player){
-        List<Coords> captures = new ArrayList<>();
-        int opponent = getOpponent(player);
-        int[] pattern = new int[]{player, opponent, opponent, player};
-        for (Coords dir : DIRECTION8){
-            if (checkSequenceMatch(pos, dir, pattern, (p, cell) -> p == cell.player)){
-                Coords[] pair = capture(pos.add(dir), pos.add(dir.multiply(2)));
-                Collections.addAll(captures, pair);
-            }
-        }
-        return captures;
-    }
-
-    private Coords[] capture(Coords pos1, Coords pos2){
-        hasCaptures = true;
-        removePiece(pos1);
-        removePiece(pos2);
-        return new Coords[]{pos1, pos2};
-    }
-
-    private int getOpponent(int player){
-        return player == 1 ? 2 : 1;
-    }
-
     public void reset()
     {
         moveCount = 0;
         player1PiecesCount = 0;
         player2PiecesCount = 0;
         moves.clear();
+        resetWinner();
         neighbourCellIndexSet.clear();
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
@@ -233,15 +234,40 @@ public class Board {
     }
 
     public void analyse() {
-        resetCapture();
-        resetFreeThree();
-        resetWinner();
-        famAllFreeThreeForPlayer(currentPlayer);
-        famAllCaptureForPlayer(currentPlayer);
-        famWinner();
+        // resetCapture();
+        // resetFreeThree();
+        // resetWinner();
+        // famAllFreeThreeForPlayer(currentPlayer);
+        // famAllCaptureForPlayer(currentPlayer);
+        // famWinner();
     }
 
     // CHECKER fam = Find And Mark
+
+    public void checkWinnerAt(Coords pos){
+        Cell cell = getCellAt(pos);
+        Coords p;
+        for (Coords dir : DIRECTION4){
+            int front = 0, back = 0;
+            p = pos.add(dir);
+            while (cell.player == getCellAt(p, -1).player){
+                p.addTo(dir);
+                front++;
+            }
+            p = pos.subtract(dir);
+            while (cell.player == getCellAt(p, -1).player){
+                p.subtractFrom(dir);
+                back++;
+            }
+            if (1 + front + back >= GameSettings.WINNING_PIECES){
+                winner = cell.player;
+                for (int i = -back; i <= front; i++){
+                    getCellAt(pos.add(dir.multiply(i))).winning = true;
+                }
+                // return;  
+            }
+        }
+    }
 
     public void famAllCaptureForPlayer(int player) {
         for (int y = 0; y < BOARD_SIZE; y++) {
@@ -326,6 +352,49 @@ public class Board {
     
     public boolean checkSequenceMatch(Coords pos, Coords dir, int[] pattern, BiPredicate<Integer, Cell> compare) {
         return checkSequenceMatch(pos, dir, pattern.length, 0, pattern, compare, -1);
+    }
+
+    public Cell getCellAtDir(Coords start, Coords dir, int distance){
+        return getCellAt(start.add(dir.multiply(distance)), -1);
+    }
+
+    public int getCellScoreAt(Coords pos){
+        float score;
+        score = 0;
+        if (getCellAt(pos).has_piece())
+            return 0;
+        for (Coords dir : DIRECTION4){
+            score += calculateCellScoreAtDir(pos, dir);
+        }
+        return (int)score;
+    }
+
+    public float calculateCellScoreAtDir(Coords pos, Coords dir){
+        float score = 0;
+        Cell right = getCellAtDir(pos, dir, 1);
+        Cell left = getCellAtDir(pos, dir, -1);
+        float scoreRight = pieceSequenceScoreInDir(pos.add(dir), dir);
+        float scoreLeft = pieceSequenceScoreInDir(pos.add(dir.negate()), dir.negate());
+        if (right.has_piece() && right.player == left.player){
+            return (float)Math.pow(scoreRight + scoreLeft, 2);
+        }
+        score += Math.pow(scoreRight, 2);
+        score += Math.pow(scoreLeft, 2);
+        return score;
+    }
+
+    // piece sequence score is the number of the same player of pieces in a direction, + 0.5 if tail is empty
+    public float pieceSequenceScoreInDir(Coords pos, Coords dir){
+        int count = 1;
+        if (!getCellAt(pos, -1).has_piece())
+            return 0;
+        int player = getCellAt(pos, -1).player;
+        Cell next = getCellAtDir(pos, dir, 1);
+        while (player == next.player){
+            count++;
+            next = getCellAtDir(pos, dir, count);
+        }
+        return (float)count + (next.empty() ? 0.5f : 0);
     }
 
 }

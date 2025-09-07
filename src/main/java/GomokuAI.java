@@ -1,5 +1,7 @@
 package main.java;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import javafx.beans.property.DoubleProperty;
@@ -21,11 +23,11 @@ public class GomokuAI {
     public DoubleProperty percentageProperty() { return percentage; }
 
     public final long TIME_LIMIT = 10000;
-    public final int MAX_DEPTH = 1;
+    public final int MAX_DEPTH = 3;
     public boolean limitExcceeded = false;
     public long start;
     public long end;
-    public int[] iterationPerDepth = new int[MAX_DEPTH + 1];
+    public int[] iterationPerDepth = new int[MAX_DEPTH];
 
     public List<EvaluatedPosition> evaluatedPos = new ArrayList<>();
 
@@ -107,17 +109,28 @@ public class GomokuAI {
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
         limitExcceeded = false;
+
         Coords[] moves = getPossibleMove();
+        Coords[] sortedMoves = sortMoves(moves);
+
+        System.out.println("Moves: " + moves.length);
+        System.out.println("sortedMoves: " + sortedMoves.length);
+
+        // for (Coords pos : sortedMoves)
+        //     System.out.println("sortedMoves: " + pos + ", score: " + board.getCellScoreAt(pos));
+        // System.out.println("");
 
         int bestEval = Integer.MIN_VALUE;
+        int color = board.getCurrentPlayer() == 1 ? 1 : -1;
         Coords bestMove = new Coords(0,0);
 
-        for (Coords move : moves){
+        for (Coords move : sortedMoves){
             board.placePiece(move);
-            int score = -search(0, Integer.MIN_VALUE, Integer.MAX_VALUE, 1); // negamax(rootNode, depth, −∞, +∞, 1)
+            System.out.println("test");
+            int score = search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, color); // negamax(rootNode, depth, −∞, +∞, 1)
             evaluatedPos.add(new EvaluatedPosition(move, score));
             // int score = evaluate();
-            System.out.println("Move score: " + score);
+            // System.out.println("Move score: " + score);
             if (score > bestEval){
                 bestEval = score;
                 bestMove = move;
@@ -129,7 +142,7 @@ public class GomokuAI {
             System.out.println("Time Limit exceeded !");
         }
         System.out.println("Execution time: " + (System.currentTimeMillis() - start) + " ms");
-        for (int i = 0; i <= MAX_DEPTH; i++){
+        for (int i = 0; i < MAX_DEPTH; i++){
             System.out.println("Iteration at depth " + (i) + ": " + iterationPerDepth[i]);
         }
         return bestMove;
@@ -149,7 +162,11 @@ public class GomokuAI {
 
     public int evaluate(){
         int positionScore = board.getPlayer1PiecesCount() - board.getPlayer2PiecesCount();
-        return positionScore * 1;
+        if (board.getWinner() == 1)
+            return 1000000;
+        if (board.getWinner() == 2)
+            return -1000000;
+        return positionScore;
     }
 
     private long findAndSumMatch(Pattern[] patterns, int player, int opponent, int playerTurn){
@@ -207,18 +224,36 @@ public class GomokuAI {
         return limitExcceeded;
     }
 
+    private Coords[] sortMoves(Coords[] moves) {
+        Arrays.sort(moves, new Comparator<Coords>() {
+            @Override
+            public int compare(Coords a, Coords b) {
+                return Integer.compare(board.getCellScoreAt(b), board.getCellScoreAt(a));
+            }
+        });
+        return moves;
+    }
+
+    private void registerIteration(int depth){
+        int index = MAX_DEPTH - depth;
+        if (index == 0)
+            System.out.println("test IN");
+        iterationPerDepth[index]++;
+    }
+
     public int search(int depth, int alpha, int beta, int color){
-        iterationPerDepth[depth]++;
-        if (depth == MAX_DEPTH || timeLimitExceeded()){
+        registerIteration(depth);
+        if (depth == 1 || timeLimitExceeded()){
             return color * evaluate();
         }
 
         Coords[] moves = getPossibleMove();
+        Coords[] sortedMoves = sortMoves(moves);
 
         int value = Integer.MIN_VALUE;
-        for (Coords move : moves){
+        for (Coords move : sortedMoves){
             board.placePiece(move);
-            value = Math.max(value, -search(depth + 1, -beta, -alpha, -color));
+            value = Math.max(value, -search(depth - 1, -beta, -alpha, -color));
             alpha = Math.max(alpha, value);
             board.undoLastMove();
             if (alpha >= beta){

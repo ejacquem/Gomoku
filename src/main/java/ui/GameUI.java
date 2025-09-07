@@ -315,7 +315,7 @@ public class GameUI {
 
         randomButton.setOnAction(e -> {
             game.startGame();
-            game.board.random(.3f);
+            game.board.random(.1f);
             game.board.analyse();
             renderer.draw();
         });
