@@ -46,11 +46,4 @@ public abstract class GameSettings {
         Color colorEnd = HEATMAP_COLOR[colorEndIndex];
         return colorStart.interpolate(colorEnd, fvalue - colorStartIndex);
     }
-
-    public static int isPlayer1First(){
-        return FIRST_PLAYER == 1 ? 1 : 0;
-    }
-    public static int isPlayer2First(){
-        return FIRST_PLAYER == 2 ? 1 : 0;
-    }
 }

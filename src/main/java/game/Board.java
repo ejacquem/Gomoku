@@ -21,6 +21,7 @@ public class Board {
     private int player1PiecesCount = 0;
     private int player2PiecesCount = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER;
+    private int firstPlayer = GameSettings.FIRST_PLAYER;
 
     private int winner = 0;
 
@@ -62,12 +63,17 @@ public class Board {
     public int getWinner(){ return winner; }
     public int getMoveCount(){ return moveCount; }
     
+
+
+    public int isPlayer1First(){ return firstPlayer == 1 ? 1 : 0; }
+    public int isPlayer2First(){ return firstPlayer == 2 ? 1 : 0; }
+
     public int getPlayer1CapturesCount(){ 
-        return (moveCount + GameSettings.isPlayer2First()) / 2 - player2PiecesCount;
+        return ((moveCount + isPlayer2First()) / 2) - player2PiecesCount;
     }
 
     public int getPlayer2CapturesCount(){ 
-        return (moveCount + GameSettings.isPlayer1First()) / 2 - player1PiecesCount;
+        return ((moveCount + isPlayer1First()) / 2) - player1PiecesCount;
     }
 
     public Cell getCellAt(Coords pos){
@@ -107,12 +113,13 @@ public class Board {
         for (Coords pos : m.capturesCoords){
             addPiece(pos, opponent);
         }
-        resetWinner();
+        if (winner != 0)
+            resetWinner();
         switchPlayer();
     }
 
     private void switchPlayer(){
-        currentPlayer = currentPlayer == 1 ? 2 : 1;
+        currentPlayer = (currentPlayer == 1 ? 2 : 1);
     }
 
     public void placePiece(Coords pos){
@@ -332,13 +339,13 @@ public class Board {
         }
     }
 
-    private void famWinner(){
-        for (int y = 0; y < BOARD_SIZE; y++) {
-            for (int x = 0; x < BOARD_SIZE; x++) {
-                famWinnerAt(new Coords(x, y));
-            }
-        }
-    }
+    // private void famWinner(){
+    //     for (int y = 0; y < BOARD_SIZE; y++) {
+    //         for (int x = 0; x < BOARD_SIZE; x++) {
+    //             famWinnerAt(new Coords(x, y));
+    //         }
+    //     }
+    // }
 
     public boolean checkSequenceMatch(Coords pos, Coords dir, int len, int offset, int[] pattern, BiPredicate<Integer, Cell> compare, int defaultValue) {
         for (int i = 0; i < len; i++) {

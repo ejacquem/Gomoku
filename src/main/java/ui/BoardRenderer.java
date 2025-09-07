@@ -45,7 +45,7 @@ public class BoardRenderer {
         // drawDebugNumber();
         drawBestMove();
         drawNeighbour();
-        // drawEvaluatedPosition();
+        drawEvaluatedPosition();
         // drawHeatmapNeighbour();
         drawHeatmapScore();
         gc.translate(-MARGIN, -MARGIN);
@@ -223,9 +223,9 @@ public class BoardRenderer {
                 gc.setFill(color);
                 gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
 
-                String n = Integer.toString(score);
-                gc.setFill(Color.ORANGE);
-                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
+                // String n = Integer.toString(score);
+                // gc.setFill(Color.ORANGE);
+                // gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
             }
         }
     }
