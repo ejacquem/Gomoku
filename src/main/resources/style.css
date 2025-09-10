@@ -37,3 +37,28 @@
 .undo-button:pressed {
     -fx-background-color: #B3B3B3;
 }
+
+
+/* ----- Menu Bar ----- */
+.menu-bar {
+    -fx-background-color: #202020;
+}
+
+.menu-bar .label {
+    -fx-text-fill: white;
+}
+
+.context-menu {
+    -fx-background-color: #202020;
+}
+
+.menu-item .label {
+    -fx-text-fill: #ecf0f1;
+}
+
+.menu-item:hover {
+    -fx-background-color: #a8693f;
+}
+.menu-item:hover .label {
+    -fx-text-fill: black;
+}
