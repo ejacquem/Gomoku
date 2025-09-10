@@ -26,15 +26,15 @@ public abstract class GameSettings {
 
     public static final float HEATMAP_ALPHA = 0.5f;
     public static final Color[] HEATMAP_COLOR = new Color[]{
-        Color.rgb(0,0,255,0.5),
-        Color.rgb(0,125,255,0.5),
-        Color.rgb(0,125,125,0.5),
-        Color.rgb(0,255,125,0.5),
-        Color.rgb(0,255,0,0.5),
-        Color.rgb(125,225,0,0.5),
-        Color.rgb(255,255,0,0.5),
-        Color.rgb(255,125,0,0.5),
-        Color.rgb(255,0,0,0.5),
+        Color.rgb(0,0,255,0.3),
+        Color.rgb(0,125,255,0.3),
+        Color.rgb(0,125,125,0.3),
+        Color.rgb(0,255,125,0.3),
+        Color.rgb(0,255,0,0.3),
+        Color.rgb(125,225,0,0.3),
+        Color.rgb(255,255,0,0.3),
+        Color.rgb(255,125,0,0.3),
+        Color.rgb(255,0,0,0.3),
     };
 
     public static Color getHeatMapColor(int value, int maxValue){
