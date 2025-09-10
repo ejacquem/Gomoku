@@ -23,9 +23,10 @@ public class GameUISettings {
         this.gameUI = gameUI;
         this.renderer = this.gameUI.getRenderer();
 
+        Menu debugSettingsMenu = new Menu("Debug");
         Menu settingsMenu = new Menu("Settings");
 
-        settingsMenu.getItems().addAll(
+        debugSettingsMenu.getItems().addAll(
             createSettingItem("Draw Debug Number",       () -> GameSettings.drawDebugNumber,       val -> GameSettings.drawDebugNumber = val),
             createSettingItem("Draw Best Move",          () -> GameSettings.drawBestMove,          val -> GameSettings.drawBestMove = val),
             createSettingItem("Draw Neighbour",          () -> GameSettings.drawNeighbour,         val -> GameSettings.drawNeighbour = val),
@@ -33,12 +34,15 @@ public class GameUISettings {
             createSettingItem("Draw Heatmap Neighbour",  () -> GameSettings.drawHeatmapNeighbour,  val -> GameSettings.drawHeatmapNeighbour = val),
             createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawHeatmapScore,      val -> GameSettings.drawHeatmapScore = val)
         );
+        settingsMenu.getItems().addAll(
+            createSettingItem("Ai Play Automatic",       () -> GameSettings.aiPlaysAutomatic,       val -> GameSettings.aiPlaysAutomatic = val),
+            createSettingItem("Player 1 AI",          () -> GameSettings.player1AI,              val -> GameSettings.player1AI = val),
+            createSettingItem("Player 2 AI",          () -> GameSettings.player2AI,              val -> GameSettings.player2AI = val)
+        );
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(settingsMenu);
-
-        // menuBar.setStyle("-fx-background-color: #2c3e50;");
-        // settingsMenu.setStyle("-fx-text-fill: white;");
+        menuBar.getMenus().add(debugSettingsMenu);
 
         gameUI.getRoot().setTop(menuBar);
     }

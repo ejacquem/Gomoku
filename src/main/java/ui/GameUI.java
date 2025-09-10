@@ -239,7 +239,7 @@ public class GameUI {
 
         game.currentPlayerProperty().addListener((obs, oldVal, newVal) -> {
             // Example: highlight if it's this player's turn
-            if (newVal.intValue() == data.id) {
+            if (newVal.intValue() != data.id) {
                 clockLabel.setTextFill(Color.WHITESMOKE); // active player
             } else {
                 clockLabel.setTextFill(Color.GRAY); // inactive player
@@ -321,13 +321,11 @@ public class GameUI {
         randomButton.setOnAction(e -> {
             game.startGame();
             game.board.random(.1f);
-            game.board.analyse();
             renderer.draw();
         });
 
         undoButton.setOnAction(e -> {
             game.undo();
-            game.board.analyse();
             renderer.draw();
         });
 

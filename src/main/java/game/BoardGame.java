@@ -99,9 +99,22 @@ public class BoardGame {
             setWinner(2);
     }
 
-    public void placePieceAttempt(int row, int col) {
+    public void handleInput(Coords pos){
+        placePieceAttempt(pos);
+
+        bestMove = AI.getBestMove();
+        if (GameSettings.aiPlaysAutomatic){
+            if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
+                placePieceAttempt(bestMove);
+            }
+            else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
+                placePieceAttempt(bestMove);
+            }
+        }
+    }
+
+    private void placePieceAttempt(Coords pos) {
         // Example: toggle between 0 and 1
-        Coords pos = new Coords(col, row);
         if (gameState == GameState.NOT_STARTED){
             startGame();
             // System.out.println("Game Not Started");
@@ -128,13 +141,12 @@ public class BoardGame {
         player1CapturedPieces.set(board.getPlayer1CapturesCount());
         player2CapturedPieces.set(board.getPlayer2CapturesCount());
         switchPlayerTo(board.getCurrentPlayer());
-        board.analyse();
         checkWinner();
         if (isWinner()) {
             setGameOver();
         }
         moveCount.set(board.getMoveCount());
-        bestMove = AI.getBestMove();
+        // bestMove = AI.getBestMove();
     }
 
     private void switchPlayerTo(int player){

@@ -31,3 +31,17 @@ Iteration at depth 6: 22732
 Iteration at depth 7: 23297
 Iteration at depth 8: 473429
 
+MinMax | alpha beta prunning | better bestScore sorting | evaluate the global position score
+
+Execution time: 925 ms
+prunningCount: 72076
+Iteration at depth 1: 5, 0
+Iteration at depth 2: 25, 22
+Iteration at depth 3: 48, 8
+Iteration at depth 4: 228, 186
+Iteration at depth 5: 613, 250
+Iteration at depth 6: 2658, 2057
+Iteration at depth 7: 7969, 3914
+Iteration at depth 8: 30716, 22956
+Iteration at depth 9: 88162, 42683
+Iteration at depth 10: 219452, 0

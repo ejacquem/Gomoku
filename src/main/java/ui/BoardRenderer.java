@@ -9,6 +9,7 @@ import main.java.GomokuAI.EvaluatedPosition;
 import main.java.game.BoardGame;
 import main.java.game.Cell;
 import main.java.game.Coords;
+import main.java.game.Board.CellScore;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;
@@ -218,15 +219,24 @@ public class BoardRenderer {
         final int w = 8, h = 8; // size of a letter
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                Cell cell = game.board.getCellAt(new Coords(col, row));
-                int score = game.board.getCellScoreAt(new Coords(col, row));
-                Color color = GameSettings.getHeatMapColor(score, 20);
+                Coords pos = new Coords(col, row);
+                CellScore score = game.board.getCellScoreAt(pos); 
+                Color color = GameSettings.getHeatMapColor((int)score.getScore(), 20);
                 gc.setFill(color);
                 gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
 
-                String n = Integer.toString(score);
-                gc.setFill(Color.ORANGE);
-                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
+                String n;
+                // n = Integer.toString(score);
+                // gc.setFill(Color.ORANGE);
+                // gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
+
+                n = Integer.toString((int)score.getPlayerScore(1));
+                gc.setFill(Color.WHITE);
+                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2 - h);
+
+                n = Integer.toString((int)score.getPlayerScore(2));
+                gc.setFill(Color.BLACK);
+                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2 + h);
             }
         }
     }
@@ -261,7 +271,7 @@ public class BoardRenderer {
     private void handleClick(MouseEvent e) {
         int row = (int)((e.getY() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         int col = (int)((e.getX() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
-        game.placePieceAttempt(row, col);
+        game.handleInput(new Coords(col, row));
 
         // System.out.println("row: " + row + ", col: " + col);
         // System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());

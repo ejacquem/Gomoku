@@ -43,14 +43,17 @@ public abstract class GameSettings {
     public static boolean drawEvaluatedPosition = false;
     public static boolean drawHeatmapNeighbour = false;
     public static boolean drawHeatmapScore = false;
+    public static boolean aiPlaysAutomatic = false;
+    public static boolean player1AI = false;
+    public static boolean player2AI = false;
 
     public static Color getHeatMapColor(int value, int maxValue){
         float fvalue = Math.min((float)value / (float)maxValue, 1);
         fvalue *= (HEATMAP_COLOR.length - 1);
         int colorStartIndex = (int)Math.floor(fvalue);
         int colorEndIndex = (int)Math.ceil(fvalue);
-        Color colorStart = HEATMAP_COLOR[colorStartIndex];
-        Color colorEnd = HEATMAP_COLOR[colorEndIndex];
+        Color colorStart = HEATMAP_COLOR[Math.max(0, colorStartIndex)];
+        Color colorEnd = HEATMAP_COLOR[Math.max(0, colorEndIndex)];
         return colorStart.interpolate(colorEnd, fvalue - colorStartIndex);
     }
 }

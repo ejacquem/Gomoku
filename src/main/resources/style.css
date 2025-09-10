@@ -48,8 +48,31 @@
     -fx-text-fill: white;
 }
 
+.menu {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.menu-bar .menu:hover {
+    -fx-background-color: #a8693f;
+    -fx-text-fill: black;
+}
+
+.menu-bar .menu:focused,
+.menu-bar .menu:showing,
+.menu-bar .menu:armed {
+    -fx-background-color: #a8693f;
+}
+
 .context-menu {
     -fx-background-color: #202020;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+}
+
+.menu-item {
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
 }
 
 .menu-item .label {
@@ -59,6 +82,11 @@
 .menu-item:hover {
     -fx-background-color: #a8693f;
 }
+
+.menu-item:focused {
+    -fx-background-color: #a8693f;
+}
+
 .menu-item:hover .label {
     -fx-text-fill: black;
 }

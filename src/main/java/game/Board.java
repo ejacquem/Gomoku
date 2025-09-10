@@ -20,6 +20,8 @@ public class Board {
     private int moveCount = 0;
     private int player1PiecesCount = 0;
     private int player2PiecesCount = 0;
+    private int player1CaptureCount = 0;
+    private int player2CaptureCount = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER;
     private int firstPlayer = GameSettings.FIRST_PLAYER;
 
@@ -40,7 +42,7 @@ public class Board {
         new Coords( 1,  0), // E
         new Coords( 0,  1), // S
         new Coords( 1,  1), // SE
-        new Coords(1,  -1),   // NE
+        new Coords(1,  -1)   // NE
     };
 
     public Board(){
@@ -63,17 +65,22 @@ public class Board {
     public int getWinner(){ return winner; }
     public int getMoveCount(){ return moveCount; }
     
-
-
     public int isPlayer1First(){ return firstPlayer == 1 ? 1 : 0; }
     public int isPlayer2First(){ return firstPlayer == 2 ? 1 : 0; }
 
+    // public int getPlayer1CapturesCount(){ 
+    //     return ((moveCount + isPlayer2First()) / 2) - player2PiecesCount;
+    // }
+
+    // public int getPlayer2CapturesCount(){ 
+    //     return ((moveCount + isPlayer1First()) / 2) - player1PiecesCount;
+    // }
     public int getPlayer1CapturesCount(){ 
-        return ((moveCount + isPlayer2First()) / 2) - player2PiecesCount;
+        return player1CaptureCount;
     }
 
     public int getPlayer2CapturesCount(){ 
-        return ((moveCount + isPlayer1First()) / 2) - player1PiecesCount;
+        return player2CaptureCount;
     }
 
     public Cell getCellAt(Coords pos){
@@ -113,6 +120,8 @@ public class Board {
         for (Coords pos : m.capturesCoords){
             addPiece(pos, opponent);
         }
+        if (m.player == 1) player1CaptureCount -= m.capturesCoords.size();
+        if (m.player == 2) player2CaptureCount -= m.capturesCoords.size();
         if (winner != 0)
             resetWinner();
         switchPlayer();
@@ -132,6 +141,7 @@ public class Board {
         List<Coords> captures = capturePieces(pos, player);
         moves.add(new Move(player, pos, captures));
         checkWinnerAt(pos);
+        checkWinnerCaptures();
         switchPlayer();
     }
 
@@ -159,6 +169,8 @@ public class Board {
         int[] pattern = new int[]{player, opponent, opponent, player};
         for (Coords dir : DIRECTION8){
             if (checkSequenceMatch(pos, dir, pattern, (p, cell) -> p == cell.player)){
+                if (player == 1) player1CaptureCount += 2;
+                if (player == 2) player2CaptureCount += 2;
                 Coords[] pair = capture(pos.add(dir), pos.add(dir.multiply(2)));
                 Collections.addAll(captures, pair);
             }
@@ -193,6 +205,8 @@ public class Board {
         moveCount = 0;
         player1PiecesCount = 0;
         player2PiecesCount = 0;
+        player1CaptureCount = 0;
+        player2CaptureCount = 0;
         moves.clear();
         resetWinner();
         neighbourCellIndexSet.clear();
@@ -240,14 +254,13 @@ public class Board {
         }
     }
 
-    public void analyse() {
-        // resetCapture();
-        // resetFreeThree();
-        // resetWinner();
-        // famAllFreeThreeForPlayer(currentPlayer);
-        // famAllCaptureForPlayer(currentPlayer);
-        // famWinner();
+    public void checkWinnerCaptures(){
+        if (player1CaptureCount >= 10)
+            winner = 1;
+        if (player2CaptureCount >= 10)
+            winner = 2;
     }
+
 
     // CHECKER fam = Find And Mark
 
@@ -365,43 +378,123 @@ public class Board {
         return getCellAt(start.add(dir.multiply(distance)), -1);
     }
 
-    public int getCellScoreAt(Coords pos){
-        float score;
-        score = 0;
-        if (getCellAt(pos).has_piece())
-            return 0;
-        for (Coords dir : DIRECTION4){
-            score += calculateCellScoreAtDir(pos, dir);
+    public class CellScore{
+        float[] playerScore = new float[]{0, 0};
+
+        CellScore(){}
+
+        public void setScore(float score, int player) {
+            playerScore[player - 1] = score;
         }
-        return (int)score;
+
+        public void addScore(float score, int player) {
+            playerScore[player - 1] += score;
+        }
+
+        public float getPlayerScore(int player) {
+            return playerScore[player - 1];
+        }
+
+        public float getScore(){
+            return playerScore[0] + playerScore[1];
+        }
+
+        public void addTo(CellScore other) {
+            this.playerScore[0] += other.playerScore[0];
+            this.playerScore[1] += other.playerScore[1];
+        }
     }
 
-    public float calculateCellScoreAtDir(Coords pos, Coords dir){
-        float score = 0;
-        Cell right = getCellAtDir(pos, dir, 1);
-        Cell left = getCellAtDir(pos, dir, -1);
-        float scoreRight = pieceSequenceScoreInDir(pos.add(dir), dir);
-        float scoreLeft = pieceSequenceScoreInDir(pos.add(dir.negate()), dir.negate());
-        if (right.has_piece() && right.player == left.player){
-            return (float)Math.pow(scoreRight + scoreLeft, 2);
+    // pieceNumber: 0, trailSpaceNumber: 0 -> score 0
+    // pieceNumber: 1, trailSpaceNumber: 0 -> score 0
+    // pieceNumber: 2, trailSpaceNumber: 0 -> score 0
+    // pieceNumber: 3, trailSpaceNumber: 0 -> score 0
+    // pieceNumber: 4, trailSpaceNumber: 0 -> score 10000
+
+    // pieceNumber: 0, trailSpaceNumber: 1 -> score 0
+    // pieceNumber: 1, trailSpaceNumber: 1 -> score 1
+    // pieceNumber: 2, trailSpaceNumber: 1 -> score 5
+    // pieceNumber: 3, trailSpaceNumber: 1 -> score 100
+    // pieceNumber: 4, trailSpaceNumber: 1 -> score 10000
+
+    // pieceNumber: 0, trailSpaceNumber: 2 -> score 0
+    // pieceNumber: 1, trailSpaceNumber: 2 -> score 2
+    // pieceNumber: 2, trailSpaceNumber: 2 -> score 10
+    // pieceNumber: 3, trailSpaceNumber: 2 -> score 1000
+    // pieceNumber: 4, trailSpaceNumber: 2 -> score 10000
+
+    private float calculateScore(int pieceNumber, int trailSpaceNumber){
+        if (pieceNumber == 0) return 0;
+        if (trailSpaceNumber == 0){
+            if (pieceNumber >= 4) return 10000;
+            else return 0;
         }
-        score += Math.pow(scoreRight, 2);
-        score += Math.pow(scoreLeft, 2);
+        else if (trailSpaceNumber == 1){
+            if (pieceNumber == 1) return 1;
+            else if (pieceNumber == 2) return 5;
+            else if (pieceNumber == 3) return 25;
+            else if (pieceNumber >= 4) return 10000;
+        }
+        else if (trailSpaceNumber == 2){
+            if (pieceNumber == 1) return 2;
+            else if (pieceNumber == 2) return 10;
+            else if (pieceNumber == 3) return 200;
+            else if (pieceNumber >= 4) return 10000;
+        }
+        return 0;
+    }
+
+    int test = 0;
+
+    public CellScore getCellScoreAt(Coords pos){
+        CellScore score = new CellScore();
+        if (getCellAt(pos).has_piece())
+            return score;
+        if (getCellAt(pos).getNeighbourNumber() == 0)
+            return score;
+        test++;
+        for (Coords dir : DIRECTION4){
+            // System.out.println("dir: " + dir);
+            addCellScoreAtDir(pos, dir, score);
+        }
         return score;
     }
 
-    // piece sequence score is the number of the same player of pieces in a direction, + 0.5 if tail is empty
-    public float pieceSequenceScoreInDir(Coords pos, Coords dir){
-        int count = 1;
-        if (!getCellAt(pos, -1).has_piece())
+    public void addCellScoreAtDir(Coords pos, Coords dir, CellScore total) {
+        Cell right = getCellAtDir(pos, dir, 1);
+        Cell left = getCellAtDir(pos, dir, -1);
+        int scoreRight = pieceSequenceScoreInDir(pos.add(dir), dir);
+        int scoreLeft = pieceSequenceScoreInDir(pos.add(dir.negate()), dir.negate());
+
+        int pieceNumberRight = scoreRight % 1000;
+        int pieceNumberLeft = scoreLeft % 1000;
+        int trailSpaceNumberRight = scoreRight / 1000;
+        int trailSpaceNumberLeft = scoreLeft / 1000;
+
+        if (right.has_piece() && right.player == left.player){
+            float score = calculateScore(pieceNumberRight + pieceNumberLeft, trailSpaceNumberRight + trailSpaceNumberLeft);
+            total.addScore(score, right.player);
+        }
+        else{
+            if (right.has_piece()) total.addScore(calculateScore(pieceNumberRight, 1 + trailSpaceNumberRight), right.player);
+            if (left.has_piece()) total.addScore(calculateScore(pieceNumberLeft, 1 + trailSpaceNumberLeft), left.player);
+        }
+    }
+
+    public int pieceSequenceScoreInDir(Coords pos, Coords dir){
+        Cell curr = getCellAt(pos, -1);
+        if (curr.empty())
+            return 1000;
+        if (!curr.has_piece())
             return 0;
-        int player = getCellAt(pos, -1).player;
+        int player = curr.player;
         Cell next = getCellAtDir(pos, dir, 1);
+        int count = 1;
         while (player == next.player){
             count++;
             next = getCellAtDir(pos, dir, count);
-        }
-        return (float)count + (next.empty() ? 0.5f : 0);
+        }   
+        return count + (next.empty() ? 1000 : 0);
     }
 
 }
