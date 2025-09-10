@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
@@ -35,7 +36,8 @@ import javafx.beans.property.LongProperty;
 public class GameUI {
     private VBox rightPanel; // contains info about the game, reset button, winner, player turn
     private VBox leftPanel; // contains player1 game info, canvas, player2 game info
-    private HBox root;
+    private BorderPane root;
+    private HBox mainPanel;
     private HBox player1Panel;
     private HBox player2Panel;
     private Label infoLabel, moveLabel, playerLabel, winnerLabel;
@@ -51,6 +53,8 @@ public class GameUI {
     private BoardRenderer renderer;
     private BoardGame game;
     private GomokuAI AI;
+
+    public BoardRenderer getRenderer() { return renderer;}
 
     public class PlayerData {
         public final int id;
@@ -118,15 +122,16 @@ public class GameUI {
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
         rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, undoButton, infoLabel, moveLabel, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
-        root = new HBox(0, evalBar, leftPanel, rightPanel);
+        mainPanel = new HBox(0, evalBar, leftPanel, rightPanel);
+        root = new BorderPane(mainPanel);
         
         rightPanel.setMinWidth(300);
         rightPanel.setAlignment(Pos.TOP_CENTER);
         player1Panel.setMinHeight(50);
         player2Panel.setMinHeight(50);
-        root.setBackground(background);
+        mainPanel.setBackground(background);
 
-        root.setAlignment(Pos.CENTER);
+        mainPanel.setAlignment(Pos.CENTER);
 
         HBox.setMargin(evalBar, new Insets(0, 10, 0, 10)); // top right bot left
         HBox.setMargin(rightPanel, new Insets(10, 10, 10, 10)); // top right bot left
@@ -374,7 +379,7 @@ public class GameUI {
         return rightPanel;
     }
 
-    public HBox getRoot() {
+    public BorderPane getRoot() {
         return root;
     }
 

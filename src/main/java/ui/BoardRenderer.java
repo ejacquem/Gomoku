@@ -42,12 +42,13 @@ public class BoardRenderer {
         drawLabel();
         drawPieces();
         drawSymbols();
-        // drawDebugNumber();
-        drawBestMove();
-        drawNeighbour();
-        // drawEvaluatedPosition();
-        // drawHeatmapNeighbour();
-        drawHeatmapScore();
+        
+        if (GameSettings.drawDebugNumber) drawDebugNumber();
+        if (GameSettings.drawBestMove) drawBestMove();
+        if (GameSettings.drawNeighbour) drawNeighbour();
+        if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
+        if (GameSettings.drawHeatmapNeighbour) drawHeatmapNeighbour();
+        if (GameSettings.drawHeatmapScore) drawHeatmapScore();
         gc.translate(-MARGIN, -MARGIN);
     }
 

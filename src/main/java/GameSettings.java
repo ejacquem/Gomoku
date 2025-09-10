@@ -37,6 +37,13 @@ public abstract class GameSettings {
         Color.rgb(255,0,0,0.3),
     };
 
+    public static boolean drawDebugNumber = false;
+    public static boolean drawBestMove = false;
+    public static boolean drawNeighbour = false;
+    public static boolean drawEvaluatedPosition = false;
+    public static boolean drawHeatmapNeighbour = false;
+    public static boolean drawHeatmapScore = false;
+
     public static Color getHeatMapColor(int value, int maxValue){
         float fvalue = Math.min((float)value / (float)maxValue, 1);
         fvalue *= (HEATMAP_COLOR.length - 1);

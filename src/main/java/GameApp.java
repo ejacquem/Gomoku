@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import main.java.game.Board;
 import main.java.game.BoardGame;
 import main.java.ui.GameUI;
+import main.java.ui.GameUISettings;
 import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 
@@ -23,6 +24,7 @@ public class GameApp extends Application {
         BoardGame game = new BoardGame(AI, board);
 
         GameUI gameUI = new GameUI(game, AI);
+        GameUISettings gameUISettings = new GameUISettings(gameUI);
 
         Scene scene = new Scene(gameUI.getRoot());
 

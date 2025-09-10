@@ -13,6 +13,7 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/game/Move.java \
 		$(SRC)/ui/BoardRenderer.java \
 		$(SRC)/ui/GameUI.java \
+		$(SRC)/ui/GameUISettings.java \
 		$(SRC)/ui/UtilsRenderer.java \
 		$(SRC)/GameApp.java \
 		$(SRC)/GameSettings.java \

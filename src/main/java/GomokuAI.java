@@ -22,7 +22,7 @@ public class GomokuAI {
     public LongProperty player2ScoreProperty() { return player2Score; }
     public DoubleProperty percentageProperty() { return percentage; }
 
-    public final long TIME_LIMIT = 10000;
+    public final long TIME_LIMIT = 500;
     public final int MAX_DEPTH = 5;
     public boolean limitExcceeded = false;
     public long start;
