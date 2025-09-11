@@ -353,7 +353,7 @@ public class GameUI {
         });
 
         AI.percentageProperty().addListener((obs, oldVal, newVal) -> {
-            System.out.println("percentage score: " + newVal);
+            System.out.printf("percentage score: %1.3f\n", newVal);
             setBarPercentage(evalBar, (double)newVal);
         });
     }

@@ -14,7 +14,7 @@ public abstract class GameSettings {
 
     public static final int BOARD_PIXEL_SIZE = 19 * 40;
     public static final int BOARD_SIZE = 19;
-    public static final int FIRST_PLAYER = 1;
+    public static final int FIRST_PLAYER = 2;
     public static final int WINNING_PIECES = 5;
     public static final int WINNING_CAPTURED_PIECES = 10;
     public static final int START_TIMER = 300 * 1000; // sec
@@ -43,6 +43,8 @@ public abstract class GameSettings {
     public static boolean drawEvaluatedPosition = false;
     public static boolean drawHeatmapNeighbour = false;
     public static boolean drawHeatmapScore = false;
+    public static boolean drawScoreNumber = false;
+    public static boolean drawScorePlayerNumber = false;
     public static boolean aiPlaysAutomatic = false;
     public static boolean player1AI = false;
     public static boolean player2AI = false;

@@ -215,8 +215,6 @@ public class BoardRenderer {
 
     private void drawHeatmapScore(){
         int size = game.BOARD_SIZE;
-        int half = game.BOARD_SIZE / 2;
-        final int w = 8, h = 8; // size of a letter
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Coords pos = new Coords(col, row);
@@ -225,20 +223,27 @@ public class BoardRenderer {
                 gc.setFill(color);
                 gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
 
-                String n;
-                // n = Integer.toString(score);
-                // gc.setFill(Color.ORANGE);
-                // gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
-
-                n = Integer.toString((int)score.getPlayerScore(1));
-                gc.setFill(Color.WHITE);
-                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2 - h);
-
-                n = Integer.toString((int)score.getPlayerScore(2));
-                gc.setFill(Color.BLACK);
-                gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2 + h);
+                if (GameSettings.drawScoreNumber)
+                    drawNumberAt(pos, 0, 0, (int)score.getScore(), Color.ORANGE);
+                
+                if (GameSettings.drawScorePlayerNumber){
+                    drawNumberAt(pos, 0, 1.5f, (int)score.getPlayerScore(1), Color.WHITE);
+                    drawNumberAt(pos, 0, -1.5f, (int)score.getPlayerScore(2), Color.BLACK);
+                }
             }
         }
+    }
+
+    private void drawNumberAt(Coords gridPos, float anchorx, float anchory, int number, Color color){
+        final int w = 8, h = 10; // size of a letter
+        String str = Integer.toString(number);
+        gc.setFill(color);
+        int halfHeight = h / 2;
+        int halfWidth = w * str.length() / 2;
+        gc.fillText(str, 
+        gridPos.x * TILE_SIZE - halfWidth + anchorx * halfWidth, 
+        gridPos.y * TILE_SIZE + halfHeight + -(anchory * halfHeight)
+        );
     }
     
     private void drawSymbols(){

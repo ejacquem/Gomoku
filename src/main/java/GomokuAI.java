@@ -157,6 +157,7 @@ public class GomokuAI {
         for (int i = 0; i < MAX_DEPTH; i++){
             System.out.println("Iteration at depth " + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
         }
+        percentage.set(evaluatepercent(1));
         return bestMove;
     }
 
@@ -184,36 +185,38 @@ public class GomokuAI {
         return positionScore;
     }
 
-    // move 0 : - 0%
-    // move MAX_ITERATION : - 10%
-    private float depthFactor(int depth, float maxFactor){
-        return 1f - (((MAX_DEPTH - depth) / (float)MAX_DEPTH) * maxFactor);
+    public double evaluatepercent(int depth){
+        if (board.getWinner() == 1)
+            return (+10000000 * depthFactor(depth, 0.5f));
+        if (board.getWinner() == 2)
+            return (-10000000 * depthFactor(depth, 0.5f));
+
+        Coords[] moves = getPossibleMove();
+        CellInfo[] sortedMoves = sortMoves(moves);
+
+        double player1PositionScore = 0, player2PositionScore = 0;
+        for (CellInfo move : sortedMoves){
+            player1PositionScore += move.score.getPlayerScore(1);
+            player2PositionScore += move.score.getPlayerScore(2);
+        }
+
+        double player1Score = player1PositionScore + captureScore[board.getPlayer1CapturesCount() / 2];
+        double player2Score = player2PositionScore + captureScore[board.getPlayer2CapturesCount() / 2];
+
+        System.out.printf("Player1 | %-10s | %-15s | %-10s%n", "Score", "Position Score", "Capture Score");
+        System.out.printf("Player1 | %-10.1f | %-15.1f | %-10d%n",
+        player1Score, player1PositionScore, captureScore[board.getPlayer1CapturesCount() / 2]);
+        System.out.printf("Player2 | %-10.1f | %-15.1f | %-10d%n",
+        player2Score, player2PositionScore, captureScore[board.getPlayer2CapturesCount() / 2]);
+
+        double positionScore = player2Score / (player2Score + player1Score);
+        return positionScore;
     }
 
-    private long findAndSumMatch(Pattern[] patterns, int player, int opponent, int playerTurn){
-        long sum = 100; //default score
-        for (int r = 0; r < board.BOARD_SIZE; r++) {
-            for (int c = 0; c < board.BOARD_SIZE; c++) {
-                // for (int[] dir: game.DIRECTION){
-                //     for (Pattern pat : patterns){
-                //         if (game.checkSequenceMatch(r, c, pat.pattern.length, 0, pat.pattern, dir, (p, cell) -> p == cell.player && !cell.can_be_captured, opponent)){
-                //             sum += pat.score[playerTurn];
-                //             break;
-                //         }
-                //     }
-                // }
-                // gain one point per piece
-                // if (game.getTileState(r, c) == player){
-                //     sum += 1;
-                // }
-                // Cell cell = game.getCell(r, c);
-                // if (playerTurn == 1){
-                //     sum += cell.can_be_captured ? 10 : 0; // 10 point per capturable piece
-                //     sum += cell.isFreeThree() ? 5 : 0; // 5 point per isFreeThree
-                // }
-            }
-        }
-        return sum;
+    // move 0 : - 0%
+    // move MAX_ITERATION : - 50%
+    private float depthFactor(int depth, float maxFactor){
+        return 1f - (((MAX_DEPTH - depth) / (float)MAX_DEPTH) * maxFactor);
     }
 
     public boolean timeLimitExceeded(){
