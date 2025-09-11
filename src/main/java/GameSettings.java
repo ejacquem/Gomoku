@@ -38,11 +38,11 @@ public abstract class GameSettings {
     };
 
     public static boolean drawDebugNumber = false;
-    public static boolean drawBestMove = false;
+    public static boolean drawBestMove = true;
     public static boolean drawNeighbour = false;
-    public static boolean drawEvaluatedPosition = false;
+    public static boolean drawEvaluatedPosition = true;
     public static boolean drawHeatmapNeighbour = false;
-    public static boolean drawHeatmapScore = false;
+    public static boolean drawHeatmapScore = true;
     public static boolean drawScoreNumber = false;
     public static boolean drawScorePlayerNumber = false;
 

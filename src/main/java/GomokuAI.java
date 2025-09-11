@@ -136,7 +136,9 @@ public class GomokuAI {
 
         int maxMove = 0;
         for (CellInfo move : sortedMoves){
-            if (maxMove++ == 5) break;
+            if (maxMove >= 3 && move.score.getScore() < 10f) break;
+            if (maxMove >= 5 && move.score.getScore() < 25f) break;
+            if (maxMove == 7) break;
             Coords pos = move.pos;
             board.placePiece(pos);
             int score = search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, color); // = negamax(rootNode, depth, −∞, +∞, 1)
@@ -148,6 +150,7 @@ public class GomokuAI {
                 bestMove = pos;
             }
             board.undoLastMove();
+            maxMove++;
         }
         end = System.currentTimeMillis();
         if (limitExcceeded){
@@ -308,7 +311,9 @@ public class GomokuAI {
         int maxMove = 0;
         int value = Integer.MIN_VALUE;
         for (CellInfo move : sortedMoves){
-            if (maxMove++ == 5) break;
+            if (maxMove >= 3 && move.score.getScore() < 10f) break;
+            if (maxMove >= 5 && move.score.getScore() < 25f) break;
+            if (maxMove == 7) break;
             Coords pos = move.pos;
             board.placePiece(pos);
             player1PositionScore = player1score;
@@ -321,6 +326,7 @@ public class GomokuAI {
                 prunningPerDepth[MAX_DEPTH - depth]++;
                 break;
             }
+            maxMove++;
         }
         return value;
     }

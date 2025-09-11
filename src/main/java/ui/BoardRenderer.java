@@ -317,7 +317,6 @@ public class BoardRenderer {
         Board.SequenceData data = game.board.new SequenceData();
         for (Coords dir : game.board.DIRECTION8){
             Coords temp = pos.add(dir);
-            data.reset();
             game.board.pieceSequenceScoreInDir(temp, dir, data);
 
             overlayGc.setFill(Color.rgb(125, 125, 0, 0.5));

@@ -432,13 +432,13 @@ public class Board {
         }
         else if (trailSpaceNumber == 1){
             if (pieceNumber == 1) return 1;
-            else if (pieceNumber == 2) return 5;
-            else if (pieceNumber == 3) return 25;
+            else if (pieceNumber == 2) return 10;
+            else if (pieceNumber == 3) return 100;
             else if (pieceNumber >= 4) return 10000;
         }
         else if (trailSpaceNumber == 2){
             if (pieceNumber == 1) return 2;
-            else if (pieceNumber == 2) return 10;
+            else if (pieceNumber == 2) return 20;
             else if (pieceNumber == 3) return 200;
             else if (pieceNumber >= 4) return 10000;
         }
@@ -456,8 +456,6 @@ public class Board {
         test++;
         for (Coords dir : DIRECTION4){
             // System.out.println("dir: " + dir);
-            sequenceScoreRight.reset();
-            sequenceScoreLeft.reset();
             addCellScoreAtDir(pos, dir, score);
         }
         return score;
@@ -494,20 +492,31 @@ public class Board {
     private void computeSequenceScore(CellScore total){
         SequenceData right = sequenceScoreRight;
         SequenceData left = sequenceScoreLeft;
+        
+        if (right.pieceNumber == 2 && ((right.player == 1 && right.trailPiece == 2) || (right.player == 2 && right.trailPiece == 1))){
+            total.addScore(100, right.player);
+        }
+        if (left.pieceNumber == 2 && ((left.player == 1 && left.trailPiece == 2) || (left.player == 2 && left.trailPiece == 1))){
+            total.addScore(100, left.player);
+        }
         // case ... p x p ...
         if ((right.player == 1 || right.player == 2) &&right.player == left.player){
-            int trailSpaceNumber = (right.trailPiece == 0 ? 1 : 0) + (left.trailPiece == 0 ? 1 : 0);
+            int trailSpaceNumber = isSpace(right.trailPiece) + isSpace(left.trailPiece);
             float score = calculateScore(right.pieceNumber + left.pieceNumber, trailSpaceNumber);
             total.addScore(score, right.player);
             return ;
         }
         // case ... x p ...
         if ((right.player == 1 || right.player == 2)){
-            total.addScore(calculateScore(right.pieceNumber, 1 + right.trailPiece), right.player);
+            total.addScore(calculateScore(right.pieceNumber, 1 + isSpace(right.trailPiece)), right.player);
         }
         if ((left.player == 1 || left.player == 2)){
-            total.addScore(calculateScore(left.pieceNumber, 1 + left.trailPiece), left.player);
+            total.addScore(calculateScore(left.pieceNumber, 1 + isSpace(left.trailPiece)), left.player);
         }
+    }
+
+    private int isSpace(int piece){
+        return (piece == 0 ? 1 : 0);
     }
 
     public void addCellScoreAtDir(Coords pos, Coords dir, CellScore total) {
@@ -519,6 +528,7 @@ public class Board {
     }
 
     public void pieceSequenceScoreInDir(Coords pos, Coords dir, SequenceData data){
+        data.reset();
         Cell curr = getCellAt(pos, -1);
         Cell next = curr;
         int count = 0;
