@@ -164,7 +164,6 @@ public class BoardGame {
 
     public void reset() 
     {
-        // resetBoard();
         AI.reset();
         bestMove = new Coords(-1,-1);
         board.reset();
@@ -173,10 +172,10 @@ public class BoardGame {
         winner.set(0);
         player1Timer.set(GameSettings.START_TIMER);
         player2Timer.set(GameSettings.START_TIMER);
-        player1CapturedPieces.set(0);
-        player2CapturedPieces.set(0);
         timeline1.pause();
         timeline2.pause();
+        player1CapturedPieces.set(0);
+        player2CapturedPieces.set(0);
     }
 
     /* BOARD ACTION */

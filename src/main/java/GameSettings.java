@@ -45,9 +45,15 @@ public abstract class GameSettings {
     public static boolean drawHeatmapScore = false;
     public static boolean drawScoreNumber = false;
     public static boolean drawScorePlayerNumber = false;
+
     public static boolean aiPlaysAutomatic = false;
     public static boolean player1AI = false;
     public static boolean player2AI = false;
+
+    public static boolean drawMousePos = false;
+    public static boolean drawMouseGridPos = false;
+    public static boolean drawMouseCellPos = false;
+    public static boolean drawSequenceDataOnMouse = false;
 
     public static Color getHeatMapColor(int value, int maxValue){
         float fvalue = Math.min((float)value / (float)maxValue, 1);

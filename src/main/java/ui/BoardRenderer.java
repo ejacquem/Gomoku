@@ -282,10 +282,11 @@ public class BoardRenderer {
 
     public void drawOverlay(){
         overlayGc.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
-        // drawMousePos(mouseX, mouseY);
-        // drawMouseGridPos();
-        drawMouseCellPos();
-        drawSequenceDataOnMouse();
+        
+        if (GameSettings.drawMousePos) drawMousePos(mouseX, mouseY);
+        if (GameSettings.drawMouseGridPos) drawMouseGridPos();
+        if (GameSettings.drawMouseCellPos) drawMouseCellPos();
+        if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
     }
 
     public void drawMousePos(double x, double y){

@@ -322,7 +322,7 @@ public class GameUI {
     {
         // Restart button action
         restartButton.setOnAction(e -> {
-            game.reset();
+            game.startGame();
             renderer.draw();
         });
 
@@ -333,7 +333,7 @@ public class GameUI {
 
         randomButton.setOnAction(e -> {
             game.startGame();
-            game.board.random(.1f);
+            game.board.random(.2f);
             renderer.draw();
         });
 

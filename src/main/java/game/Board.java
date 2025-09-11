@@ -210,6 +210,7 @@ public class Board {
         moves.clear();
         resetWinner();
         neighbourCellIndexSet.clear();
+        currentPlayer = GameSettings.FIRST_PLAYER;
         for (int y = 0; y < BOARD_SIZE; y++) {
             for (int x = 0; x < BOARD_SIZE; x++) {
                 board[y][x].reset();

@@ -24,6 +24,7 @@ public class GameUISettings {
         this.renderer = this.gameUI.getRenderer();
 
         Menu debugSettingsMenu = new Menu("Debug");
+        Menu debugMouseSettingsMenu = new Menu("Debug On Mouse");
         Menu settingsMenu = new Menu("Settings");
 
         debugSettingsMenu.getItems().addAll(
@@ -41,10 +42,17 @@ public class GameUISettings {
             createSettingItem("Player 1 AI",             () -> GameSettings.player1AI,              val -> GameSettings.player1AI = val),
             createSettingItem("Player 2 AI",             () -> GameSettings.player2AI,              val -> GameSettings.player2AI = val)
         );
+        debugMouseSettingsMenu.getItems().addAll(
+            createSettingItem("Draw Mouse Pos",             () -> GameSettings.drawMousePos,           val -> GameSettings.drawMousePos = val),
+            createSettingItem("Draw Mouse Grid Pos",        () -> GameSettings.drawMouseGridPos,       val -> GameSettings.drawMouseGridPos = val),
+            createSettingItem("Draw Mouse Cell Pos",        () -> GameSettings.drawMouseCellPos,       val -> GameSettings.drawMouseCellPos = val),
+            createSettingItem("Draw Sequence Data On Mouse",() -> GameSettings.drawSequenceDataOnMouse,val -> GameSettings.drawSequenceDataOnMouse = val)
+        );
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(settingsMenu);
         menuBar.getMenus().add(debugSettingsMenu);
+        menuBar.getMenus().add(debugMouseSettingsMenu);
 
         gameUI.getRoot().setTop(menuBar);
     }

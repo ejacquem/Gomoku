@@ -112,6 +112,8 @@ public class GomokuAI {
         start = 0;
         end = 0;
         prunningCount = 0;
+        player1PositionScore = 0f;
+        player2PositionScore = 0f;
         for (int i = 0; i < MAX_DEPTH; i++){
             iterationPerDepth[i] = 0;
             prunningPerDepth[i] = 0;
