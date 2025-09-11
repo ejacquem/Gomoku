@@ -379,7 +379,7 @@ public class Board {
     }
 
     public class CellScore{
-        float[] playerScore = new float[]{0, 0};
+        private float[] playerScore = new float[]{0, 0};
 
         CellScore(){}
 
@@ -455,46 +455,87 @@ public class Board {
         test++;
         for (Coords dir : DIRECTION4){
             // System.out.println("dir: " + dir);
+            sequenceScoreRight.reset();
+            sequenceScoreLeft.reset();
             addCellScoreAtDir(pos, dir, score);
         }
         return score;
     }
 
-    public void addCellScoreAtDir(Coords pos, Coords dir, CellScore total) {
-        Cell right = getCellAtDir(pos, dir, 1);
-        Cell left = getCellAtDir(pos, dir, -1);
-        int scoreRight = pieceSequenceScoreInDir(pos.add(dir), dir);
-        int scoreLeft = pieceSequenceScoreInDir(pos.add(dir.negate()), dir.negate());
+    // sequence data stores info on the sequence
+    // x 1 1 0 0 0 2 -> player = 1, pieceNumber = 2, trailSpaceNumber = 3, trailPiece = 2
+    public class SequenceData{
+        public int player = 0;
+        public int pieceNumber = 0;
+        public int trailSpaceNumber = 0;
+        public int trailPiece = 0;
 
-        int pieceNumberRight = scoreRight % 1000;
-        int pieceNumberLeft = scoreLeft % 1000;
-        int trailSpaceNumberRight = scoreRight / 1000;
-        int trailSpaceNumberLeft = scoreLeft / 1000;
-
-        if (right.has_piece() && right.player == left.player){
-            float score = calculateScore(pieceNumberRight + pieceNumberLeft, trailSpaceNumberRight + trailSpaceNumberLeft);
-            total.addScore(score, right.player);
+        public SequenceData(int player, int pieceNumber, int trailSpaceNumber, int trailPiece){
+            this.player = player;
+            this.pieceNumber = pieceNumber;
+            this.trailSpaceNumber = trailSpaceNumber;
+            this.trailPiece = trailPiece;
         }
-        else{
-            if (right.has_piece()) total.addScore(calculateScore(pieceNumberRight, 1 + trailSpaceNumberRight), right.player);
-            if (left.has_piece()) total.addScore(calculateScore(pieceNumberLeft, 1 + trailSpaceNumberLeft), left.player);
+        public SequenceData(){
+        }
+        public void reset(){
+            this.player = 0;
+            this.pieceNumber = 0;
+            this.trailSpaceNumber = 0;
+            this.trailPiece = 0;
         }
     }
 
-    public int pieceSequenceScoreInDir(Coords pos, Coords dir){
+    // store variable in class to avoid new allocation
+    private SequenceData sequenceScoreRight = new SequenceData();
+    private SequenceData sequenceScoreLeft = new SequenceData();
+
+    private void computeSequenceScore(CellScore total){
+        SequenceData right = sequenceScoreRight;
+        SequenceData left = sequenceScoreLeft;
+        // case ... p x p ...
+        if ((right.player == 1 || right.player == 2) &&right.player == left.player){
+            int trailSpaceNumber = (right.trailPiece == 0 ? 1 : 0) + (left.trailPiece == 0 ? 1 : 0);
+            float score = calculateScore(right.pieceNumber + left.pieceNumber, trailSpaceNumber);
+            total.addScore(score, right.player);
+            return ;
+        }
+        // case ... x p ...
+        if ((right.player == 1 || right.player == 2)){
+            total.addScore(calculateScore(right.pieceNumber, 1 + right.trailPiece), right.player);
+        }
+        if ((left.player == 1 || left.player == 2)){
+            total.addScore(calculateScore(left.pieceNumber, 1 + left.trailPiece), left.player);
+        }
+    }
+
+    public void addCellScoreAtDir(Coords pos, Coords dir, CellScore total) {
+        pieceSequenceScoreInDir(pos.add(dir), dir, sequenceScoreRight);
+        dir.multiplyBy(-1); // reverse dir
+        pieceSequenceScoreInDir(pos.add(dir), dir, sequenceScoreLeft);
+
+        computeSequenceScore(total);
+    }
+
+    public void pieceSequenceScoreInDir(Coords pos, Coords dir, SequenceData data){
         Cell curr = getCellAt(pos, -1);
-        if (curr.empty())
-            return 1000;
-        if (!curr.has_piece())
-            return 0;
-        int player = curr.player;
-        Cell next = getCellAtDir(pos, dir, 1);
-        int count = 1;
-        while (player == next.player){
+        Cell next = curr;
+        int count = 0;
+        data.player = curr.player;
+        if (curr.player == 1 || curr.player == 2){
+            int player = curr.player;
+            while (next.player == player){
+                count++;
+                next = getCellAtDir(pos, dir, count);
+            }
+            data.pieceNumber = count;
+        }
+        while (next.empty()){
+            data.trailSpaceNumber++;
             count++;
             next = getCellAtDir(pos, dir, count);
-        }   
-        return count + (next.empty() ? 1000 : 0);
+        }
+        data.trailPiece = next.player;  
     }
 
 }

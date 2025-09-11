@@ -2,6 +2,7 @@ package main.java.ui;
 import main.java.GameSettings;
 import main.java.GomokuAI;
 import main.java.game.BoardGame;
+import main.java.game.Coords;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
@@ -50,6 +51,7 @@ public class GameUI {
     private Font robotoFont = Font.loadFont("file:src/main/resources/Roboto.ttf", 20);
 
     private Canvas canvas;
+    private Canvas overlayCanvas;
     private BoardRenderer renderer;
     private BoardGame game;
     private GomokuAI AI;
@@ -80,7 +82,7 @@ public class GameUI {
     public GameUI(BoardGame game, GomokuAI AI) {
         this.game = game;
         this.AI = AI;
-
+    
         titlePane = createTitlePane();
 
         infoLabel = creatLabel("Game Info", robotoFont, Color.WHITE);
@@ -106,22 +108,33 @@ public class GameUI {
         canvas = new Canvas(
             (game.BOARD_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2,
             (game.BOARD_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2);
+
+        overlayCanvas = new Canvas(
+            canvas.getWidth(),
+            canvas.getHeight()
+        );
             
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
+        canvas.addEventHandler(MouseEvent.MOUSE_MOVED, e -> handleMouseMove(e));
+        overlayCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
+        overlayCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, e -> handleMouseMove(e));
         
         Rectangle clip = new Rectangle(canvas.getWidth(), canvas.getHeight());
         clip.setArcWidth(10);
         clip.setArcHeight(10);
         canvas.setClip(clip);
+        // overlayCanvas.setClip(clip);
+
+        StackPane canvasStack = new StackPane(canvas, overlayCanvas);
 
         evalBar = createEvaluationBar(20);
         setBarPercentage(evalBar, 0.5);
 
-        renderer = new BoardRenderer(canvas, game);
+        renderer = new BoardRenderer(canvas, overlayCanvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
         rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, undoButton, infoLabel, moveLabel, playerLabel, winnerLabel);
-        leftPanel = new VBox(0, player1Panel, canvas, player2Panel);
+        leftPanel = new VBox(0, player1Panel, canvasStack, player2Panel);
         mainPanel = new HBox(0, evalBar, leftPanel, rightPanel);
         root = new BorderPane(mainPanel);
         
@@ -390,6 +403,14 @@ public class GameUI {
     }
 
     private void handleClick(MouseEvent e) {
-        // setPlayerText();
+        Coords pos = renderer.pixelPosToCoords(e.getX(), e.getY());
+        game.handleInput(pos);
+        renderer.draw();
+    }
+
+    private void handleMouseMove(MouseEvent e) {
+        renderer.mouseX = e.getX();
+        renderer.mouseY = e.getY();
+        renderer.drawOverlay();
     }
 }

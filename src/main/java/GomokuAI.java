@@ -155,7 +155,7 @@ public class GomokuAI {
         System.out.println("Execution time: " + (System.currentTimeMillis() - start) + " ms");
         System.out.println("prunningCount: " + prunningCount);
         for (int i = 0; i < MAX_DEPTH; i++){
-            System.out.println("Iteration at depth " + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
+            System.out.println("Iteration at depth " + (i + 1 < 10 ? " " : "") + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
         }
         percentage.set(evaluatepercent(1));
         return bestMove;

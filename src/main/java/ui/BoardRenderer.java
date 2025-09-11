@@ -6,10 +6,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import main.java.GameSettings;
 import main.java.GomokuAI.EvaluatedPosition;
+import main.java.game.Board;
 import main.java.game.BoardGame;
 import main.java.game.Cell;
 import main.java.game.Coords;
 import main.java.game.Board.CellScore;
+import main.java.game.Board.SequenceData;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;
@@ -17,16 +19,18 @@ public class BoardRenderer {
     public Color[] playerColor= {GameSettings.PLAYER1_COLOR, GameSettings.PLAYER2_COLOR};
 
     private Canvas canvas;
+    private Canvas overlayCanvas;
     private BoardGame game;
     private GraphicsContext gc;
+    private GraphicsContext overlayGc;
 
-    public BoardRenderer(Canvas canvas, BoardGame game) {
+    public BoardRenderer(Canvas canvas, Canvas overlayCanvas, BoardGame game) {
         this.canvas = canvas;
+        this.overlayCanvas = overlayCanvas;
         this.game = game;
 
-        canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
-
         gc = canvas.getGraphicsContext2D();
+        overlayGc = overlayCanvas.getGraphicsContext2D();
     }
 
     public void draw() {
@@ -235,6 +239,10 @@ public class BoardRenderer {
     }
 
     private void drawNumberAt(Coords gridPos, float anchorx, float anchory, int number, Color color){
+        drawNumberAt(gc, gridPos, anchorx, anchory, number, color);
+    }
+
+    private void drawNumberAt(GraphicsContext gc, Coords gridPos, float anchorx, float anchory, int number, Color color){
         final int w = 8, h = 10; // size of a letter
         String str = Integer.toString(number);
         gc.setFill(color);
@@ -269,17 +277,88 @@ public class BoardRenderer {
         }
     }
 
+    public double mouseX = 0;
+    public double mouseY = 0;
+
+    public void drawOverlay(){
+        overlayGc.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
+        // drawMousePos(mouseX, mouseY);
+        // drawMouseGridPos();
+        drawMouseCellPos();
+        drawSequenceDataOnMouse();
+    }
+
+    public void drawMousePos(double x, double y){
+        String strx = Integer.toString((int)x);
+        String stry = Integer.toString((int)y);
+        overlayGc.setFill(Color.WHITE);
+        overlayGc.fillText("x: " + strx, x, y);
+        overlayGc.fillText("y: " + stry, x, y - 16);
+    }
+
+    public void drawMouseGridPos(){
+        Coords pos = pixelPosToCoords(mouseX, mouseY);
+        String strx = Integer.toString((int)pos.x);
+        String stry = Integer.toString((int)pos.y);
+        overlayGc.setFill(Color.WHITE);
+        overlayGc.fillText("x: " + strx, mouseX, mouseY - 32);
+        overlayGc.fillText("y: " + stry, mouseX, mouseY - 48);
+    }
+
+    public void drawMouseCellPos(){
+        Coords pos = pixelPosToCoords(mouseX, mouseY);
+        overlayGc.setFill(Color.rgb(0, 125, 125, 0.2));
+        overlayGc.fillRect(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+    }
+
+    public void drawSequenceDataOnMouse(){
+        Coords pos = pixelPosToCoords(mouseX, mouseY);
+        Board.SequenceData data = game.board.new SequenceData();
+        for (Coords dir : game.board.DIRECTION8){
+            Coords temp = pos.add(dir);
+            data.reset();
+            game.board.pieceSequenceScoreInDir(temp, dir, data);
+
+            overlayGc.setFill(Color.rgb(125, 125, 0, 0.5));
+            if (data.player == 1 || data.player == 2)
+                overlayGc.setFill(getPlayerColor(data.player, 0.5));
+            for (int i = 0; i < data.pieceNumber; i++){
+                drawCenterTileAt(overlayGc, temp);
+                temp.addTo(dir);
+            }
+            overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
+            for (int i = 0; i < data.trailSpaceNumber; i++){
+                drawCenterTileAt(overlayGc, temp);
+                temp.addTo(dir);
+            }
+            overlayGc.setFill(Color.rgb(125, 0, 0, 0.5));
+            if (data.trailPiece == 1 || data.trailPiece == 2)
+                overlayGc.setFill(getPlayerColor(data.trailPiece, 0.5));
+            drawCenterTileAt(overlayGc, temp);
+        }
+    }
+
+    public void drawTileAt(GraphicsContext g, Coords pos){
+        g.fillRect(pos.x * TILE_SIZE, pos.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+
+    public void drawCenterTileAt(GraphicsContext g, Coords pos){
+        g.fillRect(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+    }
+
     public Color getPlayerColor(int player){
         return playerColor[player - 1];
     }
 
-    private void handleClick(MouseEvent e) {
-        int row = (int)((e.getY() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
-        int col = (int)((e.getX() - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
-        game.handleInput(new Coords(col, row));
-
-        // System.out.println("row: " + row + ", col: " + col);
-        // System.out.println("e.getX(): " + e.getX() + ", e.getY(): " + e.getY());
-        draw();
+    public Color getPlayerColor(int player, double alpha){
+        Color color = playerColor[player - 1];
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
+
+    public Coords pixelPosToCoords(double x, double y){
+        int row = (int)((y - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
+        int col = (int)((x - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
+        return new Coords(col, row);
+    }
+
 }
