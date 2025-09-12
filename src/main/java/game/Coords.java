@@ -195,4 +195,8 @@ public class Coords {
     public static Coords of(int x, int y) {
         return new Coords(x, y);
     }
+    
+    public Coords clone() {
+        return new Coords(x, y);
+    }
 }

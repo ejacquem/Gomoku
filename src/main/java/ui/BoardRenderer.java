@@ -9,7 +9,7 @@ import main.java.game.Board;
 import main.java.game.BoardGame;
 import main.java.game.Cell;
 import main.java.game.Coords;
-import main.java.game.Board.CellScore;
+import main.java.game.CellInfo;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;
@@ -220,17 +220,20 @@ public class BoardRenderer {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Coords pos = new Coords(col, row);
-                CellScore score = game.board.getCellScoreAt(pos); 
-                Color color = GameSettings.getHeatMapColor((int)score.getScore(), 20);
+                // CellInfo score = game.board.getCellInfoAt(pos);
+                CellInfo info = game.board.getMapInfo().get(pos);
+                if (info == null)
+                    info = new CellInfo(new Coords());
+                Color color = GameSettings.getHeatMapColor((int)info.getScore(), 20);
                 gc.setFill(color);
                 gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
 
                 if (GameSettings.drawScoreNumber)
-                    drawNumberAt(pos, 0, 0, (int)score.getScore(), Color.ORANGE);
+                    drawNumberAt(pos, 0, 0, (int)info.getScore(), Color.ORANGE);
                 
                 if (GameSettings.drawScorePlayerNumber){
-                    drawNumberAt(pos, 0, 1.5f, (int)score.getPlayerScore(1), Color.WHITE);
-                    drawNumberAt(pos, 0, -1.5f, (int)score.getPlayerScore(2), Color.BLACK);
+                    drawNumberAt(pos, 0, 1.5f, (int)info.getPlayerScore(1), Color.WHITE);
+                    drawNumberAt(pos, 0, -1.5f, (int)info.getPlayerScore(2), Color.BLACK);
                 }
             }
         }

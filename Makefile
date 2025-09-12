@@ -10,6 +10,7 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/game/BoardGame.java \
 		$(SRC)/game/Cell.java \
 		$(SRC)/game/Coords.java \
+		$(SRC)/game/CellInfo.java \
 		$(SRC)/game/Move.java \
 		$(SRC)/ui/BoardRenderer.java \
 		$(SRC)/ui/GameUI.java \

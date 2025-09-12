@@ -10,7 +10,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import main.java.game.Board;
 import main.java.game.Coords;
-import main.java.game.Board.CellScore;
+import main.java.game.CellInfo;
 
 public class GomokuAI {
     private Board board;
@@ -75,8 +75,12 @@ public class GomokuAI {
         limitExcceeded = false;
 
         Coords[] moves = getPossibleMove();
-        CellInfo[] sortedMoves = sortMoves(moves);
+        List<CellInfo> sortedMoves = board.getSortedSetOfMapInfo();
         // shuffleSameScore(sortedMoves);
+
+        for (CellInfo move : sortedMoves){
+            System.out.println(move.pos);
+        }
 
         int bestEval = Integer.MIN_VALUE;
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
@@ -84,8 +88,8 @@ public class GomokuAI {
 
         int maxMove = 0;
         for (CellInfo move : sortedMoves){
-            if (maxMove >= 3 && move.score.getScore() < 10f) break;
-            if (maxMove >= 5 && move.score.getScore() < 25f) break;
+            if (maxMove >= 3 && move.getScore() < 10f) break;
+            if (maxMove >= 5 && move.getScore() < 25f) break;
             if (maxMove == 7) break;
             Coords pos = move.pos;
             board.placePiece(pos);
@@ -133,12 +137,12 @@ public class GomokuAI {
             return (-10000000 * depthFactor(depth, 0.5f));
 
         Coords[] moves = getPossibleMove();
-        CellInfo[] sortedMoves = sortMoves(moves);
+        List<CellInfo> sortedMoves = board.getSortedSetOfMapInfo();
 
         double player1PositionScore = 0, player2PositionScore = 0;
         for (CellInfo move : sortedMoves){
-            player1PositionScore += move.score.getPlayerScore(1);
-            player2PositionScore += move.score.getPlayerScore(2);
+            player1PositionScore += move.getPlayerScore(1);
+            player2PositionScore += move.getPlayerScore(2);
         }
 
         double player1Score = player1PositionScore + captureScore[board.getPlayer1CapturesCount() / 2];
@@ -167,34 +171,13 @@ public class GomokuAI {
         return limitExcceeded;
     }
 
-    public class CellInfo{
-        public Coords pos;
-        public CellScore score;
-    }
-    
-    private static final Comparator<CellInfo> SCORE_COMPARATOR =
-        (a, b) -> Float.compare(b.score.getScore(), a.score.getScore());
-
-    private CellInfo[] sortMoves(Coords[] moves) {
-        CellInfo[] infos = new CellInfo[moves.length];
-    
-        for (int i = 0; i < moves.length; i++) {
-            CellInfo ci = new CellInfo();
-            ci.pos = moves[i];
-            ci.score = board.getCellScoreAt(moves[i]);
-            infos[i] = ci;
-        }
-    
-        Arrays.sort(infos, SCORE_COMPARATOR);
-        return infos;
-    }
 
     // private void shuffleSameScore(CellInfo[] infos){
     //     Random rng = new Random();
     //     int start = 0;
     //     while (start < infos.length) {
     //         int end = start + 1;
-    //         while (end < infos.length && infos[end].score.getScore() == infos[start].score.getScore()) {
+    //         while (end < infos.length && infos[end].getScore() == infos[start].getScore()) {
     //             end++;
     //         }
     //         for (int i = end - 1; i > start; i--) {
@@ -234,21 +217,20 @@ public class GomokuAI {
             return color * evaluate(depth);
         }
 
-        Coords[] moves = getPossibleMove();
-        CellInfo[] sortedMoves = sortMoves(moves);
+        List<CellInfo> sortedMoves = board.getSortedSetOfMapInfo();
 
         float player1score = 0;
         float player2score = 0;
         for (CellInfo move : sortedMoves){
-            player1score += move.score.getPlayerScore(1);
-            player2score += move.score.getPlayerScore(2);
+            player1score += move.getPlayerScore(1);
+            player2score += move.getPlayerScore(2);
         }
         
         int maxMove = 0;
         int value = Integer.MIN_VALUE;
         for (CellInfo move : sortedMoves){
-            if (maxMove >= 3 && move.score.getScore() < 10f) break;
-            if (maxMove >= 5 && move.score.getScore() < 25f) break;
+            if (maxMove >= 3 && move.getScore() < 10f) break;
+            if (maxMove >= 5 && move.getScore() < 25f) break;
             if (maxMove == 7) break;
             Coords pos = move.pos;
             board.placePiece(pos);

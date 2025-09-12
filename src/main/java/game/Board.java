@@ -1,11 +1,16 @@
 package main.java.game;
 
 import main.java.GameSettings;
+import main.java.game.CellInfo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiPredicate;
@@ -16,7 +21,9 @@ public class Board {
     public final int WINNING_PIECES = 5;
     private Cell[][] board;
     public Set<Coords> neighbourCellIndexSet;
-    private Stack<Move> moves;
+    // private Stack<Map<Coords, CellInfo>> mapInfoHistory;
+    private Map<Coords, CellInfo> mapInfo;
+    private Stack<Move> movesHistory;
     private int moveCount = 0;
     private int player1PiecesCount = 0;
     private int player2PiecesCount = 0;
@@ -52,7 +59,10 @@ public class Board {
             }
         }
 
-        moves = new Stack<>();
+        movesHistory = new Stack<>();
+        // mapInfoHistory = new Stack<>();
+        // mapInfoHistory.add(new HashMap<>());
+        mapInfo = new HashMap<>();
         neighbourCellIndexSet = new HashSet<>();
     }
 
@@ -99,25 +109,31 @@ public class Board {
             player2PiecesCount += amount;
     }
 
+    public Map<Coords, CellInfo> getMapInfo(){
+        // return mapInfoHistory.peek();
+        return mapInfo;
+    }
+
     /* ----- ACTIONS ----- */
 
     public void undoLastMove(){
+        if (moveCount == 0)
+            return;
         moveCount--;
-        Move m = moves.pop();
+        Move m = movesHistory.pop();
+        // mapInfoHistory.pop();
         removePiece(m.coords);
         int opponent = getOpponent(m.player);
         for (Coords pos : m.capturesCoords){
             addPiece(pos, opponent);
         }
+        // problem here
+        analyseCurrentPosition(m.coords, m.capturesCoords, true);
         if (m.player == 1) player1CaptureCount -= m.capturesCoords.size();
         if (m.player == 2) player2CaptureCount -= m.capturesCoords.size();
         if (winner != 0)
             resetWinner();
         switchPlayer();
-    }
-
-    private void switchPlayer(){
-        currentPlayer = (currentPlayer == 1 ? 2 : 1);
     }
 
     public void placePiece(Coords pos){
@@ -128,7 +144,8 @@ public class Board {
         }
         addPiece(pos, player);
         List<Coords> captures = capturePieces(pos, player);
-        moves.add(new Move(player, pos, captures));
+        movesHistory.add(new Move(player, pos, captures));
+        analyseCurrentPosition(pos, captures, false);
         checkWinnerAt(pos);
         checkWinnerCaptures();
         switchPlayer();
@@ -173,6 +190,10 @@ public class Board {
         return new Coords[]{pos1, pos2};
     }
 
+    private void switchPlayer(){
+        currentPlayer = (currentPlayer == 1 ? 2 : 1);
+    }
+
     private void markCellNeighbours(Coords pos, int bit){
         for (int i = 0; i < 9; i++){
             Coords relativePos = Coords.getCoordsById(i,3).subtract(1, 1); //
@@ -189,6 +210,82 @@ public class Board {
         }
     }
 
+    private boolean isAligned(Coords a, Coords b) {
+        return a.x == b.x
+            || a.y == b.y
+            || Math.abs(a.x - b.x) == Math.abs(a.y - b.y);
+    }
+
+    // Analyse the current board and gives a score to every relevant Cell (Those who have neighbours)
+    //
+    // Creates a map<Coords, CellInfo> of those cell
+    // Copy the score of the Cell from last map
+    // calculate the score of the Cell that have been impacted by the move (and captures)
+    private void analyseCurrentPosition(Coords placedPiece, List<Coords> captures, boolean undo){
+        // Map<Coords, CellInfo> map = new HashMap<Coords,CellInfo>();
+        // for (Map.Entry<Coords, CellInfo> entry : mapInfoHistory.peek().entrySet()) {
+        //     if (entry.getKey() != null && entry.getValue() != null && entry.getValue().pos != null){
+        //         // System.out.println("Copy to new map: " + entry.getValue().pos);
+        //         map.put(entry.getKey().clone(), entry.getValue().clone());
+        //     }
+        //     else{
+        //         System.out.println("Can't copy CellInfo because something is null");
+        //     }
+        // }
+        // System.out.println("analyseCurrentPosition\n");
+        // System.out.println("placedPiece" + placedPiece);
+        // System.out.println("captures" + captures);
+        for (Coords pos: neighbourCellIndexSet){
+            boolean needsRecalc = false;
+            // if key does not exist in the new map, add it and calculate its score
+            // if the key exists, but is on the same row/col/diagonal of the placed or captured piece, recalculate the score of the cell
+            if (!mapInfo.containsKey(pos)){ // if new neighbour cell
+                needsRecalc = true;
+                // System.out.println("recalc " + pos);
+            }
+            else if (placedPiece != null && isAligned(pos, placedPiece)) { // if aligned with placed Piece
+                needsRecalc = true;
+            }
+            else if (captures != null && !captures.isEmpty()) { // if aligned with one of the captures
+                for (Coords cap : captures) {
+                    // System.out.println("trying to recalc " + cap);
+                    if (isAligned(pos, cap)) {
+                        // System.out.println("recalc " + cap);
+                        needsRecalc = true;
+                        break;
+                    }
+                }
+            }
+            if (needsRecalc){
+                CellInfo info = getCellInfoAt(pos);
+                // System.out.println("add to new map: " + pos);
+                mapInfo.put(pos, info);
+            }
+        }
+        
+        if (undo) { // remove captures from map since we add them back and the cells are no longer playable
+            for (Coords cap : captures) {
+                mapInfo.remove(cap);
+            }
+        }
+        else { // remove placedPiece from map since the cell is no longer playable
+            // System.out.println("removing " + placedPiece);
+            mapInfo.remove(placedPiece);
+        }
+        // System.out.println("analyseCurrentPosition, map size: " + map.size());
+        // mapInfoHistory.add(map);
+        // System.out.println("analyseCurrentPosition, mapInfoHistory size: " + mapInfoHistory.size());
+    }
+
+    private static final Comparator<CellInfo> SCORE_COMPARATOR =
+        (a, b) -> Float.compare(b.getScore(), a.getScore());
+
+    public List<CellInfo> getSortedSetOfMapInfo(){
+        List<CellInfo> list = new ArrayList<>(mapInfo.values());
+        list.sort(SCORE_COMPARATOR);
+        return list;
+    }
+
     public void reset()
     {
         moveCount = 0;
@@ -196,7 +293,10 @@ public class Board {
         player2PiecesCount = 0;
         player1CaptureCount = 0;
         player2CaptureCount = 0;
-        moves.clear();
+        movesHistory.clear();
+        mapInfo.clear();
+        // mapInfoHistory.clear();
+        // mapInfoHistory.add(new HashMap<>());
         resetWinner();
         neighbourCellIndexSet.clear();
         currentPlayer = GameSettings.FIRST_PLAYER;
@@ -217,6 +317,7 @@ public class Board {
                 }
             }
         }
+        analyseCurrentPosition(null, null, false);
     }
 
     public void resetFreeThree(){
@@ -368,33 +469,6 @@ public class Board {
         return getCellAt(start.add(dir.multiply(distance)), -1);
     }
 
-    public class CellScore{
-        private float[] playerScore = new float[]{0, 0};
-
-        CellScore(){}
-
-        public void setScore(float score, int player) {
-            playerScore[player - 1] = score;
-        }
-
-        public void addScore(float score, int player) {
-            playerScore[player - 1] += score;
-        }
-
-        public float getPlayerScore(int player) {
-            return playerScore[player - 1];
-        }
-
-        public float getScore(){
-            return playerScore[0] + playerScore[1];
-        }
-
-        public void addTo(CellScore other) {
-            this.playerScore[0] += other.playerScore[0];
-            this.playerScore[1] += other.playerScore[1];
-        }
-    }
-
     // pieceNumber: 0, trailSpaceNumber: 0 -> score 0
     // pieceNumber: 1, trailSpaceNumber: 0 -> score 0
     // pieceNumber: 2, trailSpaceNumber: 0 -> score 0
@@ -436,8 +510,8 @@ public class Board {
 
     int test = 0;
 
-    public CellScore getCellScoreAt(Coords pos){
-        CellScore score = new CellScore();
+    public CellInfo getCellInfoAt(Coords pos){
+        CellInfo score = new CellInfo(pos);
         if (getCellAt(pos).has_piece())
             return score;
         if (getCellAt(pos).getNeighbourNumber() == 0)
@@ -445,7 +519,7 @@ public class Board {
         test++;
         for (Coords dir : DIRECTION4){
             // System.out.println("dir: " + dir);
-            addCellScoreAtDir(pos, dir, score);
+            addCellInfoAtDir(pos, dir, score);
         }
         return score;
     }
@@ -478,7 +552,7 @@ public class Board {
     private SequenceData sequenceScoreRight = new SequenceData();
     private SequenceData sequenceScoreLeft = new SequenceData();
 
-    private void computeSequenceScore(CellScore total){
+    private void computeSequenceScore(CellInfo total){
         SequenceData right = sequenceScoreRight;
         SequenceData left = sequenceScoreLeft;
         
@@ -508,7 +582,7 @@ public class Board {
         return (piece == 0 ? 1 : 0);
     }
 
-    public void addCellScoreAtDir(Coords pos, Coords dir, CellScore total) {
+    public void addCellInfoAtDir(Coords pos, Coords dir, CellInfo total) {
         pieceSequenceScoreInDir(pos.add(dir), dir, sequenceScoreRight);
         dir.multiplyBy(-1); // reverse dir
         pieceSequenceScoreInDir(pos.add(dir), dir, sequenceScoreLeft);
