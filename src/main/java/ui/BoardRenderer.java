@@ -2,7 +2,6 @@ package main.java.ui;
 // src/BoardRenderer.java
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import main.java.GameSettings;
 import main.java.GomokuAI.EvaluatedPosition;
@@ -11,7 +10,6 @@ import main.java.game.BoardGame;
 import main.java.game.Cell;
 import main.java.game.Coords;
 import main.java.game.Board.CellScore;
-import main.java.game.Board.SequenceData;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;

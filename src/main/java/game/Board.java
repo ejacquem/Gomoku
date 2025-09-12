@@ -23,7 +23,6 @@ public class Board {
     private int player1CaptureCount = 0;
     private int player2CaptureCount = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER;
-    private int firstPlayer = GameSettings.FIRST_PLAYER;
 
     private int winner = 0;
 
@@ -65,16 +64,6 @@ public class Board {
     public int getWinner(){ return winner; }
     public int getMoveCount(){ return moveCount; }
     
-    public int isPlayer1First(){ return firstPlayer == 1 ? 1 : 0; }
-    public int isPlayer2First(){ return firstPlayer == 2 ? 1 : 0; }
-
-    // public int getPlayer1CapturesCount(){ 
-    //     return ((moveCount + isPlayer2First()) / 2) - player2PiecesCount;
-    // }
-
-    // public int getPlayer2CapturesCount(){ 
-    //     return ((moveCount + isPlayer1First()) / 2) - player1PiecesCount;
-    // }
     public int getPlayer1CapturesCount(){ 
         return player1CaptureCount;
     }

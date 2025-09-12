@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
@@ -50,61 +49,10 @@ public class GomokuAI {
         }
     }
 
-    Pattern[] patterns = {
-        new Pattern(new int[]{1,1,1,1,1}, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,1,1,0}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,1,0,1}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,0,1,1}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,0,1,1,1}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{2,1,1,1,1,0}, 150, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,1,0,0}, 150, 10000),
-        new Pattern(new int[]{0,1,1,1,0}, 100, 150),
-        new Pattern(new int[]{2,1,1,1,0,0}, 50, 150),
-        new Pattern(new int[]{2,1,0,1,0,1,0}, 50, 100),
-        new Pattern(new int[]{0,1,1,0}, 20, 30),
-        new Pattern(new int[]{2,1,1,0}, 10, 15),
-    };
-    Pattern[] patterns2;
-
     GomokuAI(Board board){
         this.board = board;
-
-        createPattern2();
-        // game.currentPlayerProperty().addListener((obs, oldVal, newVal) -> {
-        //     evaluate();
-        // });
     }
 
-    public class Pattern {
-        int [] pattern;
-        long score[] = new long[2]; // store the basic score, and the score if its the player turn
-
-        Pattern(int [] pattern, long score){
-            this.pattern = pattern;
-            this.score[0] = score;
-            this.score[1] = score;
-        }
-
-        Pattern(int [] pattern, long score, long scorePlayerTurn){
-            this.pattern = pattern;
-            this.score[0] = score;
-            this.score[1] = scorePlayerTurn;
-        }
-    }
-
-    //copy patterns but reverse player 1 and player 2
-    private void createPattern2(){
-        patterns2 = new Pattern[patterns.length];
-        for (int i = 0; i < patterns.length; i++){
-            patterns2[i] = new Pattern(new int[patterns[i].pattern.length], patterns[i].score[0], patterns[i].score[1]);
-            for (int j = 0; j < patterns[i].pattern.length; j++) {
-                int p1 = patterns[i].pattern[j];
-                if (p1 == 0) patterns2[i].pattern[j] = 0;
-                else if (p1 == 1) patterns2[i].pattern[j] = 2;
-                else if (p1 == 2) patterns2[i].pattern[j] = 1;
-            }
-        }
-    }
 
     public void reset(){
         evaluatedPos.clear();
@@ -165,18 +113,6 @@ public class GomokuAI {
         percentage.set(evaluatepercent(1));
         return bestMove;
     }
-
-    // public void evaluate(){
-    //     // System.out.println("Evaluating");
-    //     player1Score.set(findAndSumMatch(patterns, 1, 2, game.getCurrentPlayer() == 1 ? 1 : 0));
-    //     player2Score.set(findAndSumMatch(patterns2, 2, 1, game.getCurrentPlayer() == 2 ? 1 : 0));
-
-    //     System.out.println("Eval: P1 " + player1Score.get() + " P2 " + player2Score.get());
-
-    //     double score1 = (double)player1Score.get();
-    //     double score2 = (double)player2Score.get();
-    //     percentage.set(score2 / (score1 + score2));
-    // }
 
     public int evaluate(int depth){
         if (board.getWinner() == 1)
@@ -253,23 +189,23 @@ public class GomokuAI {
         return infos;
     }
 
-    private void shuffleSameScore(CellInfo[] infos){
-        Random rng = new Random();
-        int start = 0;
-        while (start < infos.length) {
-            int end = start + 1;
-            while (end < infos.length && infos[end].score.getScore() == infos[start].score.getScore()) {
-                end++;
-            }
-            for (int i = end - 1; i > start; i--) {
-                int j = start + rng.nextInt(i - start + 1);
-                CellInfo tmp = infos[i];
-                infos[i] = infos[j];
-                infos[j] = tmp;
-            }
-            start = end;
-        }
-    }
+    // private void shuffleSameScore(CellInfo[] infos){
+    //     Random rng = new Random();
+    //     int start = 0;
+    //     while (start < infos.length) {
+    //         int end = start + 1;
+    //         while (end < infos.length && infos[end].score.getScore() == infos[start].score.getScore()) {
+    //             end++;
+    //         }
+    //         for (int i = end - 1; i > start; i--) {
+    //             int j = start + rng.nextInt(i - start + 1);
+    //             CellInfo tmp = infos[i];
+    //             infos[i] = infos[j];
+    //             infos[j] = tmp;
+    //         }
+    //         start = end;
+    //     }
+    // }
 
     /*
     https://en.wikipedia.org/wiki/Negamax
