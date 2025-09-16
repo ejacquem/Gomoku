@@ -78,14 +78,26 @@ public class Board {
         return board[pos.y][pos.x];
     }
 
+    private final Cell defaultCell = new Cell();
+
     public Cell getCellAt(Coords pos, int defaultValue){
         if (!isInBound(pos))
-            return new Cell(defaultValue);
+            return defaultCell.defaultValue(defaultValue);
         return board[pos.y][pos.x];
+    }
+
+    public Cell getCellAt(int x, int y, int defaultValue){
+        if (!isInBound(x, y))
+            return defaultCell.defaultValue(defaultValue);
+        return board[y][x];
     }
 
     public boolean isInBound(Coords pos){
         return pos.y >= 0 && pos.x >= 0 && pos.y < BOARD_SIZE && pos.x < BOARD_SIZE;
+    }
+
+    public boolean isInBound(int x, int y){
+        return y >= 0 && x >= 0 && y < BOARD_SIZE && x < BOARD_SIZE;
     }
 
     private int getOpponent(int player){
@@ -292,8 +304,8 @@ public class Board {
         final int[] pattern = {player, opponent, opponent, 0};
         for (Coords dir : DIRECTION8) {
             if (checkSequenceMatch(pos, dir, pattern.length, 0, pattern, (c, cell) -> c == cell.player, -1)){
-                getCellAt(pos.add(dir)).can_be_captured = true;
-                getCellAt(pos.add(dir.multiply(2))).can_be_captured = true;
+                getCellAt(pos.x + dir.x, pos.y + dir.y, -1).can_be_captured = true;
+                getCellAt(pos.x + dir.x * 2, pos.y + dir.y * 2, -1).can_be_captured = true;
             }
         }
     }
@@ -352,7 +364,8 @@ public class Board {
 
     public boolean checkSequenceMatch(Coords pos, Coords dir, int len, int offset, int[] pattern, BiPredicate<Integer, Cell> compare, int defaultValue) {
         for (int i = 0; i < len; i++) {
-            Cell cell = getCellAt(pos.add(dir.multiply(i + offset)), defaultValue);
+            // Cell cell = getCellAt(pos.add(dir.multiply(i + offset)), defaultValue);
+            Cell cell = getCellAtDir(pos, dir, i + offset, defaultValue);
             if (!compare.test(pattern[i], cell)) {
                 return false;
             }
@@ -365,7 +378,13 @@ public class Board {
     }
 
     public Cell getCellAtDir(Coords start, Coords dir, int distance){
-        return getCellAt(start.add(dir.multiply(distance)), -1);
+        // return getCellAt(start.add(dir.multiply(distance)), -1);
+        return getCellAt(start.x + dir.x * distance, start.y + dir.y * distance, -1);
+    }
+
+    public Cell getCellAtDir(Coords start, Coords dir, int distance, int defaultValue){
+        // return getCellAt(start.add(dir.multiply(distance)), -1);
+        return getCellAt(start.x + dir.x * distance, start.y + dir.y * distance, defaultValue);
     }
 
     public class CellScore{

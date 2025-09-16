@@ -77,6 +77,11 @@ public class Cell {
         can_be_free3_n = false;
     }
 
+    public Cell defaultValue(int value){
+        this.player = value;
+        return this;
+    }
+
     // H -> 1, 0 || -1, 0
     // V -> 0, 1 || 0, 1
     // P -> 1, -1 || -1, 1

@@ -24,10 +24,11 @@ public class GomokuAI {
     public DoubleProperty percentageProperty() { return percentage; }
 
     public final long TIME_LIMIT = 10000;
-    public final int MAX_DEPTH = 10;
+    public final int MAX_DEPTH = 7;
     public boolean limitExcceeded = false;
     public long start;
-    public long end;
+    public long sortTimer, sortTimeStart;
+    public long boardActionTimer, boardActionTimeStart;
     public int[] iterationPerDepth = new int[MAX_DEPTH];
     public int[] prunningPerDepth = new int[MAX_DEPTH];
     public int prunningCount = 0;
@@ -109,7 +110,6 @@ public class GomokuAI {
         evaluatedPos.clear();
         limitExcceeded = false;
         start = 0;
-        end = 0;
         prunningCount = 0;
         player1PositionScore = 0f;
         player2PositionScore = 0f;
@@ -123,6 +123,8 @@ public class GomokuAI {
         reset();
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
+        sortTimer = 0;
+        boardActionTimer = 0;
         limitExcceeded = false;
 
         Coords[] moves = getPossibleMove();
@@ -133,11 +135,11 @@ public class GomokuAI {
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
         Coords bestMove = new Coords(0,0);
 
-        int maxMove = 0;
+        // int maxMove = 0;
         for (CellInfo move : sortedMoves){
-            if (maxMove >= 3 && move.score.getScore() < 10f) break;
-            if (maxMove >= 5 && move.score.getScore() < 25f) break;
-            if (maxMove == 7) break;
+            // if (maxMove >= 3 && move.score.getScore() < 10f) break;
+            // if (maxMove >= 5 && move.score.getScore() < 25f) break;
+            // if (maxMove == 7) break;
             Coords pos = move.pos;
             board.placePiece(pos);
             int score = search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, color); // = negamax(rootNode, depth, −∞, +∞, 1)
@@ -149,14 +151,18 @@ public class GomokuAI {
                 bestMove = pos;
             }
             board.undoLastMove();
-            maxMove++;
+            // maxMove++;
         }
-        end = System.currentTimeMillis();
         if (limitExcceeded){
             System.out.println("Time Limit exceeded !");
         }
         System.out.println("Best Move Score: " + bestEval);
-        System.out.println("Execution time: " + (System.currentTimeMillis() - start) + " ms");
+
+        long totalTime = System.currentTimeMillis() - start;
+        System.out.printf("Execution time: %d ms%n", totalTime);
+        System.out.printf("  sortTime:        %d ms (%.2f%%)%n", sortTimer, (sortTimer * 100.0) / totalTime);
+        System.out.printf("  boardActionTime: %d ms (%.2f%%)%n", boardActionTimer, (boardActionTimer * 100.0) / totalTime);
+        
         System.out.println("prunningCount: " + prunningCount);
         for (int i = 0; i < MAX_DEPTH; i++){
             System.out.println("Iteration at depth " + (i + 1 < 10 ? " " : "") + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
@@ -298,7 +304,9 @@ public class GomokuAI {
         }
 
         Coords[] moves = getPossibleMove();
+        sortTimeStart = System.currentTimeMillis();
         CellInfo[] sortedMoves = sortMoves(moves);
+        sortTimer += System.currentTimeMillis() - sortTimeStart;
 
         float player1score = 0;
         float player2score = 0;
@@ -307,25 +315,33 @@ public class GomokuAI {
             player2score += move.score.getPlayerScore(2);
         }
         
-        int maxMove = 0;
+        // int maxMove = 0;
         int value = Integer.MIN_VALUE;
         for (CellInfo move : sortedMoves){
-            if (maxMove >= 3 && move.score.getScore() < 10f) break;
-            if (maxMove >= 5 && move.score.getScore() < 25f) break;
-            if (maxMove == 7) break;
+            // if (maxMove >= 3 && move.score.getScore() < 10f) break;
+            // if (maxMove >= 5 && move.score.getScore() < 25f) break;
+            // if (maxMove == 7) break;
             Coords pos = move.pos;
+            
+            boardActionTimeStart = System.currentTimeMillis();
             board.placePiece(pos);
+            boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
+
             player1PositionScore = player1score;
             player2PositionScore = player2score;
             value = Math.max(value, -search(depth - 1, -beta, -alpha, -color));
             alpha = Math.max(alpha, value);
+
+            boardActionTimeStart = System.currentTimeMillis();
             board.undoLastMove();
+            boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
+
             if (alpha >= beta){
                 prunningCount++;
                 prunningPerDepth[MAX_DEPTH - depth]++;
                 break;
             }
-            maxMove++;
+            // maxMove++;
         }
         return value;
     }
