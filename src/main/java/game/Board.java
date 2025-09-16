@@ -23,7 +23,6 @@ public class Board {
     private int player1CaptureCount = 0;
     private int player2CaptureCount = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER;
-    private int firstPlayer = GameSettings.FIRST_PLAYER;
 
     private int winner = 0;
 
@@ -65,16 +64,6 @@ public class Board {
     public int getWinner(){ return winner; }
     public int getMoveCount(){ return moveCount; }
     
-    public int isPlayer1First(){ return firstPlayer == 1 ? 1 : 0; }
-    public int isPlayer2First(){ return firstPlayer == 2 ? 1 : 0; }
-
-    // public int getPlayer1CapturesCount(){ 
-    //     return ((moveCount + isPlayer2First()) / 2) - player2PiecesCount;
-    // }
-
-    // public int getPlayer2CapturesCount(){ 
-    //     return ((moveCount + isPlayer1First()) / 2) - player1PiecesCount;
-    // }
     public int getPlayer1CapturesCount(){ 
         return player1CaptureCount;
     }
@@ -427,20 +416,20 @@ public class Board {
     private float calculateScore(int pieceNumber, int trailSpaceNumber){
         if (pieceNumber == 0) return 0;
         if (trailSpaceNumber == 0){
-            if (pieceNumber >= 4) return 10000;
+            if (pieceNumber >= 4) return 10000 - (moveCount * 10);
             else return 0;
         }
         else if (trailSpaceNumber == 1){
             if (pieceNumber == 1) return 1;
             else if (pieceNumber == 2) return 10;
             else if (pieceNumber == 3) return 100;
-            else if (pieceNumber >= 4) return 10000;
+            else if (pieceNumber >= 4) return 10000 - (moveCount * 10);
         }
         else if (trailSpaceNumber == 2){
             if (pieceNumber == 1) return 2;
             else if (pieceNumber == 2) return 20;
             else if (pieceNumber == 3) return 200;
-            else if (pieceNumber >= 4) return 10000;
+            else if (pieceNumber >= 4) return 10000 - (moveCount * 10);
         }
         return 0;
     }

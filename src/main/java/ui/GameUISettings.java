@@ -1,18 +1,11 @@
 package main.java.ui;
 
 import main.java.GameSettings;
-import main.java.game.Board;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
-import javax.swing.Renderer;
-
 import javafx.scene.control.*;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import java.util.function.BooleanSupplier;
-import java.util.function.Consumer;
 
 public class GameUISettings {
 

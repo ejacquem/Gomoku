@@ -3,7 +3,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
@@ -253,23 +252,23 @@ public class GomokuAI {
         return infos;
     }
 
-    private void shuffleSameScore(CellInfo[] infos){
-        Random rng = new Random();
-        int start = 0;
-        while (start < infos.length) {
-            int end = start + 1;
-            while (end < infos.length && infos[end].score.getScore() == infos[start].score.getScore()) {
-                end++;
-            }
-            for (int i = end - 1; i > start; i--) {
-                int j = start + rng.nextInt(i - start + 1);
-                CellInfo tmp = infos[i];
-                infos[i] = infos[j];
-                infos[j] = tmp;
-            }
-            start = end;
-        }
-    }
+    // private void shuffleSameScore(CellInfo[] infos){
+    //     Random rng = new Random();
+    //     int start = 0;
+    //     while (start < infos.length) {
+    //         int end = start + 1;
+    //         while (end < infos.length && infos[end].score.getScore() == infos[start].score.getScore()) {
+    //             end++;
+    //         }
+    //         for (int i = end - 1; i > start; i--) {
+    //             int j = start + rng.nextInt(i - start + 1);
+    //             CellInfo tmp = infos[i];
+    //             infos[i] = infos[j];
+    //             infos[j] = tmp;
+    //         }
+    //         start = end;
+    //     }
+    // }
 
     /*
     https://en.wikipedia.org/wiki/Negamax

@@ -100,8 +100,19 @@ public class BoardGame {
     }
 
     public void handleInput(Coords pos){
+        System.out.println("Handle Input");
+        if (gameState == GameState.NOT_STARTED){
+            startGame();
+        }
+        if (gameState == GameState.GAME_OVER){
+            System.out.println("Can't place piece: Game Over");
+            return;
+        }
         placePieceAttempt(pos);
 
+        if (gameState == GameState.GAME_OVER){
+            return;
+        }
         bestMove = AI.getBestMove();
         if (GameSettings.aiPlaysAutomatic){
             if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
@@ -114,20 +125,10 @@ public class BoardGame {
     }
 
     private void placePieceAttempt(Coords pos) {
-        // Example: toggle between 0 and 1
-        if (gameState == GameState.NOT_STARTED){
-            startGame();
-            // System.out.println("Game Not Started");
-            // return;
-        }
-        if (gameState == GameState.GAME_OVER){
-            System.out.println("Can't place piece: Game Over");
-            return;
-        } 
         if (!board.isInBound(pos)){
             System.out.println("Can't place piece: Out of Bound");
             return;
-        } 
+        }
 
         Cell cell = board.getCellAt(pos);
 
