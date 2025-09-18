@@ -172,15 +172,15 @@ public class Coords {
     
     @Override
     public int hashCode() {
-        return 31 * x + y;
+        return x + 31 * y;
     }
     
     public int getId() {
-        return GameSettings.BOARD_SIZE * x + y;
+        return x + GameSettings.BOARD_SIZE * y;
     }
     
     public int getId(int gridSize) {
-        return gridSize * x + y;
+        return x + gridSize * y;
     }
 
     public static Coords getCoordsById(int id, int gridSize){

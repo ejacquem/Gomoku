@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import main.java.game.Board;
+import main.java.game.BoardAnalyser;
 import main.java.game.BoardGame;
 import main.java.ui.GameUI;
 import main.java.ui.GameUISettings;
@@ -20,7 +21,8 @@ public class GameApp extends Application {
     @Override
     public void start(Stage stage) {
         Board board = new Board();
-        GomokuAI AI = new GomokuAI(board);
+        BoardAnalyser boardAnalyser = new BoardAnalyser(board);
+        GomokuAI AI = new GomokuAI(board, boardAnalyser);
         BoardGame game = new BoardGame(AI, board);
 
         GameUI gameUI = new GameUI(game, AI);

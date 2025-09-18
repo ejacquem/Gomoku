@@ -17,8 +17,9 @@ public class BoardGame {
     public final int WINNING_PIECES = 5;
     public Board board;
     public GomokuAI AI;
+    public BoardAnalyser boardAnalyser;
 
-    public Coords bestMove = new Coords(-1,-1);
+    public int bestMove = -1;
 
     public enum GameState {
         NOT_STARTED,
@@ -48,6 +49,7 @@ public class BoardGame {
     public BoardGame(GomokuAI AI, Board board) {
         this.board = board;
         this.AI = AI;
+        this.boardAnalyser = AI.boardAnalyser;
         gameState = GameState.NOT_STARTED;
         timeline1 = createTimeline(player1Timer);
         timeline2 = createTimeline(player2Timer);
@@ -62,7 +64,7 @@ public class BoardGame {
             gameState = GameState.STARTED;
             winner.set(0);
         }
-        board.undoLastMove();
+        board.undo();
         tick();
     }
 
@@ -113,40 +115,43 @@ public class BoardGame {
         if (gameState == GameState.GAME_OVER){
             return;
         }
-        bestMove = AI.getBestMove();
-        if (GameSettings.aiPlaysAutomatic){
-            if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
-                placePieceAttempt(bestMove);
-            }
-            else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
-                placePieceAttempt(bestMove);
-            }
-        }
+        // bestMove = AI.getBestMove();
+        // if (GameSettings.aiPlaysAutomatic){
+        //     if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
+        //         placePieceAttempt(bestMove);
+        //     }
+        //     else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
+        //         placePieceAttempt(bestMove);
+        //     }
+        // }
     }
 
     private void placePieceAttempt(Coords pos) {
-        if (!board.isInBound(pos)){
+        placePieceAttempt(pos.getId());
+    }
+
+    private void placePieceAttempt(int index) {
+        if (!board.isInBound(index)){
             System.out.println("Can't place piece: Out of Bound");
             return;
         }
 
-        Cell cell = board.getCellAt(pos);
-
-        if (cell.has_piece()) return;
-        if (cell.isDoubleFreeThree()) return;
-        board.placePiece(pos);
+        if (board.getPieceAt(index) != 0) return;
+        // if (cell.isDoubleFreeThree()) return;
+        board.placePieceAt(index);
         tick();
     }
 
     public void tick(){
-        player1CapturedPieces.set(board.getPlayer1CapturesCount());
-        player2CapturedPieces.set(board.getPlayer2CapturesCount());
+        player1CapturedPieces.set(board.getCaptureCount(1));
+        player2CapturedPieces.set(board.getCaptureCount(2));
         switchPlayerTo(board.getCurrentPlayer());
         checkWinner();
         if (isWinner()) {
             setGameOver();
         }
         moveCount.set(board.getMoveCount());
+        boardAnalyser.scanLastMove();
         // bestMove = AI.getBestMove();
     }
 
@@ -166,8 +171,9 @@ public class BoardGame {
     public void reset() 
     {
         AI.reset();
-        bestMove = new Coords(-1,-1);
+        bestMove = -1;
         board.reset();
+        boardAnalyser.reset();
         gameState = GameState.NOT_STARTED;
         currentPlayer.set(FIRST_PLAYER);
         winner.set(0);

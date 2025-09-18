@@ -9,11 +9,13 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import main.java.game.Board;
+import main.java.game.BoardAnalyser;
+import main.java.game.CellInfo;
 import main.java.game.Coords;
-import main.java.game.Board.CellScore;
 
 public class GomokuAI {
     private Board board;
+    public BoardAnalyser boardAnalyser;
 
     private final LongProperty player1Score = new SimpleLongProperty(1);
     private final LongProperty player2Score = new SimpleLongProperty(1);
@@ -35,8 +37,8 @@ public class GomokuAI {
     public int iter0 = 0;
     public final int[] captureScore = new int[]{0, 1000, 2000, 5000, 10000, 1000000};
 
-    private float player1PositionScore = 0f;
-    private float player2PositionScore = 0f;
+    // private float player1PositionScore = 0f;
+    // private float player2PositionScore = 0f;
 
     public List<EvaluatedPosition> evaluatedPos = new ArrayList<>();
 
@@ -66,8 +68,9 @@ public class GomokuAI {
     };
     Pattern[] patterns2;
 
-    GomokuAI(Board board){
+    GomokuAI(Board board, BoardAnalyser boardAnalyser){
         this.board = board;
+        this.boardAnalyser = boardAnalyser;
 
         createPattern2();
         // game.currentPlayerProperty().addListener((obs, oldVal, newVal) -> {
@@ -111,15 +114,15 @@ public class GomokuAI {
         limitExcceeded = false;
         start = 0;
         prunningCount = 0;
-        player1PositionScore = 0f;
-        player2PositionScore = 0f;
+        // player1PositionScore = 0f;
+        // player2PositionScore = 0f;
         for (int i = 0; i < MAX_DEPTH; i++){
             iterationPerDepth[i] = 0;
             prunningPerDepth[i] = 0;
         }
     }
 
-    public Coords getBestMove(){
+    public int getBestMove(){
         reset();
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
@@ -127,30 +130,30 @@ public class GomokuAI {
         boardActionTimer = 0;
         limitExcceeded = false;
 
-        Coords[] moves = getPossibleMove();
-        CellInfo[] sortedMoves = sortMoves(moves);
+        // Coords[] moves = getPossibleMove();
+        // CellInfo[] sortedMoves = sortMoves(moves);
+        int[] sortedIndices = boardAnalyser.getSortedIndices();
         // shuffleSameScore(sortedMoves);
 
         int bestEval = Integer.MIN_VALUE;
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
-        Coords bestMove = new Coords(0,0);
+        int bestMove = 0;
 
         // int maxMove = 0;
-        for (CellInfo move : sortedMoves){
+        for (int index : sortedIndices){
             // if (maxMove >= 3 && move.score.getScore() < 10f) break;
             // if (maxMove >= 5 && move.score.getScore() < 25f) break;
             // if (maxMove == 7) break;
-            Coords pos = move.pos;
-            board.placePiece(pos);
+            board.placePieceAt(index);
             int score = search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, color); // = negamax(rootNode, depth, −∞, +∞, 1)
-            evaluatedPos.add(new EvaluatedPosition(pos, score));
+            // evaluatedPos.add(new EvaluatedPosition(pos, score));
             // int score = evaluate();
             // System.out.println("Move score: " + score);
             if (score > bestEval){
                 bestEval = score;
-                bestMove = pos;
+                bestMove = index;
             }
-            board.undoLastMove();
+            board.undo();
             // maxMove++;
         }
         if (limitExcceeded){
@@ -188,8 +191,10 @@ public class GomokuAI {
             return (int)(+10000000 * depthFactor(depth, 0.5f));
         if (board.getWinner() == 2)
             return (int)(-10000000 * depthFactor(depth, 0.5f));
-        int player1Score = (int)(player1PositionScore) + captureScore[board.getPlayer1CapturesCount() / 2];
-        int player2Score = (int)(player2PositionScore) + captureScore[board.getPlayer2CapturesCount() / 2];
+        // int player1Score = (int)(player1PositionScore) + captureScore[board.getCaptureCount(1) / 2];
+        // int player2Score = (int)(player2PositionScore) + captureScore[board.getCaptureCount(2) / 2];
+        int player1Score = captureScore[board.getCaptureCount(1) / 2];
+        int player2Score = captureScore[board.getCaptureCount(2) / 2];
         int positionScore = player1Score - player2Score;
         // System.out.println("evaluate called: " + positionScore);
         return positionScore;
@@ -201,23 +206,24 @@ public class GomokuAI {
         if (board.getWinner() == 2)
             return (-10000000 * depthFactor(depth, 0.5f));
 
-        Coords[] moves = getPossibleMove();
-        CellInfo[] sortedMoves = sortMoves(moves);
+        // Coords[] moves = getPossibleMove();
+        // CellInfo[] sortedMoves = sortMoves(moves);
+        // int[] sortedIndices = boardAnalyser.getSortedIndices();
 
         double player1PositionScore = 0, player2PositionScore = 0;
-        for (CellInfo move : sortedMoves){
-            player1PositionScore += move.score.getPlayerScore(1);
-            player2PositionScore += move.score.getPlayerScore(2);
-        }
+        // for (int index : sortedIndices){
+        //     player1PositionScore += move.getPlayerScore(1);
+        //     player2PositionScore += move.getPlayerScore(2);
+        // }
 
-        double player1Score = player1PositionScore + captureScore[board.getPlayer1CapturesCount() / 2];
-        double player2Score = player2PositionScore + captureScore[board.getPlayer2CapturesCount() / 2];
+        double player1Score = player1PositionScore + captureScore[board.getCaptureCount(1) / 2];
+        double player2Score = player2PositionScore + captureScore[board.getCaptureCount(2) / 2];
 
         System.out.printf("Player1 | %-10s | %-15s | %-10s%n", "Score", "Position Score", "Capture Score");
         System.out.printf("Player1 | %-10.1f | %-15.1f | %-10d%n",
-        player1Score, player1PositionScore, captureScore[board.getPlayer1CapturesCount() / 2]);
+        player1Score, player1PositionScore, captureScore[board.getCaptureCount(1) / 2]);
         System.out.printf("Player2 | %-10.1f | %-15.1f | %-10d%n",
-        player2Score, player2PositionScore, captureScore[board.getPlayer2CapturesCount() / 2]);
+        player2Score, player2PositionScore, captureScore[board.getCaptureCount(2) / 2]);
 
         double positionScore = player2Score / (player2Score + player1Score);
         return positionScore;
@@ -235,26 +241,19 @@ public class GomokuAI {
         }
         return limitExcceeded;
     }
-
-    public class CellInfo{
-        public Coords pos;
-        public CellScore score;
-    }
     
-    private static final Comparator<CellInfo> SCORE_COMPARATOR =
-        (a, b) -> Float.compare(b.score.getScore(), a.score.getScore());
 
     private CellInfo[] sortMoves(Coords[] moves) {
         CellInfo[] infos = new CellInfo[moves.length];
     
         for (int i = 0; i < moves.length; i++) {
             CellInfo ci = new CellInfo();
+            ci = boardAnalyser.getCellInfoAt(moves[i].getId());
             ci.pos = moves[i];
-            ci.score = board.getCellScoreAt(moves[i]);
             infos[i] = ci;
         }
     
-        Arrays.sort(infos, SCORE_COMPARATOR);
+        Arrays.sort(infos, CellInfo.SCORE_COMPARATOR);
         return infos;
     }
 
@@ -303,37 +302,38 @@ public class GomokuAI {
             return color * evaluate(depth);
         }
 
-        Coords[] moves = getPossibleMove();
+        // Coords[] moves = getPossibleMove();
         sortTimeStart = System.currentTimeMillis();
-        CellInfo[] sortedMoves = sortMoves(moves);
+        // CellInfo[] sortedMoves = sortMoves(moves);
+        int[] sortedIndices = boardAnalyser.getSortedIndices();
         sortTimer += System.currentTimeMillis() - sortTimeStart;
 
-        float player1score = 0;
-        float player2score = 0;
-        for (CellInfo move : sortedMoves){
-            player1score += move.score.getPlayerScore(1);
-            player2score += move.score.getPlayerScore(2);
-        }
+        // float player1score = 0;
+        // float player2score = 0;
+        // for (CellInfo move : sortedMoves){
+        //     player1score += move.score.getPlayerScore(1);
+        //     player2score += move.score.getPlayerScore(2);
+        // }
         
         // int maxMove = 0;
         int value = Integer.MIN_VALUE;
-        for (CellInfo move : sortedMoves){
+        for (int index : sortedIndices){
             // if (maxMove >= 3 && move.score.getScore() < 10f) break;
             // if (maxMove >= 5 && move.score.getScore() < 25f) break;
             // if (maxMove == 7) break;
-            Coords pos = move.pos;
+            // Coords pos = move.pos;
             
             boardActionTimeStart = System.currentTimeMillis();
-            board.placePiece(pos);
+            board.placePieceAt(index);
             boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
 
-            player1PositionScore = player1score;
-            player2PositionScore = player2score;
+            // player1PositionScore = player1score;
+            // player2PositionScore = player2score;
             value = Math.max(value, -search(depth - 1, -beta, -alpha, -color));
             alpha = Math.max(alpha, value);
 
             boardActionTimeStart = System.currentTimeMillis();
-            board.undoLastMove();
+            board.undo();
             boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
 
             if (alpha >= beta){
@@ -346,7 +346,7 @@ public class GomokuAI {
         return value;
     }
 
-    public Coords[] getPossibleMove(){
-        return board.neighbourCellIndexSet.toArray(new Coords[0]);
-    }
+    // public Coords[] getPossibleMove(){
+    //     return board.neighbourCellIndexSet.toArray(new Coords[0]);
+    // }
 }
