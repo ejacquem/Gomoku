@@ -23,9 +23,8 @@ public class GameUISettings {
         debugSettingsMenu.getItems().addAll(
             createSettingItem("Draw Debug Number",       () -> GameSettings.drawDebugNumber,        val -> GameSettings.drawDebugNumber = val),
             createSettingItem("Draw Best Move",          () -> GameSettings.drawBestMove,           val -> GameSettings.drawBestMove = val),
-            createSettingItem("Draw Neighbour",          () -> GameSettings.drawNeighbour,          val -> GameSettings.drawNeighbour = val),
             createSettingItem("Draw Evaluated Position", () -> GameSettings.drawEvaluatedPosition,  val -> GameSettings.drawEvaluatedPosition = val),
-            createSettingItem("Draw Heatmap Neighbour",  () -> GameSettings.drawHeatmapNeighbour,   val -> GameSettings.drawHeatmapNeighbour = val),
+            createSettingItem("Draw Sorted Position", () -> GameSettings.drawSortedPosition,  val -> GameSettings.drawSortedPosition = val),
             createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawHeatmapScore,       val -> GameSettings.drawHeatmapScore = val),
             createSettingItem("Draw Score Number",       () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
             createSettingItem("Draw Score Player Number",() -> GameSettings.drawScorePlayerNumber,  val -> GameSettings.drawScorePlayerNumber = val)

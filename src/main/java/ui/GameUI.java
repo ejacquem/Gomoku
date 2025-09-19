@@ -106,8 +106,8 @@ public class GameUI {
         background = new Background(new BackgroundFill(GameSettings.UI_BACKGROUND, CornerRadii.EMPTY, Insets.EMPTY));
         
         canvas = new Canvas(
-            (game.BOARD_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2,
-            (game.BOARD_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2);
+            (GameSettings.GAME_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2,
+            (GameSettings.GAME_SIZE - 1) * BoardRenderer.TILE_SIZE + BoardRenderer.MARGIN * 2);
 
         overlayCanvas = new Canvas(
             canvas.getWidth(),
@@ -333,7 +333,7 @@ public class GameUI {
 
         randomButton.setOnAction(e -> {
             game.startGame();
-            game.board.random(.2f);
+            game.board.random(.2f, game.boardAnalyser);
             renderer.draw();
         });
 

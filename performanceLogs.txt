@@ -45,3 +45,19 @@ Iteration at depth 7: 7969, 3914
 Iteration at depth 8: 30716, 22956
 Iteration at depth 9: 88162, 42683
 Iteration at depth 10: 219452, 0
+
+// new board action system, doesn't rely on Coords anymore, 1D array instead of 2D array for the board
+
+Execution time: 325 ms
+  sortTime:        76 ms (23.38%)
+  boardActionTime: 12 ms (3.69%)
+  boardScanTime:   228 ms (70.15%)
+  other:           9 ms (2.77%)
+prunningCount: 43926
+Iteration at depth  1: 8, 0
+Iteration at depth  2: 88, 88
+Iteration at depth  3: 96, 0
+Iteration at depth  4: 1444, 1436
+Iteration at depth  5: 2566, 350
+Iteration at depth  6: 43182, 42052
+Iteration at depth  7: 94996, 0

@@ -35,6 +35,10 @@ public class Coords {
     public Coords add(int x, int y) {
         return new Coords(this.x + x, this.y + y);
     }
+
+    public Coords add(int val) {
+        return new Coords(this.x + val, this.y + val);
+    }
     
     public void addTo(Coords other) {
         this.x += other.x;
@@ -184,7 +188,7 @@ public class Coords {
     }
 
     public static Coords getCoordsById(int id, int gridSize){
-        return new Coords(id / gridSize, id % gridSize);
+        return new Coords(id % gridSize, id / gridSize);
     }
     
     // Static factory methods
@@ -195,4 +199,22 @@ public class Coords {
     public static Coords of(int x, int y) {
         return new Coords(x, y);
     }
+
+    public static final Coords[] DIRECTION8 = {
+        new Coords(-1, -1),  // NW
+        new Coords(0,  -1), // N
+        new Coords(1,  -1), // NE
+        new Coords( -1, 0), // W
+        new Coords( 1,  0), // E
+        new Coords( 1,  1), // SE
+        new Coords( -1, 1), // SW
+        new Coords( 0,  1), // S
+    };
+
+    public static final Coords[] DIRECTION4 = {
+        new Coords( 1,  0), // E
+        new Coords( 0,  1), // S
+        new Coords( 1,  1), // SE
+        new Coords(1,  -1)   // NE
+    };
 }

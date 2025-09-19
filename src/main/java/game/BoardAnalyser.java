@@ -1,63 +1,102 @@
 package main.java.game;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
+import main.java.GameSettings;
 
 public class BoardAnalyser {
     private Board board;
-    public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
+    // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
+    public static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX;
+    public static final int MAX_HISTORY_LEN = 500;
+    public int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
 
     public BoardAnalyser(Board board){
         this.board = board;
     }
 
+    public int[] getCurrentScoreGrid(){
+        return scoreGridHistory[board.getMoveCount()];
+    }
+
     // go through every cell and calculate a rough score
     public void scanBoard() {
+        int[] scoregrid = getCurrentScoreGrid();
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++){
-            scoreGrid[i] = (int)getCellInfoAt(i).getScore();
+            if (board.getPieceAt(i) != -1){
+                scoregrid[i] = getScoreAt(i);
+            }
         }
     }
 
-    private Integer[] indices = new Integer[scoreGrid.length];
+    List<Integer> filteredCell = new ArrayList<>();
     public int[] getSortedIndices() {
-        for (int i = 0; i < scoreGrid.length; i++) {
-            indices[i] = i;
+        filteredCell.clear();
+        int[] scoregrid = getCurrentScoreGrid();
+        for (int i = 0; i < SCOREGRID_LENGTH; i++) {
+            if (scoregrid[i] >= 1) filteredCell.add(i);
         }
-
-        Arrays.sort(indices, (a, b) -> Integer.compare(scoreGrid[b], scoreGrid[a]));
-
-        return Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
+        filteredCell.sort((a, b) -> Integer.compare(scoregrid[b], scoregrid[a]));
+        return filteredCell.stream().mapToInt(Integer::intValue).toArray();
     }
+
+    // private Integer[] indices = new Integer[SCOREGRID_LENGTH];
+    // public int[] getSortedIndices() {
+    //     int[] scoregrid = getCurrentScoreGrid();
+    //     for (int i = 0; i < SCOREGRID_LENGTH; i++) {
+    //         indices[i] = i;
+    //     }
+
+    //     Arrays.sort(indices, (a, b) -> Integer.compare(scoregrid[b], scoregrid[a]));
+
+    //     return Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
+    // }
 
     // go through the cell impacted by the last move and calculate a rough score
     // an impacted cell it the closest space between the current cell in a dir, can be blocked by a sequence of 1 type of piece
     // in the exemple below, only 7 impacted square are scanned
     // 0 scanned square, x current, 1/2 players
-    // ..O.O
-    // .O12.
-    // .Ox1O
-    // .1OO.
-    // 2.1..
+    // .......
+    // ...O.O.
+    // ..O12..
+    // ..Ox1O.
+    // ..1OO..
+    // .2.1...
+    // .......
     private SequenceData data = new SequenceData();
     public void scanLastMove(){
         if (board.getMoveCount() <= 0)
             return;
+        // GomokuUtils.debugCaller();
+        int[] scoregrid = getCurrentScoreGrid();
+        copyLastHistory();
         int[] lastMove = board.getLastMove();
-        for (int move : lastMove){
+        for (int i = 0; i < lastMove[0]; i++){
+            int move = lastMove[i + 1]; // +1 to skip first elem which is the length
             if (move < 0){ // don't need to recalculate the captured piece score
                 move *= -1;
             }
             else { // assign score of 0 at the placed piece index
-                scoreGrid[move] = 0;
+                scoregrid[move] = 0;
             }
-            int index = Math.abs(move);
+            int index = move;
             for (int dir : Board.DIRECTION8) {
                 pieceSequenceDataInDir(index + dir, dir, data);
                 if (data.trailSpaceNumber > 0){
-                    int i = index + dir + dir * data.pieceNumber;
-                    scoreGrid[i] = (int)getCellInfoAt(i).getScore();
+                    int spaceIndex = index + dir + dir * data.pieceNumber;
+                    scoregrid[spaceIndex] = getScoreAt(spaceIndex);
                 }
             }
         }
+    }
+
+    private void copyLastHistory(){
+        if (board.getMoveCount() == 0)
+            return;
+        System.arraycopy(scoreGridHistory[board.getMoveCount() - 1], 0,
+                 scoreGridHistory[board.getMoveCount()], 0,
+                 Board.BOARD_MAX_INDEX);
     }
 
     public void inDepthAnalyse(){
@@ -65,8 +104,10 @@ public class BoardAnalyser {
     }
 
     public void reset(){
-        for (int i = 0; i < Board.BOARD_MAX_INDEX; i++){
-            scoreGrid[i] = 0;
+        for (int i = 0; i < MAX_HISTORY_LEN; i++){
+            for (int j = 0; j < SCOREGRID_LENGTH; j++){
+                scoreGridHistory[i][j] = 0;
+            }
         }
     }
 
@@ -93,19 +134,31 @@ public class BoardAnalyser {
 
     int test = 0;
 
-    public CellInfo getCellInfoAt(int index){
-        CellInfo score = new CellInfo();
+    // public void getCellInfoAt(int index, CellInfo info){
+    //     int piece = board.getPieceAt(index);
+    //     info.resetScore();
+    //     if (piece == 1 || piece == 2)
+    //         return ;
+    //     // if (piece.getNeighbourNumber() == 0)
+    //     //     return score;
+    //     test++;
+    //     for (int dir : Board.DIRECTION4){
+    //         // System.out.println("dir: " + dir);
+    //         computeSequenceScore(index, dir, info);
+    //     }
+    // }
+
+    private CellInfo _info = new CellInfo();
+    public int getScoreAt(int index){
         int piece = board.getPieceAt(index);
         if (piece == 1 || piece == 2)
-            return score;
-        // if (piece.getNeighbourNumber() == 0)
-        //     return score;
+            return 0;
+        _info.resetScore();
         test++;
-        for (int dir : board.DIRECTION4){
-            // System.out.println("dir: " + dir);
-            computeSequenceScore(index, dir, score);
+        for (int dir : Board.DIRECTION4){
+            computeSequenceScore(index, dir, _info);
         }
-        return score;
+        return (int)_info.getScore();
     }
 
     // sequence data stores info on the sequence
@@ -140,8 +193,8 @@ public class BoardAnalyser {
         SequenceData right = sequenceScoreRight;
         SequenceData left = sequenceScoreLeft;
 
-        pieceSequenceDataInDir(pos + dir, dir, sequenceScoreRight);
-        pieceSequenceDataInDir(pos - dir, -dir, sequenceScoreLeft);
+        pieceSequenceDataInDir(pos + dir, dir, right);
+        pieceSequenceDataInDir(pos - dir, -dir, left);
         
         if (right.pieceNumber == 2 && ((right.player == 1 && right.trailPiece == 2) || (right.player == 2 && right.trailPiece == 1))){
             total.addScore(100, right.player);
@@ -151,7 +204,7 @@ public class BoardAnalyser {
         }
         // case ... p x p ...
         if ((right.player == 1 || right.player == 2) &&right.player == left.player){
-            int trailSpaceNumber = isSpace(right.trailPiece) + isSpace(left.trailPiece);
+            int trailSpaceNumber = (right.trailSpaceNumber > 0 ? 1 : 0) + (left.trailSpaceNumber > 0 ? 1 : 0);
             float score = calculateScore(right.pieceNumber + left.pieceNumber, trailSpaceNumber);
             total.addScore(score, right.player);
             return ;
@@ -171,7 +224,7 @@ public class BoardAnalyser {
 
     public void pieceSequenceDataInDir(int pos, int dir, SequenceData data){
         data.reset();
-        int currPiece = board.getSafePieceAt(pos, -1);
+        int currPiece = board.getPieceAt(pos);
         int next = currPiece;
         int count = 0;
         data.player = currPiece;
@@ -179,15 +232,26 @@ public class BoardAnalyser {
             int player = currPiece;
             while (next == player){
                 count++;
-                next = board.getSafePieceAt(pos + dir * count, -1);
+                next = board.getPieceAt(pos + dir * count);
             }
             data.pieceNumber = count;
         }
         while (next == 0){
             data.trailSpaceNumber++;
             count++;
-            next = board.getSafePieceAt(pos + dir * count, -1);
+            next = board.getPieceAt(pos + dir * count);
         }
         data.trailPiece = next;  
+    }
+
+    public void printHistory(){
+        for (int i = 0; i < board.getMoveCount(); i++){
+            System.out.println("History " + i + ": ");
+            for (int j = 0; j < SCOREGRID_LENGTH; j++){
+                System.out.print(scoreGridHistory[i][j]);
+                if (j % GameSettings.BOARD_SIZE == GameSettings.BOARD_SIZE - 1)
+                    System.out.println();
+            }
+        }
     }
 }

@@ -20,6 +20,7 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/GameApp.java \
 		$(SRC)/GameSettings.java \
 		$(SRC)/GomokuAI.java \
+		$(SRC)/GomokuUtils.java \
 
 CLASSES=$(SOURCES:$(SRC)/%.java=$(BIN)/%.class)
 

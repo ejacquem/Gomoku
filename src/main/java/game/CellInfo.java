@@ -31,4 +31,9 @@ public class CellInfo{
 
     public static final Comparator<CellInfo> SCORE_COMPARATOR =
         (a, b) -> Float.compare(b.getScore(), a.getScore());
+
+    public void resetScore(){
+        this.playerScore[0] = 0;
+        this.playerScore[1] = 0;
+    }
 }

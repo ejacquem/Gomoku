@@ -186,7 +186,6 @@ public class BoardOld {
     }
 
     
-    private static Coords neighbourPos = new Coords();
     private void markCellNeighbours(Coords pos, int bit){
         // for (int i = 0; i < 9; i++){
         //     Coords relativePos = Coords.getCoordsById(i,3).subtract(1, 1); //

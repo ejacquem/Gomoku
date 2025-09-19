@@ -4,12 +4,13 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import main.java.GameSettings;
+import main.java.game.BoardAnalyser;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
 // import main.java.game.Board.CellScore;
 
 public class BoardRenderer {
-    public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.BOARD_SIZE;
+    public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.GAME_SIZE;
     public static final int MARGIN = TILE_SIZE;
     public Color[] playerColor= {GameSettings.PLAYER1_COLOR, GameSettings.PLAYER2_COLOR};
 
@@ -18,11 +19,16 @@ public class BoardRenderer {
     private BoardGame game;
     private GraphicsContext gc;
     private GraphicsContext overlayGc;
+    private double canvasWidth;
+    private double canvasHeight;
 
     public BoardRenderer(Canvas canvas, Canvas overlayCanvas, BoardGame game) {
         this.canvas = canvas;
         this.overlayCanvas = overlayCanvas;
         this.game = game;
+
+        canvasWidth = canvas.getWidth();
+        canvasHeight = canvas.getHeight();
 
         gc = canvas.getGraphicsContext2D();
         overlayGc = overlayCanvas.getGraphicsContext2D();
@@ -45,15 +51,14 @@ public class BoardRenderer {
         
         if (GameSettings.drawDebugNumber) drawDebugNumber();
         // if (GameSettings.drawBestMove) drawBestMove();
-        // if (GameSettings.drawNeighbour) drawNeighbour();
         // if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
-        // if (GameSettings.drawHeatmapNeighbour) drawHeatmapNeighbour();
+        if (GameSettings.drawSortedPosition) drawSortedPosition();
         if (GameSettings.drawHeatmapScore) drawHeatmapScore();
         gc.translate(-MARGIN, -MARGIN);
     }
 
     private void drawGrid(){
-        int size = game.BOARD_SIZE;
+        int size = GameSettings.GAME_SIZE;
         for (int i = 0; i < size; i++)
         {
             gc.setStroke(Color.BLACK);
@@ -66,7 +71,7 @@ public class BoardRenderer {
     }
 
     private void drawLabel(){
-        int size = game.BOARD_SIZE;
+        int size = GameSettings.GAME_SIZE;
         for (int i = 0; i < size; i++)
         {
             gc.setStroke(Color.BLACK);
@@ -75,19 +80,19 @@ public class BoardRenderer {
             int length = (size - 1) * TILE_SIZE;
             gc.setFill(Color.BLACK);
             String n = Integer.toString(i + GameSettings.LABEL_X_OFFSET, GameSettings.LABEL_X_BASE);
-            int w = 8 * n.length(), h = 8, s2 = TILE_SIZE / 2; // 8 = size of a letter
+            int w = 8 * n.length(), h = 10, s2 = TILE_SIZE / 2; // 8 = size of a letter
             gc.fillText(n, start - w / 2, - s2);
             gc.fillText(n, start - w / 2, length + h + s2);
             n = Integer.toString(i + GameSettings.LABEL_Y_OFFSET, GameSettings.LABEL_Y_BASE);
-            w = 8 * n.length(); h = 8; // 8 = size of a letter 
+            w = 8 * n.length(); h = 10; // 8 = size of a letter 
             gc.fillText(n, -w - s2, start + h / 2);
             gc.fillText(n, length + s2, start + h / 2);
         }
     }
 
     private void drawCheckBoard(){
-        int size = game.BOARD_SIZE;
-        int half = game.BOARD_SIZE / 2;
+        int size = GameSettings.GAME_SIZE;
+        int half = GameSettings.GAME_SIZE / 2;
         for (int row = 0; row < size - 1; row++) {
             for (int col = 0; col < size - 1; col++) {
                 if ((row + col) % 2 == 0) {
@@ -110,24 +115,21 @@ public class BoardRenderer {
     }
 
     private void drawDebugNumber(){
-        int size = game.BOARD_SIZE;
+        int size = GameSettings.GAME_SIZE;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                int piece = game.board.getPieceAt(x, y);
-                if (piece != 0){
-                    drawNumberAt(gc, x, y, 0f, 0f, y * game.BOARD_SIZE + x, Color.ORANGE);
-                }
+                drawNumberAt(gc, x, y, 0f, 0f, (1 + y) * game.BOARD_SIZE + 1 + x, Color.ORANGE);
             }
         }
     }
 
     private void drawPieces(){
-        int size = game.BOARD_SIZE;
+        int size = GameSettings.GAME_SIZE;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {
-                int piece = game.board.getPieceAt(x, y);
+                int piece = game.board.getPieceAt( 1 + x, 1 + y);
                 if (piece != 0) {
-                    drawPieceAt(x * TILE_SIZE, y * TILE_SIZE, getPlayerColor(piece));
+                    drawPieceAt(x * TILE_SIZE, y * TILE_SIZE, getPieceColor(piece));
                 }
             }
         }
@@ -163,17 +165,6 @@ public class BoardRenderer {
     //     gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
     // }
 
-    // private void drawNeighbour(){
-    //     for (Coords pos : game.board.neighbourCellIndexSet){
-    //         Cell cell = game.board.getCellAt(pos);
-    //         float radius = TILE_SIZE * 0.2f / 2f;
-    //         if (cell.isNeighbour()) {
-    //             gc.setFill(Color.BLUE);
-    //             gc.fillOval(pos.x * TILE_SIZE - radius, pos.y * TILE_SIZE - radius, radius * 2f, radius * 2f);
-    //         }
-    //     }
-    // }
-
     // private void drawEvaluatedPosition(){
     //     final int w = 8, h = 8; // size of a letter
     //     for (EvaluatedPosition evalpos : game.AI.evaluatedPos){
@@ -189,37 +180,41 @@ public class BoardRenderer {
     //     }
     // }
 
-    // private void drawHeatmapNeighbour(){
-    //     int size = game.BOARD_SIZE;
-    //     // int half = game.BOARD_SIZE / 2;
-    //     // final int w = 8, h = 8; // size of a letter
-    //     for (int row = 0; row < size; row++) {
-    //         for (int col = 0; col < size; col++) {
-    //             Cell cell = game.board.getCellAt(new Coords(col, row));
-    //             Color color = GameSettings.HEATMAP_COLOR[cell.getNeighbourNumber()];
-    //             gc.setFill(color);
-    //             gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+    private void drawSortedPosition(){
+        int[] sortedIndices = game.boardAnalyser.getSortedIndices();
 
-    //             // String n = Integer.toString(cell.getNeighbourNumber());
-    //             // gc.setFill(Color.ORANGE);
-    //             // gc.fillText(n, col * TILE_SIZE - w * n.length() / 2, row * TILE_SIZE + h / 2);
-    //         }
-    //     }
-    // }
+        // final int w = 8, h = 8; // size of a letter
+        int i = 1;
+        for (int index : sortedIndices){
+            // float radius = TILE_SIZE * 0.8f / 2f;
+            Coords pos = Coords.getCoordsById(index, GameSettings.BOARD_SIZE).add(-1);
+            // int px = pos.x * TILE_SIZE;
+            // int py = pos.y * TILE_SIZE;
+            // gc.setFill(Color.rgb(0, 0, 0, 0.3f));
+            // gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+
+            drawNumberAt(pos, 1, 2, i, Color.RED);
+            i++;
+            // String n = Integer.toString(i);
+            // gc.setFill(Color.WHITE);
+            // gc.fillText(n, px - w * n.length() / 2, py + h / 2);
+        }
+    }
 
     private void drawHeatmapScore(){
-        int size = game.BOARD_SIZE;
+        int size = GameSettings.GAME_SIZE;
+        int[] scoregrid = game.boardAnalyser.getCurrentScoreGrid();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Coords pos = new Coords(col, row);
-                int score = game.boardAnalyser.scoreGrid[pos.getId()]; 
+                int score = scoregrid[pos.add(1).getId()]; 
                 Color color = GameSettings.getHeatMapColor(score, 20);
                 gc.setFill(color);
                 gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
 
-                if (GameSettings.drawScoreNumber)
+                if (GameSettings.drawScoreNumber && score != 0)
                     drawNumberAt(pos, 0, 0, score, Color.ORANGE);
-                
+    
                 // if (GameSettings.drawScorePlayerNumber){
                 //     drawNumberAt(pos, 0, 1.5f, (int)score.getPlayerScore(1), Color.WHITE);
                 //     drawNumberAt(pos, 0, -1.5f, (int)score.getPlayerScore(2), Color.BLACK);
@@ -288,7 +283,7 @@ public class BoardRenderer {
         if (GameSettings.drawMousePos) drawMousePos(mouseX, mouseY);
         if (GameSettings.drawMouseGridPos) drawMouseGridPos();
         if (GameSettings.drawMouseCellPos) drawMouseCellPos();
-        // if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
+        if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
     }
 
     public void drawMousePos(double x, double y){
@@ -314,31 +309,40 @@ public class BoardRenderer {
         overlayGc.fillRect(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
     }
 
-    // public void drawSequenceDataOnMouse(){
-    //     Coords pos = pixelPosToCoords(mouseX, mouseY);
-    //     Board.SequenceData data = game.board.new SequenceData();
-    //     for (Coords dir : game.board.DIRECTION8){
-    //         Coords temp = pos.add(dir);
-    //         game.board.pieceSequenceScoreInDir(temp, dir, data);
+    public void drawSequenceDataOnMouse(){
+        if (!isInBoardBound(mouseX, mouseY))
+            return;
+        Coords pos = pixelPosToCoords(mouseX, mouseY);
+        BoardAnalyser.SequenceData data = game.boardAnalyser.new SequenceData();
+        System.out.println("drawSequenceDataOnMouse");
+        for (Coords dir : Coords.DIRECTION8){
+            System.out.println("dir: " + dir + ", id: " + dir.getId());
+            Coords temp = pos.add(dir);
+            if (game.board.getPieceAt(temp.add(1).getId()) == -1){
+                data.reset();
+            }
+            else{
+                game.boardAnalyser.pieceSequenceDataInDir(temp.add(1).getId(), dir.getId(), data);
+            }
 
-    //         overlayGc.setFill(Color.rgb(125, 125, 0, 0.5));
-    //         if (data.player == 1 || data.player == 2)
-    //             overlayGc.setFill(getPlayerColor(data.player, 0.5));
-    //         for (int i = 0; i < data.pieceNumber; i++){
-    //             drawCenterTileAt(overlayGc, temp);
-    //             temp.addTo(dir);
-    //         }
-    //         overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
-    //         for (int i = 0; i < data.trailSpaceNumber; i++){
-    //             drawCenterTileAt(overlayGc, temp);
-    //             temp.addTo(dir);
-    //         }
-    //         overlayGc.setFill(Color.rgb(125, 0, 0, 0.5));
-    //         if (data.trailPiece == 1 || data.trailPiece == 2)
-    //             overlayGc.setFill(getPlayerColor(data.trailPiece, 0.5));
-    //         drawCenterTileAt(overlayGc, temp);
-    //     }
-    // }
+            overlayGc.setFill(Color.rgb(125, 125, 0, 0.5));
+            if (data.player == 1 || data.player == 2)
+                overlayGc.setFill(getPieceColor(data.player, 0.5));
+            for (int i = 0; i < data.pieceNumber; i++){
+                drawCenterTileAt(overlayGc, temp);
+                temp.addTo(dir);
+            }
+            overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
+            for (int i = 0; i < data.trailSpaceNumber; i++){
+                drawCenterTileAt(overlayGc, temp);
+                temp.addTo(dir);
+            }
+            overlayGc.setFill(Color.rgb(125, 0, 0, 0.5));
+            if (data.trailPiece == 1 || data.trailPiece == 2)
+                overlayGc.setFill(getPieceColor(data.trailPiece, 0.5));
+            drawCenterTileAt(overlayGc, temp);
+        }
+    }
 
     public void drawTileAt(GraphicsContext g, Coords pos){
         g.fillRect(pos.x * TILE_SIZE, pos.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
@@ -348,12 +352,20 @@ public class BoardRenderer {
         g.fillRect(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
     }
 
-    public Color getPlayerColor(int player){
+    /* Utils */
+
+    public Color getPieceColor(int player){
+        if (player == -1){
+            return Color.GRAY;
+        }
+        if (player != 1 && player != 2){
+            return Color.PURPLE;
+        }
         return playerColor[player - 1];
     }
 
-    public Color getPlayerColor(int player, double alpha){
-        Color color = playerColor[player - 1];
+    public Color getPieceColor(int player, double alpha){
+        Color color = getPieceColor(player);
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
 
@@ -361,6 +373,14 @@ public class BoardRenderer {
         int row = (int)((y - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         int col = (int)((x - MARGIN + TILE_SIZE / 2) / TILE_SIZE);
         return new Coords(col, row);
+    }
+
+    public boolean isInBoardBound(double x, double y){
+        return x >= MARGIN / 2 && y >= MARGIN / 2 && x < (canvasWidth - MARGIN / 2) && y < (canvasHeight - MARGIN / 2);
+    }
+
+    public boolean isInGridBound(double x, double y){
+        return x >= MARGIN && y >= MARGIN && x < (canvasWidth - MARGIN) && y < (canvasHeight - MARGIN);
     }
 
 }

@@ -6,14 +6,17 @@ public abstract class GameSettings {
     // public static final Color BOARD_COLOR2 = Color.web("#FFE0B5");
     // public static final Color BOARD_COLOR1 = Color.web("#F2F4F3");
     public static final Color BOARD_COLOR2 = Color.web("#a8693f");
+    public static final Color BOARD_COLOR_INVERSE = Color.web("#3F7EA8");
     public static final Color UI_BACKGROUND = Color.web("#302e2b");
     // public static final Color UI_BACKGROUND = Color.web("#373533");
     public static final Color PLAYER1_COLOR = Color.web("#f9f9f9");
     public static final Color PLAYER2_COLOR = Color.web("#202020");
     public static final Color PIECE_BORDER_COLOR = Color.web("#101010");
 
-    public static final int BOARD_PIXEL_SIZE = 19 * 40;
-    public static final int BOARD_SIZE = 19;
+    public static final int GAME_SIZE = 19;
+    public static final int BOARD_PIXEL_SIZE = 800;
+    public static final int BOARD_WALL_WIDTH = 1;
+    public static final int BOARD_SIZE = GAME_SIZE + 2 * BOARD_WALL_WIDTH;
     public static final int FIRST_PLAYER = 2;
     public static final int WINNING_PIECES = 5;
     public static final int WINNING_CAPTURED_PIECES = 10;
@@ -26,7 +29,7 @@ public abstract class GameSettings {
 
     public static final float HEATMAP_ALPHA = 0.5f;
     public static final Color[] HEATMAP_COLOR = new Color[]{
-        Color.rgb(0,0,255,0.3),
+        Color.rgb(0,0,255,0.0),
         Color.rgb(0,125,255,0.3),
         Color.rgb(0,125,125,0.3),
         Color.rgb(0,255,125,0.3),
@@ -38,11 +41,10 @@ public abstract class GameSettings {
     };
 
     public static boolean drawDebugNumber = false;
-    public static boolean drawBestMove = true;
-    public static boolean drawNeighbour = false;
-    public static boolean drawEvaluatedPosition = true;
-    public static boolean drawHeatmapNeighbour = false;
-    public static boolean drawHeatmapScore = true;
+    public static boolean drawBestMove = false;
+    public static boolean drawEvaluatedPosition = false;
+    public static boolean drawHeatmapScore = false;
+    public static boolean drawSortedPosition = true;
     public static boolean drawScoreNumber = false;
     public static boolean drawScorePlayerNumber = false;
 

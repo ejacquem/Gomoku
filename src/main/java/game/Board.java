@@ -32,19 +32,26 @@ public class Board {
         -y,     // N
         -y + x, // NE
         + x,    // E
-        +y + x  // SW
+        +y + x  // SE
     };
+
+    public Board(){
+        reset();
+    }
 
     /* Core Action */
 
     private void addPieceAt(int index, int player){
+        if (!isSpaceAt(index)){
+            throw new IllegalStateException("No space at index " + index); 
+        }
         pieceCount[player - 1]++;
-        board[index] = currentPlayer;
+        setPieceAt(index, player);
     }
 
     private void removePieceAt(int index){
-        pieceCount[board[index] - 1]--;
-        board[index] = 0;
+        pieceCount[getPieceAt(index) - 1]--;
+        setPieceAt(index, 0);
     }
 
     /* Board Action */
@@ -65,9 +72,8 @@ public class Board {
         }
         winner = 0;
         moveCount--;
-        int opponent = getCurrentOpponent();
         while (peekHistory() < 0) { // add back captures
-            addPieceAt(popHistory() * -1, opponent);
+            addPieceAt(popHistory() * -1, currentPlayer);
         }
         removePieceAt(popHistory()); // remove the placed piece
         switchPlayer();
@@ -85,7 +91,7 @@ public class Board {
     }
 
     public void reset(){
-        board = new int[BOARD_MAX_INDEX];
+        initBoard();
         moveCount = 0;
         historyIndex = 0;
         winner = 0;
@@ -94,14 +100,25 @@ public class Board {
         pieceCount[1] = 0;
     }
 
+    private void initBoard(){
+        final int b = BOARD_SIZE - 1;
+        for (int y = 0; y < BOARD_SIZE; y++){
+            for (int x = 0; x < BOARD_SIZE; x++){
+                int value = (x == b || y == b || x == 0 || y == 0) ? -1 : 0;
+                setPieceAt(x + y * BOARD_SIZE, value);
+            }
+        }
+    }
+
     /* Board Utils */
 
-    public void random(float density)
+    public void random(float density, BoardAnalyser analyser)
     {
         reset();
         for (int i = 0; i < BOARD_MAX_INDEX; i++) {
-            if (Math.random() < density){
-                addPieceAt(i, (int)(Math.random() * 2) + 1);
+            if (getPieceAt(i) == 0 && Math.random() < density){
+                placePieceAt(i);
+                analyser.scanLastMove();
             }
         }
     }
@@ -113,13 +130,13 @@ public class Board {
     }
 
     private void checkCapturesAt(int index){
-        if (getSafePieceAt(index) != currentPlayer)
+        if (getPieceAt(index) != currentPlayer)
             return;
         int opponent = getCurrentOpponent();
         for (int dir : DIRECTION8){
-            if (getSafePieceAt(index + dir) == opponent && 
-                getSafePieceAt(index + dir * 2) == opponent && 
-                getSafePieceAt(index + dir * 3) == currentPlayer){
+            if (getPieceAt(index + dir) == opponent && 
+                getPieceAt(index + dir * 2) == opponent && 
+                getPieceAt(index + dir * 3) == currentPlayer){
                 capture(index + dir);
                 capture(index + dir * 2);
                 // addCaptureCount(currentPlayer);
@@ -128,18 +145,18 @@ public class Board {
     }
 
     private void checkWinnerAt(int index){
-        if (getSafePieceAt(index) != currentPlayer)
+        if (getPieceAt(index) != currentPlayer)
             return;
         int temp, count;
         for (int dir : DIRECTION4){
             count = 1;
             temp = index + dir;
-            while (getSafePieceAt(temp) == currentPlayer){
+            while (getPieceAt(temp) == currentPlayer){
                 count++;
                 temp += dir;
             }
             temp = index - dir;
-            while (getSafePieceAt(temp) == currentPlayer){
+            while (getPieceAt(temp) == currentPlayer){
                 count++;
                 temp -= dir;
             }
@@ -159,12 +176,36 @@ public class Board {
         return index >= 0 && index < BOARD_MAX_INDEX;
     }
 
+    public boolean isPlayerAt(int index){
+        int piece = getPieceAt(index);
+        return piece == 1 || piece == 2;
+    }
+
+    public boolean isSpaceAt(int index){
+        int piece = getPieceAt(index);
+        return piece == 0;
+    }
+
+    public boolean isWallAt(int index){
+        int piece = getPieceAt(index);
+        return piece == -1;
+    }
+
+    public int isFirst(int player){
+        return player == GameSettings.FIRST_PLAYER ? 1 : 0;
+    }
+
+    /* setter */
+
+    private void setPieceAt(int index, int value){
+        board[index] = value;
+    }
+
     /* getter */
 
     //Todo
     public int getCaptureCount(int player){
-        // return pieceCount[getOpponent(player)];
-        return 0;
+        return ((moveCount + isFirst(getOpponent(player))) / 2) - pieceCount[getOpponent(player) - 1];
     }
 
     public int getPieceAt(int index){
@@ -172,21 +213,7 @@ public class Board {
     }
 
     public int getPieceAt(int x, int y){
-        return board[x + y * BOARD_SIZE];
-    }
-
-    // protected getter
-    public int getSafePieceAt(int index, int defaultValue){
-        if (!isInBound(index))
-            return defaultValue;
-        return board[index];
-    }
-
-    // protected getter
-    public int getSafePieceAt(int index){
-        if (!isInBound(index))
-            return -1;
-        return board[index];
+        return getPieceAt(x + y * BOARD_SIZE);
     }
 
     public int getMoveCount(){
@@ -211,7 +238,8 @@ public class Board {
 
     private int[] moves = new int[20]; // max possible is one piece + 16 captures
     // not thread safe
-    // return an array of the last board action (rm/add) in the last executed move, first element is the number of moves
+    // return an array of the last board action (rm/add) in the last executed move, 
+    // /!\ first element is the number of moves
     public int[] getLastMove(){
         int count = 1;
         while (history[historyIndex - count] < 0) {

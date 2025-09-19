@@ -103,6 +103,7 @@ public class BoardGame {
 
     public void handleInput(Coords pos){
         System.out.println("Handle Input");
+        Coords realPos = pos.add(GameSettings.BOARD_WALL_WIDTH);
         if (gameState == GameState.NOT_STARTED){
             startGame();
         }
@@ -110,12 +111,13 @@ public class BoardGame {
             System.out.println("Can't place piece: Game Over");
             return;
         }
-        placePieceAttempt(pos);
+        System.out.println("Trying to place a piece at pos " + pos);
+        placePieceAttempt(realPos);
 
         if (gameState == GameState.GAME_OVER){
             return;
         }
-        // bestMove = AI.getBestMove();
+        bestMove = AI.getBestMove();
         // if (GameSettings.aiPlaysAutomatic){
         //     if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
         //         placePieceAttempt(bestMove);
@@ -138,6 +140,8 @@ public class BoardGame {
 
         if (board.getPieceAt(index) != 0) return;
         // if (cell.isDoubleFreeThree()) return;
+        
+        System.out.println("Placing a " + ((board.getCurrentPlayer() == 1) ? "white" : "black") + " piece at index: " + index);
         board.placePieceAt(index);
         tick();
     }
@@ -152,7 +156,6 @@ public class BoardGame {
         }
         moveCount.set(board.getMoveCount());
         boardAnalyser.scanLastMove();
-        // bestMove = AI.getBestMove();
     }
 
     private void switchPlayerTo(int player){

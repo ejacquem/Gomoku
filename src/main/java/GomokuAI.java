@@ -1,7 +1,5 @@
 package main.java;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import javafx.beans.property.DoubleProperty;
@@ -10,7 +8,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import main.java.game.Board;
 import main.java.game.BoardAnalyser;
-import main.java.game.CellInfo;
 import main.java.game.Coords;
 
 public class GomokuAI {
@@ -31,6 +28,7 @@ public class GomokuAI {
     public long start;
     public long sortTimer, sortTimeStart;
     public long boardActionTimer, boardActionTimeStart;
+    public long boardScanTimer, boardScanTimeStart;
     public int[] iterationPerDepth = new int[MAX_DEPTH];
     public int[] prunningPerDepth = new int[MAX_DEPTH];
     public int prunningCount = 0;
@@ -52,61 +50,9 @@ public class GomokuAI {
         }
     }
 
-    Pattern[] patterns = {
-        new Pattern(new int[]{1,1,1,1,1}, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,1,1,0}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,1,0,1}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,0,1,1}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,0,1,1,1}, 10000, Integer.MAX_VALUE),
-        new Pattern(new int[]{2,1,1,1,1,0}, 150, Integer.MAX_VALUE),
-        new Pattern(new int[]{0,1,1,1,0,0}, 150, 10000),
-        new Pattern(new int[]{0,1,1,1,0}, 100, 150),
-        new Pattern(new int[]{2,1,1,1,0,0}, 50, 150),
-        new Pattern(new int[]{2,1,0,1,0,1,0}, 50, 100),
-        new Pattern(new int[]{0,1,1,0}, 20, 30),
-        new Pattern(new int[]{2,1,1,0}, 10, 15),
-    };
-    Pattern[] patterns2;
-
     GomokuAI(Board board, BoardAnalyser boardAnalyser){
         this.board = board;
         this.boardAnalyser = boardAnalyser;
-
-        createPattern2();
-        // game.currentPlayerProperty().addListener((obs, oldVal, newVal) -> {
-        //     evaluate();
-        // });
-    }
-
-    public class Pattern {
-        int [] pattern;
-        long score[] = new long[2]; // store the basic score, and the score if its the player turn
-
-        Pattern(int [] pattern, long score){
-            this.pattern = pattern;
-            this.score[0] = score;
-            this.score[1] = score;
-        }
-
-        Pattern(int [] pattern, long score, long scorePlayerTurn){
-            this.pattern = pattern;
-            this.score[0] = score;
-            this.score[1] = scorePlayerTurn;
-        }
-    }
-
-    //copy patterns but reverse player 1 and player 2
-    private void createPattern2(){
-        patterns2 = new Pattern[patterns.length];
-        for (int i = 0; i < patterns.length; i++){
-            patterns2[i] = new Pattern(new int[patterns[i].pattern.length], patterns[i].score[0], patterns[i].score[1]);
-            for (int j = 0; j < patterns[i].pattern.length; j++) {
-                int p1 = patterns[i].pattern[j];
-                if (p1 == 0) patterns2[i].pattern[j] = 0;
-                else if (p1 == 1) patterns2[i].pattern[j] = 2;
-                else if (p1 == 2) patterns2[i].pattern[j] = 1;
-            }
-        }
     }
 
     public void reset(){
@@ -128,6 +74,7 @@ public class GomokuAI {
         start = System.currentTimeMillis();
         sortTimer = 0;
         boardActionTimer = 0;
+        boardScanTimer = 0;
         limitExcceeded = false;
 
         // Coords[] moves = getPossibleMove();
@@ -145,6 +92,7 @@ public class GomokuAI {
             // if (maxMove >= 5 && move.score.getScore() < 25f) break;
             // if (maxMove == 7) break;
             board.placePieceAt(index);
+            boardAnalyser.scanLastMove();
             int score = search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, color); // = negamax(rootNode, depth, −∞, +∞, 1)
             // evaluatedPos.add(new EvaluatedPosition(pos, score));
             // int score = evaluate();
@@ -165,6 +113,9 @@ public class GomokuAI {
         System.out.printf("Execution time: %d ms%n", totalTime);
         System.out.printf("  sortTime:        %d ms (%.2f%%)%n", sortTimer, (sortTimer * 100.0) / totalTime);
         System.out.printf("  boardActionTime: %d ms (%.2f%%)%n", boardActionTimer, (boardActionTimer * 100.0) / totalTime);
+        System.out.printf("  boardScanTime:   %d ms (%.2f%%)%n", boardScanTimer, (boardScanTimer * 100.0) / totalTime);
+        long other = totalTime - (sortTimer + boardActionTimer + boardScanTimer);
+        System.out.printf("  other:           %d ms (%.2f%%)%n", other, (other * 100.0) / totalTime);
         
         System.out.println("prunningCount: " + prunningCount);
         for (int i = 0; i < MAX_DEPTH; i++){
@@ -243,19 +194,19 @@ public class GomokuAI {
     }
     
 
-    private CellInfo[] sortMoves(Coords[] moves) {
-        CellInfo[] infos = new CellInfo[moves.length];
+    // private CellInfo[] sortMoves(Coords[] moves) {
+    //     CellInfo[] infos = new CellInfo[moves.length];
     
-        for (int i = 0; i < moves.length; i++) {
-            CellInfo ci = new CellInfo();
-            ci = boardAnalyser.getCellInfoAt(moves[i].getId());
-            ci.pos = moves[i];
-            infos[i] = ci;
-        }
+    //     for (int i = 0; i < moves.length; i++) {
+    //         CellInfo ci = new CellInfo();
+    //         ci = boardAnalyser.getCellInfoAt(moves[i].getId());
+    //         ci.pos = moves[i];
+    //         infos[i] = ci;
+    //     }
     
-        Arrays.sort(infos, CellInfo.SCORE_COMPARATOR);
-        return infos;
-    }
+    //     Arrays.sort(infos, CellInfo.SCORE_COMPARATOR);
+    //     return infos;
+    // }
 
     // private void shuffleSameScore(CellInfo[] infos){
     //     Random rng = new Random();
@@ -326,6 +277,10 @@ public class GomokuAI {
             boardActionTimeStart = System.currentTimeMillis();
             board.placePieceAt(index);
             boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
+            
+            boardScanTimeStart = System.currentTimeMillis();
+            boardAnalyser.scanLastMove();
+            boardScanTimer += System.currentTimeMillis() - boardScanTimeStart;
 
             // player1PositionScore = player1score;
             // player2PositionScore = player2score;
