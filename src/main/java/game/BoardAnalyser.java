@@ -20,7 +20,7 @@ import main.java.utils.TimeLogger;
 public class BoardAnalyser {
     private Board board;
     // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
-    public static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX;
+    public static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX * 8;
     public static final int MAX_HISTORY_LEN = 500;
     public int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
 
@@ -30,6 +30,14 @@ public class BoardAnalyser {
 
     public int[] getCurrentScoreGrid(){
         return scoreGridHistory[board.getMoveCount()];
+    }
+
+    public int getScoreAtPosAtDir(int index, int dir){
+        return getCurrentScoreGrid()[index * 8 + dir];
+    }
+
+    public void setScoreAtPosAtDir(int index, int dir, int score){
+        getCurrentScoreGrid()[index * 8 + dir] = score;
     }
 
     // go through every cell and calculate a rough score
@@ -76,7 +84,8 @@ public class BoardAnalyser {
     // ..1OO..
     // .2.1...
     // .......
-    private SequenceData data = new SequenceData();
+    // private SequenceData data = new SequenceData();
+    int[] dirCount = new int[8];
     public void scanLastMove(){
         if (board.getMoveCount() <= 0)
             return;
@@ -87,28 +96,44 @@ public class BoardAnalyser {
         int[] lastMove = board.getLastMove();
         for (int i = 0; i < lastMove[0]; i++){
             int move = lastMove[i + 1]; // +1 to skip first elem which is the length
-            if (move < 0){ // don't need to recalculate the captured piece score
-                move *= -1;
-            }
-            else { // assign score of 0 at the placed piece index
-                scoregrid[move] = 0;
-            }
-            int index = move;
-            for (int dir : Board.DIRECTION8) {
-                TimeLogger.time("computeSequenceData", () -> pieceSequenceDataInDir(index + dir, dir, data));
-                // pieceSequenceDataInDir(index + dir, dir, data);
-                if (data.leadSpaceNumber != 0){
-                    int spaceIndex = index + dir;
-                    // scoregrid[spaceIndex] = getScoreAt(spaceIndex);
-                    scoregrid[spaceIndex] = TimeLogger.time("getScoreAt", () -> getScoreAt(spaceIndex));
-                }
-                else if (data.trailSpaceNumber > 0){
-                    int spaceIndex = index + dir + dir * (data.pieceNumber + data.leadSpaceNumber);
-                    // scoregrid[spaceIndex] = getScoreAt(spaceIndex);
-                    scoregrid[spaceIndex] = TimeLogger.time("getScoreAt", () -> getScoreAt(spaceIndex));
+            int index = Math.abs(move);
+            int dirIndex = 0;
+            if (move > 0){
+                int placedPiece = board.getPieceAt(index);
+                for (int dir : Board.DIRECTION8) {
+                    int count = countSamePiecesInDir(index + dir, dir);
+                    scoregrid[index + dirIndex] = (move > 0 ? 0 : getScoreFromPieceNumber(count));
+                    // compute the score in the other direction
+                    int endIndex = index + ( 1 + count) * dir;
+                    if (board.getPieceAt(endIndex) == 0){
+                        scoregrid[endIndex + dirIndex] = getScoreFromPieceNumber(countSamePiecesInDir(endIndex - dir, -dir));
+                    }
+                    dirIndex++;
+                    // store score up right pos neg separated
                 }
             }
         }
+    }
+
+    private int countSamePiecesInDir(int pos, int dir){
+        int curr = board.getPieceAt(pos);
+        if (curr == 0 || curr == -1)
+            return 0;
+        int count = 1;
+        while (curr == board.getPieceAt(pos + dir * count) && count < 4){
+            count++;
+        }
+        return count;
+    }
+
+    private int getScoreFromPieceNumber(int pieceNumber){
+        switch (pieceNumber) {
+            case 1: return 1;
+            case 2: return 10;
+            case 3: return 100;
+            case 4: return 1000;
+        }
+        return 0;
     }
 
     private void copyLastHistory(){
