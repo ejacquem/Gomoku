@@ -314,9 +314,8 @@ public class BoardRenderer {
             return;
         Coords pos = pixelPosToCoords(mouseX, mouseY);
         BoardAnalyser.SequenceData data = game.boardAnalyser.new SequenceData();
-        System.out.println("drawSequenceDataOnMouse");
+        // System.out.println("drawSequenceDataOnMouse");
         for (Coords dir : Coords.DIRECTION8){
-            System.out.println("dir: " + dir + ", id: " + dir.getId());
             Coords temp = pos.add(dir);
             if (game.board.getPieceAt(temp.add(1).getId()) == -1){
                 data.reset();
@@ -325,9 +324,12 @@ public class BoardRenderer {
                 game.boardAnalyser.pieceSequenceDataInDir(temp.add(1).getId(), dir.getId(), data);
             }
 
-            overlayGc.setFill(Color.rgb(125, 125, 0, 0.5));
-            if (data.player == 1 || data.player == 2)
-                overlayGc.setFill(getPieceColor(data.player, 0.5));
+            overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
+            for (int i = 0; i < data.leadSpaceNumber; i++){
+                drawCenterTileAt(overlayGc, temp);
+                temp.addTo(dir);
+            }
+            overlayGc.setFill(getPieceColor(data.player, 0.5));
             for (int i = 0; i < data.pieceNumber; i++){
                 drawCenterTileAt(overlayGc, temp);
                 temp.addTo(dir);
