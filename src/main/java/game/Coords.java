@@ -1,6 +1,6 @@
 package main.java.game;
 
-import main.java.GameSettings;
+import main.java.app.GameSettings;
 
 public class Coords {
     public int x;

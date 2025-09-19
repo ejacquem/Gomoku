@@ -1,4 +1,4 @@
-package main.java;
+package main.java.app;
 
 import javafx.application.Application;
 import javafx.scene.ImageCursor;
@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import main.java.game.Board;
 import main.java.game.BoardAnalyser;
 import main.java.game.BoardGame;
+import main.java.game.GomokuAI;
 import main.java.ui.GameUI;
 import main.java.ui.GameUISettings;
 import javafx.application.Platform;

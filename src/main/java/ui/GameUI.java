@@ -1,8 +1,8 @@
 package main.java.ui;
-import main.java.GameSettings;
-import main.java.GomokuAI;
+import main.java.app.GameSettings;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
+import main.java.game.GomokuAI;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;

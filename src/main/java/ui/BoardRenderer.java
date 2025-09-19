@@ -3,7 +3,7 @@ package main.java.ui;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import main.java.GameSettings;
+import main.java.app.GameSettings;
 import main.java.game.BoardAnalyser;
 import main.java.game.BoardGame;
 import main.java.game.Coords;

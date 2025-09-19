@@ -1,6 +1,6 @@
 package main.java.game;
 
-import main.java.GameSettings;
+import main.java.app.GameSettings;
 
 public class Board {
     public static final int BOARD_SIZE = GameSettings.BOARD_SIZE;

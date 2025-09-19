@@ -13,14 +13,15 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/game/CellInfo.java \
 		$(SRC)/game/Coords.java \
 		$(SRC)/game/Move.java \
+		$(SRC)/game/GomokuAI.java \
 		$(SRC)/ui/BoardRenderer.java \
 		$(SRC)/ui/GameUI.java \
 		$(SRC)/ui/GameUISettings.java \
 		$(SRC)/ui/UtilsRenderer.java \
-		$(SRC)/GameApp.java \
-		$(SRC)/GameSettings.java \
-		$(SRC)/GomokuAI.java \
-		$(SRC)/GomokuUtils.java \
+		$(SRC)/app/GameApp.java \
+		$(SRC)/app/GameSettings.java \
+		$(SRC)/utils/GomokuUtils.java \
+		$(SRC)/utils/TimeLogger.java \
 
 CLASSES=$(SOURCES:$(SRC)/%.java=$(BIN)/%.class)
 
@@ -30,7 +31,7 @@ all:
 	--add-modules $(MODULES) \
 	-d $(BIN) $(SOURCES)
 	$(JAVA) --module-path $(JAVA_FX_PATH) \
-	--add-modules $(MODULES) -cp $(BIN) main.java.GameApp
+	--add-modules $(MODULES) -cp $(BIN) main.java.app.GameApp
 
 $(CLASSES): $(SOURCES)
 	@mkdir -p $(BIN)/game $(BIN)/ui

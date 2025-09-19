@@ -8,8 +8,7 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.util.Duration;
-import main.java.GameSettings;
-import main.java.GomokuAI;
+import main.java.app.GameSettings;
 
 public class BoardGame {
     public final int BOARD_SIZE = GameSettings.BOARD_SIZE;

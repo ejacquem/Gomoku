@@ -1,11 +1,10 @@
 package main.java.ui;
 
-import main.java.GameSettings;
-
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 import javafx.scene.control.*;
+import main.java.app.GameSettings;
 
 public class GameUISettings {
 

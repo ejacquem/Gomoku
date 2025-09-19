@@ -1,4 +1,4 @@
-package main.java;
+package main.java.app;
 import javafx.scene.paint.Color;
 
 public abstract class GameSettings {

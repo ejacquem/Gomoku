@@ -3,7 +3,8 @@ package main.java.game;
 import java.util.ArrayList;
 import java.util.List;
 
-import main.java.GameSettings;
+import main.java.app.GameSettings;
+import main.java.utils.TimeLogger;
 
 public class BoardAnalyser {
     private Board board;
@@ -70,7 +71,8 @@ public class BoardAnalyser {
             return;
         // GomokuUtils.debugCaller();
         int[] scoregrid = getCurrentScoreGrid();
-        copyLastHistory();
+        TimeLogger.time("copyLastHistory", () -> copyLastHistory());
+        // copyLastHistory();
         int[] lastMove = board.getLastMove();
         for (int i = 0; i < lastMove[0]; i++){
             int move = lastMove[i + 1]; // +1 to skip first elem which is the length
@@ -82,10 +84,12 @@ public class BoardAnalyser {
             }
             int index = move;
             for (int dir : Board.DIRECTION8) {
-                pieceSequenceDataInDir(index + dir, dir, data);
+                TimeLogger.time("computeSequenceData", () -> pieceSequenceDataInDir(index + dir, dir, data));
+                // pieceSequenceDataInDir(index + dir, dir, data);
                 if (data.trailSpaceNumber > 0){
                     int spaceIndex = index + dir + dir * data.pieceNumber;
-                    scoregrid[spaceIndex] = getScoreAt(spaceIndex);
+                    // scoregrid[spaceIndex] = getScoreAt(spaceIndex);
+                    scoregrid[spaceIndex] = TimeLogger.time("getScoreAt", () -> getScoreAt(spaceIndex));
                 }
             }
         }

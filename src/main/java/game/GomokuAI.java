@@ -1,4 +1,4 @@
-package main.java;
+package main.java.game;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,9 +6,7 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
-import main.java.game.Board;
-import main.java.game.BoardAnalyser;
-import main.java.game.Coords;
+import main.java.utils.TimeLogger;
 
 public class GomokuAI {
     private Board board;
@@ -23,12 +21,9 @@ public class GomokuAI {
     public DoubleProperty percentageProperty() { return percentage; }
 
     public final long TIME_LIMIT = 10000;
+    private long start = 0;
     public final int MAX_DEPTH = 7;
     public boolean limitExcceeded = false;
-    public long start;
-    public long sortTimer, sortTimeStart;
-    public long boardActionTimer, boardActionTimeStart;
-    public long boardScanTimer, boardScanTimeStart;
     public int[] iterationPerDepth = new int[MAX_DEPTH];
     public int[] prunningPerDepth = new int[MAX_DEPTH];
     public int prunningCount = 0;
@@ -50,7 +45,7 @@ public class GomokuAI {
         }
     }
 
-    GomokuAI(Board board, BoardAnalyser boardAnalyser){
+    public GomokuAI(Board board, BoardAnalyser boardAnalyser){
         this.board = board;
         this.boardAnalyser = boardAnalyser;
     }
@@ -72,9 +67,10 @@ public class GomokuAI {
         reset();
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
-        sortTimer = 0;
-        boardActionTimer = 0;
-        boardScanTimer = 0;
+        
+        TimeLogger.resetAiTimers();
+        TimeLogger.startTimer("getBestMove");
+        
         limitExcceeded = false;
 
         // Coords[] moves = getPossibleMove();
@@ -109,13 +105,8 @@ public class GomokuAI {
         }
         System.out.println("Best Move Score: " + bestEval);
 
-        long totalTime = System.currentTimeMillis() - start;
-        System.out.printf("Execution time: %d ms%n", totalTime);
-        System.out.printf("  sortTime:        %d ms (%.2f%%)%n", sortTimer, (sortTimer * 100.0) / totalTime);
-        System.out.printf("  boardActionTime: %d ms (%.2f%%)%n", boardActionTimer, (boardActionTimer * 100.0) / totalTime);
-        System.out.printf("  boardScanTime:   %d ms (%.2f%%)%n", boardScanTimer, (boardScanTimer * 100.0) / totalTime);
-        long other = totalTime - (sortTimer + boardActionTimer + boardScanTimer);
-        System.out.printf("  other:           %d ms (%.2f%%)%n", other, (other * 100.0) / totalTime);
+        TimeLogger.stopTimer("getBestMove");
+        TimeLogger.printAiTime();
         
         System.out.println("prunningCount: " + prunningCount);
         for (int i = 0; i < MAX_DEPTH; i++){
@@ -253,11 +244,8 @@ public class GomokuAI {
             return color * evaluate(depth);
         }
 
-        // Coords[] moves = getPossibleMove();
-        sortTimeStart = System.currentTimeMillis();
-        // CellInfo[] sortedMoves = sortMoves(moves);
-        int[] sortedIndices = boardAnalyser.getSortedIndices();
-        sortTimer += System.currentTimeMillis() - sortTimeStart;
+        // int[] sortedIndices = boardAnalyser.getSortedIndices();
+        int[] sortedIndices = TimeLogger.time("sort", () -> boardAnalyser.getSortedIndices());
 
         // float player1score = 0;
         // float player2score = 0;
@@ -274,22 +262,15 @@ public class GomokuAI {
             // if (maxMove == 7) break;
             // Coords pos = move.pos;
             
-            boardActionTimeStart = System.currentTimeMillis();
-            board.placePieceAt(index);
-            boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
-            
-            boardScanTimeStart = System.currentTimeMillis();
-            boardAnalyser.scanLastMove();
-            boardScanTimer += System.currentTimeMillis() - boardScanTimeStart;
+            TimeLogger.time("boardAction", () -> board.placePieceAt(index));
+            TimeLogger.time("boardScan", () -> boardAnalyser.scanLastMove());
 
             // player1PositionScore = player1score;
             // player2PositionScore = player2score;
             value = Math.max(value, -search(depth - 1, -beta, -alpha, -color));
             alpha = Math.max(alpha, value);
 
-            boardActionTimeStart = System.currentTimeMillis();
-            board.undo();
-            boardActionTimer += System.currentTimeMillis() - boardActionTimeStart;
+            TimeLogger.time("boardAction", () -> board.undo());
 
             if (alpha >= beta){
                 prunningCount++;

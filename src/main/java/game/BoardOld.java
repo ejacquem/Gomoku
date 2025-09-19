@@ -1,7 +1,5 @@
 package main.java.game;
 
-import main.java.GameSettings;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiPredicate;
+
+import main.java.app.GameSettings;
 
 public class BoardOld {
     
