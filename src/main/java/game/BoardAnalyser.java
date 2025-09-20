@@ -50,10 +50,10 @@ public class BoardAnalyser {
 
     public int getScoreAtPosAtDir(int index, int dirIndex){
         // if (dirIndex < 0 || dirIndex >= 8) throw new IllegalStateException("Invalid dirIndex " + index); // comment later for efficiency 
-        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + dirIndex];
+        return scoreGridHistory[board.getMoveCount()][index * CELL_INFO_SIZE + dirIndex];
     }
 
-    public void setScoreAtPosAtDir(int posIndex, int flagIndex, int score){
+    private void setScoreAtPosAtDir(int posIndex, int flagIndex, int score){
         // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);
         scoreGridHistory[moveCount][posIndex * CELL_INFO_SIZE + flagIndex] = score;
     }
@@ -70,6 +70,7 @@ public class BoardAnalyser {
 
     List<Integer> filteredCell = new ArrayList<>();
     public int[] getSortedIndices() {
+        moveCount = board.getMoveCount();
         filteredCell.clear();
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
             if (getScoreAtPos(i) >= 1) filteredCell.add(i);
