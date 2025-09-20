@@ -212,6 +212,10 @@ public class Board {
         return ((moveCount + isFirst(getOpponent(player))) / 2) - pieceCount[getOpponent(player) - 1];
     }
 
+    public int getPieceCount(int player){
+        return pieceCount[player - 1];
+    }
+
     public int getPieceAt(int index){
         return board[index];
     }

@@ -4,8 +4,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import main.java.app.GameSettings;
-import main.java.game.Board;
-import main.java.game.BoardAnalyser;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
 // import main.java.game.Board.CellScore;
@@ -46,14 +44,15 @@ public class BoardRenderer {
         gc.translate(MARGIN, MARGIN);
         drawCheckBoard();
         // drawChessBoard();
-        // drawGrid();
+        drawGrid();
         drawLabel();
         drawPieces();
         // drawSymbols();
         
+        game.boardAnalyser.updateMoveCount();;
         if (GameSettings.drawDebugNumber) drawDebugNumber();
-        // if (GameSettings.drawBestMove) drawBestMove();
-        // if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
+        if (GameSettings.drawBestMove) drawBestMove();
+        if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
         if (GameSettings.drawSortedPosition) drawSortedPosition();
         if (GameSettings.drawScoreHeatmap) drawScoreHeatmap();
         if (GameSettings.drawScoreNumber) drawScoreNumber();
@@ -118,19 +117,19 @@ public class BoardRenderer {
         }
     }
 
-    private void drawChessBoard(){
-        int size = GameSettings.GAME_SIZE;
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                if ((row + col) % 2 == 0) {
-                    gc.setFill(GameSettings.BOARD_COLOR1);
-                } else {
-                    gc.setFill(GameSettings.BOARD_COLOR2);
-                }
-                gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
-            }
-        }
-    }
+    // private void drawChessBoard(){
+    //     int size = GameSettings.GAME_SIZE;
+    //     for (int row = 0; row < size; row++) {
+    //         for (int col = 0; col < size; col++) {
+    //             if ((row + col) % 2 == 0) {
+    //                 gc.setFill(GameSettings.BOARD_COLOR1);
+    //             } else {
+    //                 gc.setFill(GameSettings.BOARD_COLOR2);
+    //             }
+    //             gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+    //         }
+    //     }
+    // }
 
     private void drawDebugNumber(){
         int size = GameSettings.GAME_SIZE;
@@ -169,34 +168,35 @@ public class BoardRenderer {
         gc.strokeOval(x - radius, y - radius, radius * 2, radius * 2);
     }
 
-    // private void drawBestMove(){
-    //     if (!game.board.isInBound(game.bestMove))
-    //         return;
-    //     float radius = TILE_SIZE * 0.8f / 2f;
-    //     int px = game.bestMove.x * TILE_SIZE;
-    //     int py = game.bestMove.y * TILE_SIZE;
-    //     gc.setFill(Color.rgb(255, 255, 255, 0.5f));
-    //     gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
-    //     //outline
-    //     gc.setStroke(Color.RED);
-    //     gc.setLineWidth(2); // thickness 
-    //     gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
-    // }
+    private void drawBestMove(){
+        if (!game.board.isInBound(game.bestMove))
+            return;
+        float radius = TILE_SIZE * 0.8f / 2f;
+        Coords pos = Coords.getCoordsById(game.bestMove).add(-1);
+        int px = pos.x * TILE_SIZE;
+        int py = pos.y * TILE_SIZE;
+        gc.setFill(Color.rgb(255, 255, 255, 0.5f));
+        gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+        //outline
+        gc.setStroke(Color.RED);
+        gc.setLineWidth(2); // thickness 
+        gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
+    }
 
-    // private void drawEvaluatedPosition(){
-    //     final int w = 8, h = 8; // size of a letter
-    //     for (EvaluatedPosition evalpos : game.AI.evaluatedPos){
-    //         float radius = TILE_SIZE * 0.8f / 2f;
-    //         int px = evalpos.pos.x * TILE_SIZE;
-    //         int py = evalpos.pos.y * TILE_SIZE;
-    //         gc.setFill(Color.rgb(0, 0, 0, 0.3f));
-    //         gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+    private void drawEvaluatedPosition(){
+        // final int w = 8, h = 8; // size of a letter
+        // for (EvaluatedPosition evalpos : game.AI.evaluatedPos){
+        //     float radius = TILE_SIZE * 0.8f / 2f;
+        //     int px = evalpos.pos.x * TILE_SIZE;
+        //     int py = evalpos.pos.y * TILE_SIZE;
+        //     gc.setFill(Color.rgb(0, 0, 0, 0.3f));
+        //     gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
 
-    //         String n = Integer.toString(evalpos.score);
-    //         gc.setFill(Color.WHITE);
-    //         gc.fillText(n, px - w * n.length() / 2, py + h / 2);
-    //     }
-    // }
+        //     String n = Integer.toString(evalpos.score);
+        //     gc.setFill(Color.WHITE);
+        //     gc.fillText(n, px - w * n.length() / 2, py + h / 2);
+        // }
+    }
 
     private void drawSortedPosition(){
         int[] sortedIndices = game.boardAnalyser.getSortedIndices();
@@ -238,7 +238,8 @@ public class BoardRenderer {
             for (int col = 0; col < size; col++) {
                 Coords pos = new Coords(col, row);
                 int score = game.boardAnalyser.getScoreAtPos(pos.add(1).getId());
-                drawNumberAt(pos, 0, 0, Math.abs(score), Color.ORANGE);
+                if (score != 0)
+                    drawNumberAt(pos, 0, 0, Math.abs(score), Color.ORANGE);
             }
         }
     }

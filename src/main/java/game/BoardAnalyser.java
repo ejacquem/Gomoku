@@ -23,7 +23,7 @@ public class BoardAnalyser {
     private static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX * CELL_INFO_SIZE;
     private static final int MAX_HISTORY_LEN = 500;
     private int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
-    private int[] pieceBoard;
+    private int[] pieceBoard; // to avoid board.getPieceAt() call
     private int moveCount = 0;
 
     public BoardAnalyser(Board board){
@@ -42,8 +42,22 @@ public class BoardAnalyser {
     private void computeScoreAtPos(int index){
         int[] grid = getCurrentScoreGrid();
         int score = 0;
-        for (int i = 0; i < 8; i++){
-            score += Math.abs((float)grid[index * CELL_INFO_SIZE + i] * 1.9f);
+        for (int i = 0; i < 4; i++){
+            int left = Math.abs(grid[index * CELL_INFO_SIZE + i]);
+            int right = Math.abs(grid[index * CELL_INFO_SIZE + (7 - i)]);
+            if (left != 0 && right != 0){
+                if (left != 0 && Integer.signum(left) == Integer.signum(right)){
+                    score += 2 << Math.abs(left + right);
+                }
+            }
+            else{
+                if (left != 0){
+                    score += (2 << (Math.abs(left) - 1)) - 1;
+                }
+                if (right != 0){
+                    score += (2 << (Math.abs(right) - 1)) - 1;
+                }
+            }
         }
         setScoreAtPosAtDir(index, 8, score);
     }
@@ -70,7 +84,7 @@ public class BoardAnalyser {
 
     List<Integer> filteredCell = new ArrayList<>();
     public int[] getSortedIndices() {
-        moveCount = board.getMoveCount();
+        updateMoveCount();
         filteredCell.clear();
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
             if (getScoreAtPos(i) >= 1) filteredCell.add(i);
@@ -106,7 +120,7 @@ public class BoardAnalyser {
     // private SequenceData data = new SequenceData();
     private int[] dirCount = new int[8];
     public void scanLastMove(){
-        moveCount = board.getMoveCount();
+        updateMoveCount();
         if (moveCount <= 0)
             return;
         copyLastHistory();
@@ -116,13 +130,17 @@ public class BoardAnalyser {
         }
     }
 
+    public void updateMoveCount(){
+        this.moveCount = board.getMoveCount();
+    }
+
     // scan the position at the current move, the move is the position where a piece a modified
     // positive if placed
     // negative if removed
     private void scanMove(int move){
         // System.out.println("\nScan move: " + move);
         int index = Math.abs(move);
-        int placedPieceSign = Board.getPlayerSign(board.getPieceAt(index));
+        int placedPieceSign = Board.getPlayerSign(pieceBoard[index]);
         // System.out.println("scanLastMove: " + move);
         for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
             int dir = Board.DIRECTION8[dirIndex];
@@ -143,7 +161,7 @@ public class BoardAnalyser {
                 }
             }
             setScoreAtPosAtDir(index, dirIndex, score); // compute the score of the current cell, set to 0 if placed
-            if (board.getPieceAt(rightEndIndex) == 0){ // if cell is empty at the end of sequence, compute the score
+            if (pieceBoard[rightEndIndex] == 0){ // if cell is empty at the end of sequence, compute the score
                 score = computeCountDir(right, placedPieceSign, left);
                 capturesign = checkCaptureFromRunLength(score, rightEndIndex, dir);
                 if (capturesign != 0){
@@ -162,7 +180,7 @@ public class BoardAnalyser {
             // System.out.println("dir: " + dir);
             // System.out.println("endIndex - dir * 3: " + (endIndex - dir * 3));
             // System.out.println("board.getPieceAt(endIndex - dir * 3): " + board.getPieceAt(endIndex - dir * 3));
-            int potentialCapturePiece = board.getPieceAt(endIndex - dir * 3);
+            int potentialCapturePiece = pieceBoard[endIndex - dir * 3];
             if (runLength == -2 && potentialCapturePiece == 1 || runLength == 2 && potentialCapturePiece == 2){ // can't check sign here, pcp could be a wall
                 return Board.getPlayerSign(potentialCapturePiece);
             }
