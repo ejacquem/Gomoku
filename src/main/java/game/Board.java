@@ -251,7 +251,7 @@ public class Board {
     // not thread safe
     // return an array of the last board action (rm/add) in the last executed move, 
     // /!\ first element is the number of moves
-    public int[] getLastMove(){
+    public int[] getLastMoves(){
         int count = 1;
         while (history[historyIndex - count] < 0) {
             moves[count] = history[historyIndex - count];

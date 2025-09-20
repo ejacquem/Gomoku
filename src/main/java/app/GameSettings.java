@@ -44,9 +44,9 @@ public abstract class GameSettings {
     public static boolean drawBestMove = false;
     public static boolean drawEvaluatedPosition = false;
     public static boolean drawSortedPosition = false;
-    public static boolean drawScoreHeatmap = true;
-    public static boolean drawScoreNumber = true;
-    public static boolean drawScorePlayerNumber = false;
+    public static boolean drawScoreHeatmap = false;
+    public static boolean drawScoreNumber = false;
+    public static boolean drawScorePlayerNumber = true;
 
     public static boolean aiPlaysAutomatic = false;
     public static boolean player1AI = false;

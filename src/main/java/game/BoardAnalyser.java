@@ -24,6 +24,7 @@ public class BoardAnalyser {
     private static final int MAX_HISTORY_LEN = 500;
     private int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
     private int[] pieceBoard;
+    private int moveCount = 0;
 
     public BoardAnalyser(Board board){
         this.board = board;
@@ -31,11 +32,11 @@ public class BoardAnalyser {
     }
 
     private int[] getCurrentScoreGrid(){
-        return scoreGridHistory[board.getMoveCount()];
+        return scoreGridHistory[moveCount];
     }
 
     public int getScoreAtPos(int index){
-        return getScoreAtPosAtDir(index, 8);
+        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + 8];
     }
 
     private void computeScoreAtPos(int index){
@@ -49,12 +50,12 @@ public class BoardAnalyser {
 
     public int getScoreAtPosAtDir(int index, int dirIndex){
         // if (dirIndex < 0 || dirIndex >= 8) throw new IllegalStateException("Invalid dirIndex " + index); // comment later for efficiency 
-        return getCurrentScoreGrid()[index * CELL_INFO_SIZE + dirIndex];
+        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + dirIndex];
     }
 
     public void setScoreAtPosAtDir(int posIndex, int flagIndex, int score){
         // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);
-        getCurrentScoreGrid()[posIndex * CELL_INFO_SIZE + flagIndex] = score;
+        scoreGridHistory[moveCount][posIndex * CELL_INFO_SIZE + flagIndex] = score;
     }
 
     // go through every cell and calculate a rough score
@@ -104,33 +105,68 @@ public class BoardAnalyser {
     // private SequenceData data = new SequenceData();
     private int[] dirCount = new int[8];
     public void scanLastMove(){
-        if (board.getMoveCount() <= 0)
+        moveCount = board.getMoveCount();
+        if (moveCount <= 0)
             return;
         copyLastHistory();
-        int[] lastMove = board.getLastMove();
+        int[] lastMove = board.getLastMoves();
         for (int i = 0; i < lastMove[0]; i++){
-            int move = lastMove[i + 1]; // +1 to skip first elem which is the length
-            int index = Math.abs(move);
-            int placedPieceSign = Board.getPlayerSign(board.getPieceAt(index));
-            // System.out.println("scanLastMove: " + move);
-            for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
-                int dir = Board.DIRECTION8[dirIndex];
-                dirCount[dirIndex] = countSamePiecesInDir(index + dir, dir);
-            }
-            for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
-                int dir = Board.DIRECTION8[dirIndex];
-                int right = dirCount[dirIndex];
-                int left = dirCount[7 - dirIndex]; // opposite dir
-                int endIndex = index + (1 + Math.abs(right)) * dir;
-                setScoreAtPosAtDir(index, dirIndex, (move > 0 ? 0 : left));
-                if (board.getPieceAt(endIndex) == 0){
-                    int score = computeCountDir(right, placedPieceSign, left);
-                    setScoreAtPosAtDir(endIndex, dirIndex, score);
-                    computeScoreAtPos(endIndex);
+            scanMove(lastMove[i + 1]); // +1 to skip first elem which is the length
+        }
+    }
+
+    // scan the position at the current move, the move is the position where a piece a modified
+    // positive if placed
+    // negative if removed
+    private void scanMove(int move){
+        // System.out.println("\nScan move: " + move);
+        int index = Math.abs(move);
+        int placedPieceSign = Board.getPlayerSign(board.getPieceAt(index));
+        // System.out.println("scanLastMove: " + move);
+        for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
+            int dir = Board.DIRECTION8[dirIndex];
+            dirCount[dirIndex] = countSamePiecesInDir(index + dir, dir);
+        }
+        for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
+            int dir = Board.DIRECTION8[dirIndex];
+            int right = dirCount[dirIndex];
+            int left = dirCount[7 - dirIndex]; // opposite dir
+            int rightEndIndex = index + (1 + Math.abs(right)) * dir;
+            int score = 0;
+            int capturesign;
+            if (move < 0){
+                score = left;
+                capturesign = checkCaptureFromRunLength(left, index, dir);
+                if (capturesign != 0){
+                    score = 9 * capturesign;
                 }
             }
-            computeScoreAtPos(index);
+            setScoreAtPosAtDir(index, dirIndex, score); // compute the score of the current cell, set to 0 if placed
+            if (board.getPieceAt(rightEndIndex) == 0){ // if cell is empty at the end of sequence, compute the score
+                score = computeCountDir(right, placedPieceSign, left);
+                capturesign = checkCaptureFromRunLength(score, rightEndIndex, dir);
+                if (capturesign != 0){
+                    score = 9 * capturesign;
+                }
+                setScoreAtPosAtDir(rightEndIndex, dirIndex, score);
+                computeScoreAtPos(rightEndIndex);
+            }
         }
+        computeScoreAtPos(index);
+    }
+
+    private int checkCaptureFromRunLength(Integer runLength, int endIndex, int dir){
+        if (Math.abs(runLength) == 2){
+            // System.out.println("endIndex: " + endIndex);
+            // System.out.println("dir: " + dir);
+            // System.out.println("endIndex - dir * 3: " + (endIndex - dir * 3));
+            // System.out.println("board.getPieceAt(endIndex - dir * 3): " + board.getPieceAt(endIndex - dir * 3));
+            int potentialCapturePiece = board.getPieceAt(endIndex - dir * 3);
+            if (runLength == -2 && potentialCapturePiece == 1 || runLength == 2 && potentialCapturePiece == 2){ // can't check sign here, pcp could be a wall
+                return Board.getPlayerSign(potentialCapturePiece);
+            }
+        }
+        return 0;
     }
 
     // p1p ppp : left + 1 + right
@@ -172,10 +208,10 @@ public class BoardAnalyser {
     }
 
     private void copyLastHistory(){
-        if (board.getMoveCount() == 0)
+        if (moveCount == 0)
             return;
-        System.arraycopy(scoreGridHistory[board.getMoveCount() - 1], 0,
-                 scoreGridHistory[board.getMoveCount()], 0,
+        System.arraycopy(scoreGridHistory[moveCount - 1], 0,
+                 scoreGridHistory[moveCount], 0,
                  SCOREGRID_LENGTH);
     }
 

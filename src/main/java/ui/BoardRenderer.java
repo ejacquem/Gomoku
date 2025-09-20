@@ -254,6 +254,9 @@ public class BoardRenderer {
                     int index = pos.add(1).getId();
                     int score = game.boardAnalyser.getScoreAtPosAtDir(index, dirIndex);
                     Color color = score > 0 ? GameSettings.PLAYER1_COLOR.darker() : GameSettings.PLAYER2_COLOR.darker();
+                    if (Math.abs(score) > 5){
+                        color = Color.RED;
+                    }
                     if (score != 0)
                         drawNumberAt(pos, dirCoords.x, dirCoords.y, Math.abs(score), color);
                     dirIndex++;
