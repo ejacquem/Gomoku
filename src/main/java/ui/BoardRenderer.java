@@ -4,6 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import main.java.app.GameSettings;
+import main.java.game.Board;
 import main.java.game.BoardAnalyser;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
@@ -44,7 +45,8 @@ public class BoardRenderer {
     private void drawBoard(){
         gc.translate(MARGIN, MARGIN);
         drawCheckBoard();
-        drawGrid();
+        // drawChessBoard();
+        // drawGrid();
         drawLabel();
         drawPieces();
         // drawSymbols();
@@ -53,7 +55,9 @@ public class BoardRenderer {
         // if (GameSettings.drawBestMove) drawBestMove();
         // if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
         if (GameSettings.drawSortedPosition) drawSortedPosition();
-        if (GameSettings.drawHeatmapScore) drawHeatmapScore();
+        if (GameSettings.drawScoreHeatmap) drawScoreHeatmap();
+        if (GameSettings.drawScoreNumber) drawScoreNumber();
+        if (GameSettings.drawScorePlayerNumber) drawScorePlayerNumber();
         gc.translate(-MARGIN, -MARGIN);
     }
 
@@ -110,6 +114,20 @@ public class BoardRenderer {
                     gc.setFill(Color.BLACK);
                     gc.fillOval(col * TILE_SIZE - radius, row * TILE_SIZE - radius, radius * 2f, radius * 2f);
                 }
+            }
+        }
+    }
+
+    private void drawChessBoard(){
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if ((row + col) % 2 == 0) {
+                    gc.setFill(GameSettings.BOARD_COLOR1);
+                } else {
+                    gc.setFill(GameSettings.BOARD_COLOR2);
+                }
+                gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
             }
         }
     }
@@ -201,24 +219,45 @@ public class BoardRenderer {
         }
     }
 
-    private void drawHeatmapScore(){
+    private void drawScoreHeatmap(){
         int size = GameSettings.GAME_SIZE;
-        int[] scoregrid = game.boardAnalyser.getCurrentScoreGrid();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Coords pos = new Coords(col, row);
-                int score = scoregrid[pos.add(1).getId()]; 
+                int score = game.boardAnalyser.getScoreAtPos(pos.add(1).getId());
                 Color color = GameSettings.getHeatMapColor(score, 20);
                 gc.setFill(color);
                 gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    }
 
-                if (GameSettings.drawScoreNumber && score != 0)
-                    drawNumberAt(pos, 0, 0, score, Color.ORANGE);
-    
-                // if (GameSettings.drawScorePlayerNumber){
-                //     drawNumberAt(pos, 0, 1.5f, (int)score.getPlayerScore(1), Color.WHITE);
-                //     drawNumberAt(pos, 0, -1.5f, (int)score.getPlayerScore(2), Color.BLACK);
-                // }
+    private void drawScoreNumber(){
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Coords pos = new Coords(col, row);
+                int score = game.boardAnalyser.getScoreAtPos(pos.add(1).getId());
+                drawNumberAt(pos, 0, 0, Math.abs(score), Color.ORANGE);
+            }
+        }
+    }
+
+    private void drawScorePlayerNumber(){
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Coords pos = new Coords(col, row);
+                int dirIndex = 0;
+                while (dirIndex < 8) {
+                    Coords dirCoords = Coords.DIRECTION8[7 - dirIndex].multiply(2);
+                    int index = pos.add(1).getId();
+                    int score = game.boardAnalyser.getScoreAtPosAtDir(index, dirIndex);
+                    Color color = score > 0 ? GameSettings.PLAYER1_COLOR.darker() : GameSettings.PLAYER2_COLOR.darker();
+                    if (score != 0)
+                        drawNumberAt(pos, dirCoords.x, dirCoords.y, Math.abs(score), color);
+                    dirIndex++;
+                }
             }
         }
     }
@@ -228,15 +267,7 @@ public class BoardRenderer {
     }
 
     private void drawNumberAt(GraphicsContext gc, Coords gridPos, float anchorx, float anchory, int number, Color color){
-        final int w = 8, h = 10; // size of a letter
-        String str = Integer.toString(number);
-        gc.setFill(color);
-        int halfHeight = h / 2;
-        int halfWidth = w * str.length() / 2;
-        gc.fillText(str, 
-        gridPos.x * TILE_SIZE - halfWidth + anchorx * halfWidth, 
-        gridPos.y * TILE_SIZE + halfHeight + -(anchory * halfHeight)
-        );
+        drawNumberAt(gc, gridPos.x, gridPos.y, anchorx, anchory, number, color);
     }
 
     private void drawNumberAt(GraphicsContext gc, int x, int y, float anchorx, float anchory, int number, Color color){
@@ -247,7 +278,7 @@ public class BoardRenderer {
         int halfWidth = w * str.length() / 2;
         gc.fillText(str, 
         x * TILE_SIZE - halfWidth + anchorx * halfWidth, 
-        y * TILE_SIZE + halfHeight + -(anchory * halfHeight)
+        y * TILE_SIZE + halfHeight + anchory * halfHeight
         );
     }
     

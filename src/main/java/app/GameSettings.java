@@ -43,8 +43,8 @@ public abstract class GameSettings {
     public static boolean drawDebugNumber = false;
     public static boolean drawBestMove = false;
     public static boolean drawEvaluatedPosition = false;
-    public static boolean drawHeatmapScore = true;
     public static boolean drawSortedPosition = false;
+    public static boolean drawScoreHeatmap = true;
     public static boolean drawScoreNumber = true;
     public static boolean drawScorePlayerNumber = false;
 

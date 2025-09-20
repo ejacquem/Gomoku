@@ -178,9 +178,13 @@ public class Coords {
     public int hashCode() {
         return x + 31 * y;
     }
-    
+
     public int getId() {
         return x + GameSettings.BOARD_SIZE * y;
+    }
+
+    public static Coords getCoordsById(int id){
+        return new Coords(id % GameSettings.BOARD_SIZE, id / GameSettings.BOARD_SIZE);
     }
     
     public int getId(int gridSize) {
@@ -200,21 +204,27 @@ public class Coords {
         return new Coords(x, y);
     }
 
-    public static final Coords[] DIRECTION8 = {
-        new Coords(-1, -1),  // NW
-        new Coords(0,  -1), // N
-        new Coords(1,  -1), // NE
-        new Coords( -1, 0), // W
-        new Coords( 1,  0), // E
-        new Coords( 1,  1), // SE
-        new Coords( -1, 1), // SW
-        new Coords( 0,  1), // S
-    };
+    // 0 1 2              7 6 5
+    // 3   4  opposite -> 4   3
+    // 5 6 7              2 1 0
+    public static int oppositeDirIndex(int dirIndex){ return 7 - dirIndex; }
 
-    public static final Coords[] DIRECTION4 = {
-        new Coords( 1,  0), // E
-        new Coords( 0,  1), // S
-        new Coords( 1,  1), // SE
-        new Coords(1,  -1)   // NE
+    public static final Coords NW = new Coords(-1, -1);
+    public static final Coords N  = new Coords(0, -1);
+    public static final Coords NE = new Coords(1, -1);
+    public static final Coords W  = new Coords(-1, 0);
+    public static final Coords E  = new Coords(1, 0);
+    public static final Coords SW = new Coords(-1, 1);
+    public static final Coords S  = new Coords(0, 1);
+    public static final Coords SE = new Coords(1, 1);
+    
+    public static final Coords[] DIRECTION8 = {
+        NW, N, NE, W, E, SW, S, SE
     };
+    
+    // 4 directions
+    public static final Coords[] DIRECTION4 = {
+        E, S, SE, NE
+    };
+    
 }

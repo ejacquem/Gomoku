@@ -24,7 +24,7 @@ public class GameUISettings {
             createSettingItem("Draw Best Move",          () -> GameSettings.drawBestMove,           val -> GameSettings.drawBestMove = val),
             createSettingItem("Draw Evaluated Position", () -> GameSettings.drawEvaluatedPosition,  val -> GameSettings.drawEvaluatedPosition = val),
             createSettingItem("Draw Sorted Position", () -> GameSettings.drawSortedPosition,  val -> GameSettings.drawSortedPosition = val),
-            createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawHeatmapScore,       val -> GameSettings.drawHeatmapScore = val),
+            createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawScoreHeatmap,       val -> GameSettings.drawScoreHeatmap = val),
             createSettingItem("Draw Score Number",       () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
             createSettingItem("Draw Score Player Number",() -> GameSettings.drawScorePlayerNumber,  val -> GameSettings.drawScorePlayerNumber = val)
         );

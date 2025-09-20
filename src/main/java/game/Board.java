@@ -16,7 +16,7 @@ public class Board {
     private int[] history = new int[BOARD_MAX_INDEX * 10]; // safe buffer size
     private int historyIndex = 0;
     private int maxHistoryIndex = 0;
-    private int currentPlayer = GameSettings.FIRST_PLAYER;
+    private int currentPlayer = GameSettings.FIRST_PLAYER; // 1 is white, 2 is black
     private int moveCount = 0;
     private int winner = 0;
     private int[] pieceCount = {0,0};
@@ -234,6 +234,13 @@ public class Board {
 
     public int getWinner(){
         return winner;
+    }
+
+    // return 0 if 0, 1 if 1, -1 if 2
+    public static int getPlayerSign(int player){
+        if (player == 2)
+            return -1;
+        return player;
     }
 
     private int[] moves = new int[20]; // max possible is one piece + 16 captures
