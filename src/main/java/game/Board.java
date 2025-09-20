@@ -203,7 +203,11 @@ public class Board {
 
     /* getter */
 
-    //Todo
+    /* /!\ Use this carefully only to GET pieces on the board faster, never use for SET */
+    public int[] getBoard(){
+        return board;
+    }
+
     public int getCaptureCount(int player){
         return ((moveCount + isFirst(getOpponent(player))) / 2) - pieceCount[getOpponent(player) - 1];
     }

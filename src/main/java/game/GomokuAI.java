@@ -6,7 +6,6 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
-import main.java.utils.TimeLogger;
 
 public class GomokuAI {
     private Board board;
@@ -22,7 +21,7 @@ public class GomokuAI {
 
     public final long TIME_LIMIT = 10000;
     private long start = 0;
-    public final int MAX_DEPTH = 7;
+    public final int MAX_DEPTH = 6;
     public boolean limitExcceeded = false;
     public int[] iterationPerDepth = new int[MAX_DEPTH];
     public int[] prunningPerDepth = new int[MAX_DEPTH];
@@ -68,9 +67,6 @@ public class GomokuAI {
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
         
-        TimeLogger.resetAiTimers();
-        TimeLogger.startTimer("getBestMove");
-        
         limitExcceeded = false;
 
         // Coords[] moves = getPossibleMove();
@@ -105,9 +101,6 @@ public class GomokuAI {
         }
         System.out.println("Best Move Score: " + bestEval);
 
-        TimeLogger.stopTimer("getBestMove");
-        TimeLogger.printAiTime();
-        
         System.out.println("prunningCount: " + prunningCount);
         for (int i = 0; i < MAX_DEPTH; i++){
             System.out.println("Iteration at depth " + (i + 1 < 10 ? " " : "") + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
@@ -245,7 +238,7 @@ public class GomokuAI {
         }
 
         // int[] sortedIndices = boardAnalyser.getSortedIndices();
-        int[] sortedIndices = TimeLogger.time("sort", () -> boardAnalyser.getSortedIndices());
+        int[] sortedIndices = boardAnalyser.getSortedIndices();
 
         // float player1score = 0;
         // float player2score = 0;
@@ -261,22 +254,21 @@ public class GomokuAI {
             // if (maxMove >= 5 && move.score.getScore() < 25f) break;
             // if (maxMove == 7) break;
             // Coords pos = move.pos;
-            
-            TimeLogger.time("boardAction", () -> board.placePieceAt(index));
-            TimeLogger.time("boardScan", () -> boardAnalyser.scanLastMove());
+            board.placePieceAt(index);
+            boardAnalyser.scanLastMove();
 
             // player1PositionScore = player1score;
             // player2PositionScore = player2score;
             value = Math.max(value, -search(depth - 1, -beta, -alpha, -color));
             alpha = Math.max(alpha, value);
 
-            TimeLogger.time("boardAction", () -> board.undo());
+            board.undo();
 
-            if (alpha >= beta){
-                prunningCount++;
-                prunningPerDepth[MAX_DEPTH - depth]++;
-                break;
-            }
+            // if (alpha >= beta){
+            //     prunningCount++;
+            //     prunningPerDepth[MAX_DEPTH - depth]++;
+            //     break;
+            // }
             // maxMove++;
         }
         return value;

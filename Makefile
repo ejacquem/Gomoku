@@ -21,7 +21,6 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/app/GameApp.java \
 		$(SRC)/app/GameSettings.java \
 		$(SRC)/utils/GomokuUtils.java \
-		$(SRC)/utils/TimeLogger.java \
 
 CLASSES=$(SOURCES:$(SRC)/%.java=$(BIN)/%.class)
 

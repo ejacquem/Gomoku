@@ -314,7 +314,7 @@ public class BoardRenderer {
         if (GameSettings.drawMousePos) drawMousePos(mouseX, mouseY);
         if (GameSettings.drawMouseGridPos) drawMouseGridPos();
         if (GameSettings.drawMouseCellPos) drawMouseCellPos();
-        if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
+        // if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
     }
 
     public void drawMousePos(double x, double y){
@@ -340,42 +340,42 @@ public class BoardRenderer {
         overlayGc.fillRect(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
     }
 
-    public void drawSequenceDataOnMouse(){
-        if (!isInBoardBound(mouseX, mouseY))
-            return;
-        Coords pos = pixelPosToCoords(mouseX, mouseY);
-        BoardAnalyser.SequenceData data = game.boardAnalyser.new SequenceData();
-        // System.out.println("drawSequenceDataOnMouse");
-        for (Coords dir : Coords.DIRECTION8){
-            Coords temp = pos.add(dir);
-            if (game.board.getPieceAt(temp.add(1).getId()) == -1){
-                data.reset();
-            }
-            else{
-                game.boardAnalyser.pieceSequenceDataInDir(temp.add(1).getId(), dir.getId(), data);
-            }
+    // public void drawSequenceDataOnMouse(){
+    //     if (!isInBoardBound(mouseX, mouseY))
+    //         return;
+    //     Coords pos = pixelPosToCoords(mouseX, mouseY);
+    //     BoardAnalyser.SequenceData data = game.boardAnalyser.new SequenceData();
+    //     // System.out.println("drawSequenceDataOnMouse");
+    //     for (Coords dir : Coords.DIRECTION8){
+    //         Coords temp = pos.add(dir);
+    //         if (game.board.getPieceAt(temp.add(1).getId()) == -1){
+    //             data.reset();
+    //         }
+    //         else{
+    //             game.boardAnalyser.pieceSequenceDataInDir(temp.add(1).getId(), dir.getId(), data);
+    //         }
 
-            overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
-            for (int i = 0; i < data.leadSpaceNumber; i++){
-                drawCenterTileAt(overlayGc, temp);
-                temp.addTo(dir);
-            }
-            overlayGc.setFill(getPieceColor(data.player, 0.5));
-            for (int i = 0; i < data.pieceNumber; i++){
-                drawCenterTileAt(overlayGc, temp);
-                temp.addTo(dir);
-            }
-            overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
-            for (int i = 0; i < data.trailSpaceNumber; i++){
-                drawCenterTileAt(overlayGc, temp);
-                temp.addTo(dir);
-            }
-            overlayGc.setFill(Color.rgb(125, 0, 0, 0.5));
-            if (data.trailPiece == 1 || data.trailPiece == 2)
-                overlayGc.setFill(getPieceColor(data.trailPiece, 0.5));
-            drawCenterTileAt(overlayGc, temp);
-        }
-    }
+    //         overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
+    //         for (int i = 0; i < data.leadSpaceNumber; i++){
+    //             drawCenterTileAt(overlayGc, temp);
+    //             temp.addTo(dir);
+    //         }
+    //         overlayGc.setFill(getPieceColor(data.player, 0.5));
+    //         for (int i = 0; i < data.pieceNumber; i++){
+    //             drawCenterTileAt(overlayGc, temp);
+    //             temp.addTo(dir);
+    //         }
+    //         overlayGc.setFill(Color.rgb(0, 125, 0, 0.5));
+    //         for (int i = 0; i < data.trailSpaceNumber; i++){
+    //             drawCenterTileAt(overlayGc, temp);
+    //             temp.addTo(dir);
+    //         }
+    //         overlayGc.setFill(Color.rgb(125, 0, 0, 0.5));
+    //         if (data.trailPiece == 1 || data.trailPiece == 2)
+    //             overlayGc.setFill(getPieceColor(data.trailPiece, 0.5));
+    //         drawCenterTileAt(overlayGc, temp);
+    //     }
+    // }
 
     public void drawTileAt(GraphicsContext g, Coords pos){
         g.fillRect(pos.x * TILE_SIZE, pos.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);

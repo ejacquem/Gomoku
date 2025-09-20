@@ -116,7 +116,7 @@ public class BoardGame {
         if (gameState == GameState.GAME_OVER){
             return;
         }
-        // bestMove = AI.getBestMove();
+        bestMove = AI.getBestMove();
         // if (GameSettings.aiPlaysAutomatic){
         //     if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
         //         placePieceAttempt(bestMove);

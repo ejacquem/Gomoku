@@ -100,3 +100,22 @@ Iteration at depth  4: 1444, 1436
 Iteration at depth  5: 2562, 346
 Iteration at depth  6: 43282, 42156
 Iteration at depth  7: 83036, 0
+
+// optimized boardscan
+
+Execution time:  164 ms
+  sort:          | 89 ms (54.27%)
+  boardAction:   | 6 ms (3.66%)
+  boardScan:     | 43 ms (26.22%)
+    cpHistory:   | | 16 ms (37.21%)
+    compSeqData: | | 0 ms (0.00%)
+    getScoreAt:  | | 0 ms (0.00%)
+  other:         | 26 ms (15.85%)
+prunningCount: 26858
+Iteration at depth  1: 8, 0
+Iteration at depth  2: 88, 88
+Iteration at depth  3: 91, 0
+Iteration at depth  4: 1366, 1363
+Iteration at depth  5: 1453, 64
+Iteration at depth  6: 25433, 25343
+Iteration at depth  7: 28069, 0
