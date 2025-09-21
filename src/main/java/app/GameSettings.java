@@ -45,7 +45,7 @@ public abstract class GameSettings {
     public static boolean gridToggle = true;
     public static double gridWidth = 2f;
     public static boolean labelToggle = true;
-    public static boolean labelXNumberBase = true;
+    public static boolean labelXNumberBase = false;
     public static boolean labelYNumberBase = true;
     public static boolean chessBoard = false;
     public static boolean gomokuBoard = true;

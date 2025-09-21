@@ -135,14 +135,15 @@ public class BoardGame {
         board.placePieceAt(index);
 
         tick();
-
+        
+        // bestMove = AI.getBestMove();
         if (GameSettings.aiPlaysAutomatic){
             if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
-                bestMove = AI.getBestMove();
+                // bestMove = AI.getBestMove();
                 placePieceAttempt(bestMove);
             }
             else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
-                bestMove = AI.getBestMove();
+                // bestMove = AI.getBestMove();
                 placePieceAttempt(bestMove);
             }
         }
@@ -163,13 +164,13 @@ public class BoardGame {
     private void switchPlayerTo(int player){
         if (player == 1){
             currentPlayer.set(1);
-            timeline1.pause();
-            timeline2.play();
+            timeline1.play();
+            timeline2.pause();
         }
         else{
             currentPlayer.set(2);
-            timeline1.play();
-            timeline2.pause();
+            timeline1.pause();
+            timeline2.play();
         }
     }
 

@@ -222,7 +222,8 @@ public class Board {
                 while (count > 0){
                     count--;
                     if (canBeCapturedAt(left, opponent) && count < 5){
-                        System.out.println("Can't win because can be capture at: " + left);
+                        // System.out.println("Can't win because can be capture at: " + left);
+                        potentialWinner.clear();
                         potentialWinner.add(index);
                         return;
                     }
