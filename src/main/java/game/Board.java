@@ -1,5 +1,8 @@
 package main.java.game;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import main.java.app.GameSettings;
 
 public class Board {
@@ -20,6 +23,7 @@ public class Board {
     private int moveCount = 0;
     private int winner = 0;
     private int[] pieceCount = {0,0};
+    private List<Integer> potentialWinner = new ArrayList<Integer>();
 
     private static final int x = 1;
     private static final int y = BOARD_SIZE;
@@ -62,8 +66,9 @@ public class Board {
         addPieceAt(index, currentPlayer);
         addHistory(index);
         checkCapturesAt(index);
-        checkWinnerAt(index);
+        checkWinnerAt(index, currentPlayer);
         checkWinnerCapture();
+        checkPotentialWinner();
         switchPlayer();
     }
 
@@ -130,6 +135,7 @@ public class Board {
         currentPlayer = getOpponent(currentPlayer);
     }
 
+    /* checks if the piece at index creates a capture */
     private void checkCapturesAt(int index){
         if (getPieceAt(index) != currentPlayer)
             return;
@@ -145,6 +151,46 @@ public class Board {
         }
     }
 
+    /* checks if the current piece can be captured this turn*/
+    public boolean canBeCapturedAt(int index, int capturingPlayer){
+        int opponent = getOpponent(capturingPlayer);
+        if (getPieceAt(index) != opponent)
+            return false;
+        for (int dir : DIRECTION8){
+            int left = getPieceAt(index - dir); 
+            int right = getPieceAt(index + dir);
+            if (left == capturingPlayer){ // 2x10
+                if (right == opponent && getPieceAt(index + dir * 2) == 0){
+                    return true;
+                } else continue;
+            } 
+            if (right == capturingPlayer){ // 01x2
+                if (left == opponent && getPieceAt(index - dir * 2) == 0){
+                    return true;
+                } else continue;
+            } 
+            if (right == 0){ // 21x0
+                if (left == opponent && getPieceAt(index - dir * 2) == capturingPlayer){
+                    return true;
+                } else continue;
+            } 
+            if (left == 0){ // 0x12
+                if (right == opponent && getPieceAt(index + dir * 2) == capturingPlayer){
+                    return true;
+                } else continue;
+            } 
+        }
+        return false;
+    }
+
+    private void checkPotentialWinner(){
+        if (winner != 0)
+            return ;
+        for (int index : potentialWinner){
+            checkWinnerAt(index, getCurrentOpponent());
+        }
+    }
+
     private void checkWinnerCapture(){
         if (getCaptureCount(1) >= 10){
             setWinner(1);
@@ -154,24 +200,35 @@ public class Board {
         }
     }
 
-    private void checkWinnerAt(int index){
-        if (getPieceAt(index) != currentPlayer)
+    private void checkWinnerAt(int index, int player){
+        if (getPieceAt(index) != player)
             return;
-        int temp, count;
+        int right, left, count;
         for (int dir : DIRECTION4){
             count = 1;
-            temp = index + dir;
-            while (getPieceAt(temp) == currentPlayer){
+            right = index + dir;
+            while (getPieceAt(right) == player){
                 count++;
-                temp += dir;
+                right += dir;
             }
-            temp = index - dir;
-            while (getPieceAt(temp) == currentPlayer){
+            left = index - dir;
+            while (getPieceAt(left) == player){
                 count++;
-                temp -= dir;
+                left -= dir;
             }
             if (count >= 5){
-                setWinner(currentPlayer);
+                left += dir;
+                int opponent = getOpponent(currentPlayer); // check only for currentPlayer and not player
+                while (count > 0){
+                    count--;
+                    if (canBeCapturedAt(left, opponent) && count < 5){
+                        System.out.println("Can't win because can be capture at: " + left);
+                        potentialWinner.add(index);
+                        return;
+                    }
+                    left += dir;
+                }
+                setWinner(player);
                 return;
             }
         }
@@ -279,17 +336,6 @@ public class Board {
         moves[0] = count;
         return moves;
     }
-
-    // public int getCaptureCount(int player){
-    //     return captureCount[player - 1];
-    // }
-
-    /* Setters */
-
-    // public void addCaptureCount(int player){
-    //     captureCount[player - 1] += 2;
-    // }
-
     /* History */
 
     private void addHistory(int move){

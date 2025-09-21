@@ -48,7 +48,7 @@ public class BoardRenderer {
         drawGrid();
         drawLabel();
         drawPieces();
-        // drawSymbols();
+        drawSymbols();
         
         game.boardAnalyser.updateMoveCount();;
         if (GameSettings.drawDebugNumber) drawDebugNumber();
@@ -288,28 +288,30 @@ public class BoardRenderer {
         );
     }
     
-    // private void drawSymbols(){
-    //     int size = game.BOARD_SIZE;
-    //     for (int row = 0; row < size; row++) {
-    //         for (int col = 0; col < size; col++) {
-    //             Cell cell = game.board.getCellAt(new Coords(col, row));
-    //             int px = col * TILE_SIZE;
-    //             int py = row * TILE_SIZE;
-    //             if (cell.isDoubleFreeThree())
-    //                 UtilsRenderer.drawX(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.RED);
-    //             else if (cell.isFreeThree())
-    //                 UtilsRenderer.drawPlus(gc, px, py, (int)(TILE_SIZE * 0.5), 5, Color.GREEN);
-    //             if (cell.can_be_captured){
-    //                 UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, cell.player == 1 ? GameSettings.PLAYER2_COLOR : GameSettings.PLAYER1_COLOR);
-    //             }
-    //             if (cell.winning)
-    //             {
-    //                 UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
-    //                 UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
-    //             }
-    //         }
-    //     }
-    // }
+    private void drawSymbols(){
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Coords pos = new Coords(col, row);
+                int index = pos.add(1).getId();
+                int piece = game.board.getPieceAt(index);
+                int px = col * TILE_SIZE;
+                int py = row * TILE_SIZE;
+                // if (cell.isDoubleFreeThree())
+                //     UtilsRenderer.drawX(gc, px, py, (int)(TILE_SIZE * 0.4), 5, Color.RED);
+                // else if (cell.isFreeThree())
+                //     UtilsRenderer.drawPlus(gc, px, py, (int)(TILE_SIZE * 0.5), 5, Color.GREEN);
+                if (game.board.canBeCapturedAt(index, game.board.getCurrentPlayer())){
+                    UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, getPieceColor(game.board.getOpponent(piece)));
+                }
+                // if (cell.winning)
+                // {
+                //     UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
+                //     UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
+                // }
+            }
+        }
+    }
 
     public double mouseX = 0;
     public double mouseY = 0;
