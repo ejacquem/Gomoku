@@ -39,27 +39,61 @@ public class BoardAnalyser {
         return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + 8];
     }
 
+    public void getPlayerScore(int[] playerScore){
+        playerScore[0] = 0;
+        playerScore[1] = 0;
+        for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
+            if (getScoreAtPos(i) > 0){
+                for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
+                    int score = getScoreAtPosAtDir(i, dirIndex);
+                    int index = score > 0 ? 0 : 1;
+                    playerScore[index] += Math.abs(score);
+                }
+            }
+        }
+    }
+
     private void computeScoreAtPos(int index){
         int[] grid = getCurrentScoreGrid();
         int score = 0;
         for (int i = 0; i < 4; i++){
             int left = Math.abs(grid[index * CELL_INFO_SIZE + i]);
             int right = Math.abs(grid[index * CELL_INFO_SIZE + (7 - i)]);
-            if (left != 0 && right != 0){
-                if (left != 0 && Integer.signum(left) == Integer.signum(right)){
-                    score += 2 << Math.abs(left + right);
-                }
+            if (left != 0 && Integer.signum(left) == Integer.signum(right)){
+                score += getScoreFromDoublePieceNumber(Math.abs(left), Math.abs(right));
             }
             else{
-                if (left != 0){
-                    score += (2 << (Math.abs(left) - 1)) - 1;
-                }
-                if (right != 0){
-                    score += (2 << (Math.abs(right) - 1)) - 1;
-                }
+                score += getScoreFromPieceNumber(Math.abs(left));
+                score += getScoreFromPieceNumber(Math.abs(right));
             }
         }
         setScoreAtPosAtDir(index, 8, score);
+    }
+
+    private int getScoreFromPieceNumber(int pieceNumber){
+        switch (pieceNumber) {
+            case 1: return 1;
+            case 2: return 2;
+            case 3: return 20;
+            case 4: return 1000;
+            case 9: return 100; // capture
+        }
+        return 0;
+    }
+
+    private int getScoreFromDoublePieceNumber(int leftPieceNumber, int rightPieceNumber){
+        switch (leftPieceNumber + rightPieceNumber) {
+            case 0: return 0;
+            case 1: return 1;
+            case 2: return 5;
+            case 3: return 50;
+            case 4: return 1000;
+            case 5: return 1000;
+            case 6: return 1000;
+            case 7: return 1000;
+            case 8: return 1000;
+            default: return 150; // capture
+        }
     }
 
     public int getScoreAtPosAtDir(int index, int dirIndex){
@@ -93,18 +127,6 @@ public class BoardAnalyser {
         filteredCell.sort((a, b) -> Integer.compare(getScoreAtPos(b), getScoreAtPos(a)));
         return filteredCell.stream().mapToInt(Integer::intValue).toArray();
     }
-
-    // private Integer[] indices = new Integer[SCOREGRID_LENGTH];
-    // public int[] getSortedIndices() {
-    //     int[] scoregrid = getCurrentScoreGrid();
-    //     for (int i = 0; i < SCOREGRID_LENGTH; i++) {
-    //         indices[i] = i;
-    //     }
-
-    //     Arrays.sort(indices, (a, b) -> Integer.compare(scoregrid[b], scoregrid[a]));
-
-    //     return Arrays.stream(indices).mapToInt(Integer::intValue).toArray();
-    // }
 
     // go through the cell impacted by the last move and calculate a rough score
     // an impacted cell it the closest space between the current cell in a dir, can be blocked by a sequence of 1 type of piece

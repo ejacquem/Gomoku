@@ -116,15 +116,6 @@ public class BoardGame {
         if (gameState == GameState.GAME_OVER){
             return;
         }
-        bestMove = AI.getBestMove();
-        // if (GameSettings.aiPlaysAutomatic){
-        //     if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
-        //         placePieceAttempt(bestMove);
-        //     }
-        //     else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
-        //         placePieceAttempt(bestMove);
-        //     }
-        // }
     }
 
     private void placePieceAttempt(Coords pos) {
@@ -142,7 +133,19 @@ public class BoardGame {
         
         System.out.println("Placing a " + ((board.getCurrentPlayer() == 1) ? "white" : "black") + " piece at index: " + index);
         board.placePieceAt(index);
+
         tick();
+
+        if (GameSettings.aiPlaysAutomatic){
+            if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
+                bestMove = AI.getBestMove();
+                placePieceAttempt(bestMove);
+            }
+            else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
+                bestMove = AI.getBestMove();
+                placePieceAttempt(bestMove);
+            }
+        }
     }
 
     public void tick(){

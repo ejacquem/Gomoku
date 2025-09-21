@@ -7,6 +7,7 @@ import main.java.app.GameSettings;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
 // import main.java.game.Board.CellScore;
+import main.java.game.GomokuAI;
 
 public class BoardRenderer {
     public static final int TILE_SIZE = GameSettings.BOARD_PIXEL_SIZE / GameSettings.GAME_SIZE;
@@ -184,18 +185,19 @@ public class BoardRenderer {
     }
 
     private void drawEvaluatedPosition(){
-        // final int w = 8, h = 8; // size of a letter
-        // for (EvaluatedPosition evalpos : game.AI.evaluatedPos){
-        //     float radius = TILE_SIZE * 0.8f / 2f;
-        //     int px = evalpos.pos.x * TILE_SIZE;
-        //     int py = evalpos.pos.y * TILE_SIZE;
-        //     gc.setFill(Color.rgb(0, 0, 0, 0.3f));
-        //     gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+        final int w = 8, h = 8; // size of a letter
+        for (GomokuAI.EvaluatedPosition evalpos : game.AI.evaluatedPos){
+            float radius = TILE_SIZE * 0.8f / 2f;
+            Coords pos = evalpos.pos.add(-1, -1);
+            int px = pos.x * TILE_SIZE;
+            int py = pos.y * TILE_SIZE;
+            gc.setFill(Color.rgb(0, 0, 0, 0.3f));
+            gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
 
-        //     String n = Integer.toString(evalpos.score);
-        //     gc.setFill(Color.WHITE);
-        //     gc.fillText(n, px - w * n.length() / 2, py + h / 2);
-        // }
+            String n = Integer.toString(evalpos.score);
+            gc.setFill(Color.WHITE);
+            gc.fillText(n, px - w * n.length() / 2, py + h / 2);
+        }
     }
 
     private void drawSortedPosition(){

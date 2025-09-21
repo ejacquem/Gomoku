@@ -63,6 +63,7 @@ public class Board {
         addHistory(index);
         checkCapturesAt(index);
         checkWinnerAt(index);
+        checkWinnerCapture();
         switchPlayer();
     }
 
@@ -70,7 +71,7 @@ public class Board {
         if (moveCount == 0){
             return ;
         }
-        winner = 0;
+        setWinner(0);
         moveCount--;
         while (peekHistory() < 0) { // add back captures
             addPieceAt(popHistory() * -1, currentPlayer);
@@ -94,7 +95,7 @@ public class Board {
         initBoard();
         moveCount = 0;
         historyIndex = 0;
-        winner = 0;
+        setWinner(0);
         currentPlayer = GameSettings.FIRST_PLAYER;
         pieceCount[0] = 0;
         pieceCount[1] = 0;
@@ -144,6 +145,15 @@ public class Board {
         }
     }
 
+    private void checkWinnerCapture(){
+        if (getCaptureCount(1) >= 10){
+            setWinner(1);
+        }
+        if (getCaptureCount(2) >= 10){
+            setWinner(2);
+        }
+    }
+
     private void checkWinnerAt(int index){
         if (getPieceAt(index) != currentPlayer)
             return;
@@ -161,7 +171,7 @@ public class Board {
                 temp -= dir;
             }
             if (count >= 5){
-                winner = currentPlayer;
+                setWinner(currentPlayer);
                 return;
             }
         }
@@ -199,6 +209,10 @@ public class Board {
 
     private void setPieceAt(int index, int value){
         board[index] = value;
+    }
+
+    private void setWinner(int player){
+        winner = player;
     }
 
     /* getter */

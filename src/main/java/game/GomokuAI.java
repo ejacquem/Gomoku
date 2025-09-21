@@ -21,13 +21,13 @@ public class GomokuAI {
 
     public final long TIME_LIMIT = 10000;
     private long start = 0;
-    public final int MAX_DEPTH = 7;
+    public final int MAX_DEPTH = 6;
     public boolean limitExcceeded = false;
     public int[] iterationPerDepth = new int[MAX_DEPTH];
     public int[] prunningPerDepth = new int[MAX_DEPTH];
     public int prunningCount = 0;
     public int iter0 = 0;
-    public final int[] captureScore = new int[]{0, 1000, 2000, 5000, 10000, 1000000};
+    public final int[] captureScore = new int[]{0, 5000, 10000, 20000, 50000, 1000000};
 
     // private float player1PositionScore = 0f;
     // private float player2PositionScore = 0f;
@@ -66,36 +66,34 @@ public class GomokuAI {
         reset();
         System.out.println("Ai calculate best move");
         start = System.currentTimeMillis();
-        
         limitExcceeded = false;
 
-        // Coords[] moves = getPossibleMove();
-        // CellInfo[] sortedMoves = sortMoves(moves);
         int[] sortedIndices = boardAnalyser.getSortedIndices();
-        // shuffleSameScore(sortedMoves);
 
-        int bestEval = Integer.MIN_VALUE;
+        int bestEval = Integer.MIN_VALUE + 1;
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
         int bestMove = 0;
 
-        // int maxMove = 0;
         for (int index : sortedIndices){
             System.out.println("sortedIndices: " + index);
-            // if (maxMove >= 3 && move.score.getScore() < 10f) break;
-            // if (maxMove >= 5 && move.score.getScore() < 25f) break;
-            // if (maxMove == 7) break;
             board.placePieceAt(index);
             boardAnalyser.scanLastMove();
-            int score = search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, color); // = negamax(rootNode, depth, −∞, +∞, 1)
-            // evaluatedPos.add(new EvaluatedPosition(pos, score));
+            int score = color * -search(MAX_DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE); // = negamax(rootNode, depth, −∞, +∞)
+            evaluatedPos.add(new EvaluatedPosition(Coords.getCoordsById(index), score));
             System.out.println("Move score: " + score);
             if (score > bestEval){
                 bestEval = score;
                 bestMove = index;
             }
             board.undo();
-            // maxMove++;
         }
+
+        printThinkingResult(bestEval, bestMove);
+
+        return bestMove;
+    }
+
+    private void printThinkingResult(int bestEval, int bestMove){
         if (limitExcceeded){
             System.out.println("Time Limit exceeded !");
         }
@@ -110,7 +108,6 @@ public class GomokuAI {
         }
         percentage.set(evaluatepercent(1));
         System.out.println("Best move: " + bestMove);
-        return bestMove;
     }
 
     // public void evaluate(){
@@ -125,46 +122,37 @@ public class GomokuAI {
     //     percentage.set(score2 / (score1 + score2));
     // }
 
+    private int[] playerPositionScore = new int[2];
     public int evaluate(int depth){
         if (board.getWinner() == 1)
             return (int)(+10000000 * depthFactor(depth, 0.5f));
         if (board.getWinner() == 2)
             return (int)(-10000000 * depthFactor(depth, 0.5f));
-        // int player1Score = (int)(player1PositionScore) + captureScore[board.getCaptureCount(1) / 2];
-        // int player2Score = (int)(player2PositionScore) + captureScore[board.getCaptureCount(2) / 2];
-        int player1Score = captureScore[board.getCaptureCount(1) / 2] + board.getPieceCount(1);
-        int player2Score = captureScore[board.getCaptureCount(2) / 2] + board.getPieceCount(2);
+        boardAnalyser.getPlayerScore(playerPositionScore);
+        int player1Score = playerPositionScore[0] + captureScore[board.getCaptureCount(1) / 2];
+        int player2Score = playerPositionScore[1] + captureScore[board.getCaptureCount(2) / 2];
         int positionScore = player1Score - player2Score;
         // System.out.println("evaluate called: " + positionScore);
         return positionScore;
     }
 
     public double evaluatepercent(int depth){
+        boardAnalyser.updateMoveCount();
         if (board.getWinner() == 1)
-            return (+10000000 * depthFactor(depth, 0.5f));
+            return (int)(+10000000 * depthFactor(depth, 0.5f));
         if (board.getWinner() == 2)
-            return (-10000000 * depthFactor(depth, 0.5f));
-
-        // Coords[] moves = getPossibleMove();
-        // CellInfo[] sortedMoves = sortMoves(moves);
-        // int[] sortedIndices = boardAnalyser.getSortedIndices();
-
-        double player1PositionScore = 0, player2PositionScore = 0;
-        // for (int index : sortedIndices){
-        //     player1PositionScore += move.getPlayerScore(1);
-        //     player2PositionScore += move.getPlayerScore(2);
-        // }
-
-        double player1Score = player1PositionScore + captureScore[board.getCaptureCount(1) / 2];
-        double player2Score = player2PositionScore + captureScore[board.getCaptureCount(2) / 2];
+            return (int)(-10000000 * depthFactor(depth, 0.5f));
+        boardAnalyser.getPlayerScore(playerPositionScore);
+        int player1Score = playerPositionScore[0] + captureScore[board.getCaptureCount(1) / 2];
+        int player2Score = playerPositionScore[1] + captureScore[board.getCaptureCount(2) / 2];
 
         System.out.printf("Player1 | %-10s | %-15s | %-10s%n", "Score", "Position Score", "Capture Score");
-        System.out.printf("Player1 | %-10.1f | %-15.1f | %-10d%n",
-        player1Score, player1PositionScore, captureScore[board.getCaptureCount(1) / 2]);
-        System.out.printf("Player2 | %-10.1f | %-15.1f | %-10d%n",
-        player2Score, player2PositionScore, captureScore[board.getCaptureCount(2) / 2]);
+        System.out.printf("Player1 | %-10d | %-15d | %-10d%n",
+        player1Score, playerPositionScore[0], captureScore[board.getCaptureCount(1) / 2]);
+        System.out.printf("Player2 | %-10d | %-15d | %-10d%n",
+        player2Score, playerPositionScore[1], captureScore[board.getCaptureCount(2) / 2]);
 
-        double positionScore = player2Score / (player2Score + player1Score);
+        double positionScore = (double)(player2Score + 1) / (double)(player2Score + player1Score + 1);
         return positionScore;
     }
 
@@ -235,35 +223,20 @@ public class GomokuAI {
     negamax(rootNode, depth, −∞, +∞, 1)
 
      */
-    public int search(int depth, int alpha, int beta, int color){
+    public int search(int depth, int alpha, int beta){
         iterationPerDepth[MAX_DEPTH - depth]++;
         if (depth == 1 || timeLimitExceeded() || board.getWinner() != 0){
-            return color * evaluate(depth);
+            return evaluate(depth);
         }
 
-        // int[] sortedIndices = boardAnalyser.getSortedIndices();
         int[] sortedIndices = boardAnalyser.getSortedIndices();
-
-        // float player1score = 0;
-        // float player2score = 0;
-        // for (CellInfo move : sortedMoves){
-        //     player1score += move.score.getPlayerScore(1);
-        //     player2score += move.score.getPlayerScore(2);
-        // }
         
-        // int maxMove = 0;
-        int value = Integer.MIN_VALUE;
+        int value = Integer.MIN_VALUE + 1;
         for (int index : sortedIndices){
-            // if (maxMove >= 3 && move.score.getScore() < 10f) break;
-            // if (maxMove >= 5 && move.score.getScore() < 25f) break;
-            // if (maxMove == 7) break;
-            // Coords pos = move.pos;
             board.placePieceAt(index);
             boardAnalyser.scanLastMove();
 
-            // player1PositionScore = player1score;
-            // player2PositionScore = player2score;
-            value = Math.max(value, -search(depth - 1, -beta, -alpha, -color));
+            value = Math.max(value, -search(depth - 1, -beta, -alpha));
             alpha = Math.max(alpha, value);
 
             board.undo();
@@ -273,12 +246,7 @@ public class GomokuAI {
                 prunningPerDepth[MAX_DEPTH - depth]++;
                 break;
             }
-            // maxMove++;
         }
         return value;
     }
-
-    // public Coords[] getPossibleMove(){
-    //     return board.neighbourCellIndexSet.toArray(new Coords[0]);
-    // }
 }
