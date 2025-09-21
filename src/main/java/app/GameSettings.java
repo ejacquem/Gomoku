@@ -22,10 +22,10 @@ public abstract class GameSettings {
     public static final int WINNING_CAPTURED_PIECES = 10;
     public static final int START_TIMER = 300 * 1000; // sec
 
-    public static final int LABEL_X_BASE = 10;
-    public static final int LABEL_Y_BASE = 10;
-    public static final int LABEL_X_OFFSET = 0;
-    public static final int LABEL_Y_OFFSET = 0;
+    // public static final int LABEL_X_BASE = 10;
+    // public static final int LABEL_Y_BASE = 10;
+    // public static final int LABEL_X_OFFSET = 0;
+    // public static final int LABEL_Y_OFFSET = 0;
 
     public static final float HEATMAP_ALPHA = 0.5f;
     public static final Color[] HEATMAP_COLOR = new Color[]{
@@ -39,6 +39,18 @@ public abstract class GameSettings {
         Color.rgb(255,125,0,0.3),
         Color.rgb(255,0,0,0.3),
     };
+
+    /* Board visual */
+
+    public static boolean gridToggle = true;
+    public static boolean labelToggle = true;
+    public static boolean labelXNumberBase = true;
+    public static boolean labelYNumberBase = true;
+    public static boolean chessBoard = false;
+    public static boolean gomokuBoard = true;
+    public static boolean showSymbolToggle = true;
+
+    /* Board Debug */
 
     public static boolean drawDebugNumber = false;
     public static boolean drawBestMove = false;

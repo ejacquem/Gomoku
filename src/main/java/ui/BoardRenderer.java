@@ -43,12 +43,12 @@ public class BoardRenderer {
 
     private void drawBoard(){
         gc.translate(MARGIN, MARGIN);
-        drawCheckBoard();
-        // drawChessBoard();
-        drawGrid();
-        drawLabel();
+        if (GameSettings.gomokuBoard) drawCheckBoard();
+        if (GameSettings.chessBoard) drawChessBoard();
+        if (GameSettings.gridToggle) drawGrid();
+        if (GameSettings.labelToggle) drawLabel();
         drawPieces();
-        drawSymbols();
+        if (GameSettings.showSymbolToggle) drawSymbols();
         
         game.boardAnalyser.updateMoveCount();;
         if (GameSettings.drawDebugNumber) drawDebugNumber();
@@ -76,6 +76,10 @@ public class BoardRenderer {
 
     private void drawLabel(){
         int size = GameSettings.GAME_SIZE;
+        int labelxoffset = (GameSettings.labelXNumberBase ? 0 : 10);
+        int labelxbase = (GameSettings.labelXNumberBase ? 10 : 36);
+        int labelyoffset = (GameSettings.labelYNumberBase ? 0 : 10);
+        int labelybase = (GameSettings.labelYNumberBase ? 10 : 36);
         for (int i = 0; i < size; i++)
         {
             gc.setStroke(Color.BLACK);
@@ -83,11 +87,12 @@ public class BoardRenderer {
             int start = i * TILE_SIZE;
             int length = (size - 1) * TILE_SIZE;
             gc.setFill(Color.BLACK);
-            String n = Integer.toString(i + GameSettings.LABEL_X_OFFSET, GameSettings.LABEL_X_BASE);
+            String n;
+            n = Integer.toString(i + labelxoffset, labelxbase).toUpperCase();
             int w = 8 * n.length(), h = 10, s2 = TILE_SIZE / 2; // 8 = size of a letter
             gc.fillText(n, start - w / 2, - s2);
             gc.fillText(n, start - w / 2, length + h + s2);
-            n = Integer.toString(i + GameSettings.LABEL_Y_OFFSET, GameSettings.LABEL_Y_BASE);
+            n = Integer.toString(i + labelyoffset, labelybase).toUpperCase();
             w = 8 * n.length(); h = 10; // 8 = size of a letter 
             gc.fillText(n, -w - s2, start + h / 2);
             gc.fillText(n, length + s2, start + h / 2);
@@ -118,19 +123,19 @@ public class BoardRenderer {
         }
     }
 
-    // private void drawChessBoard(){
-    //     int size = GameSettings.GAME_SIZE;
-    //     for (int row = 0; row < size; row++) {
-    //         for (int col = 0; col < size; col++) {
-    //             if ((row + col) % 2 == 0) {
-    //                 gc.setFill(GameSettings.BOARD_COLOR1);
-    //             } else {
-    //                 gc.setFill(GameSettings.BOARD_COLOR2);
-    //             }
-    //             gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
-    //         }
-    //     }
-    // }
+    private void drawChessBoard(){
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if ((row + col) % 2 == 0) {
+                    gc.setFill(GameSettings.BOARD_COLOR1);
+                } else {
+                    gc.setFill(GameSettings.BOARD_COLOR2);
+                }
+                gc.fillRect(col * TILE_SIZE - TILE_SIZE / 2, row * TILE_SIZE - TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+            }
+        }
+    }
 
     private void drawDebugNumber(){
         int size = GameSettings.GAME_SIZE;

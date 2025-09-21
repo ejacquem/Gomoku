@@ -1,6 +1,15 @@
-heatmap
-analyse board per move
+Board Visual Settings
+    chess/check board
+    label toggle
+    label scale (A-Z) (0-9)
+    grid toggle
+    symbols toggle
 
-AI:
-filter best move
-better evaluate function
+AI
+    auto prune low score move after n depth
+    optimize sorting
+
+Game
+    redo button
+    doube free three
+    

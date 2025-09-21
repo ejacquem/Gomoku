@@ -16,14 +16,37 @@ public class GameUISettings {
         this.renderer = this.gameUI.getRenderer();
 
         Menu debugSettingsMenu = new Menu("Debug");
+        Menu visualMenu = new Menu("Visual");
         Menu debugMouseSettingsMenu = new Menu("Debug On Mouse");
         Menu settingsMenu = new Menu("Settings");
 
+        CustomMenuItem chessItem = createSettingItem("Chess Board", () -> GameSettings.chessBoard, val -> GameSettings.chessBoard = val );
+        CustomMenuItem gomokuItem = createSettingItem("Gomoku Board", () -> GameSettings.gomokuBoard, val -> GameSettings.gomokuBoard = val );
+
+        CheckBox chessBox = (CheckBox) chessItem.getContent();
+        CheckBox gomokuBox = (CheckBox) gomokuItem.getContent();
+
+        chessBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) gomokuBox.setSelected(false);
+        });
+        gomokuBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) chessBox.setSelected(false);
+        });
+
+        visualMenu.getItems().addAll(
+            createSettingItem("Show Grid",              () -> GameSettings.gridToggle,        val -> GameSettings.gridToggle = val),
+            createSettingItem("Show Label",             () -> GameSettings.labelToggle,       val -> GameSettings.labelToggle = val),
+            createSettingItem("Label X Number Based",   () -> GameSettings.labelXNumberBase,  val -> GameSettings.labelXNumberBase = val),
+            createSettingItem("Label Y Number Based",   () -> GameSettings.labelYNumberBase,  val -> GameSettings.labelYNumberBase = val),
+            chessItem,
+            gomokuItem,
+            createSettingItem("Show Symbols",           () -> GameSettings.showSymbolToggle,  val -> GameSettings.showSymbolToggle = val)
+        );
         debugSettingsMenu.getItems().addAll(
             createSettingItem("Draw Debug Number",       () -> GameSettings.drawDebugNumber,        val -> GameSettings.drawDebugNumber = val),
             createSettingItem("Draw Best Move",          () -> GameSettings.drawBestMove,           val -> GameSettings.drawBestMove = val),
             createSettingItem("Draw Evaluated Position", () -> GameSettings.drawEvaluatedPosition,  val -> GameSettings.drawEvaluatedPosition = val),
-            createSettingItem("Draw Sorted Position", () -> GameSettings.drawSortedPosition,  val -> GameSettings.drawSortedPosition = val),
+            createSettingItem("Draw Sorted Position",    () -> GameSettings.drawSortedPosition,     val -> GameSettings.drawSortedPosition = val),
             createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawScoreHeatmap,       val -> GameSettings.drawScoreHeatmap = val),
             createSettingItem("Draw Score Number",       () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
             createSettingItem("Draw Score Player Number",() -> GameSettings.drawScorePlayerNumber,  val -> GameSettings.drawScorePlayerNumber = val)
@@ -42,6 +65,7 @@ public class GameUISettings {
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(settingsMenu);
+        menuBar.getMenus().add(visualMenu);
         menuBar.getMenus().add(debugSettingsMenu);
         menuBar.getMenus().add(debugMouseSettingsMenu);
 
