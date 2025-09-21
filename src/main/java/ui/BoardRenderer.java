@@ -51,7 +51,7 @@ public class BoardRenderer {
         if (GameSettings.showSymbolToggle) drawSymbols();
         
         game.boardAnalyser.updateMoveCount();;
-        if (GameSettings.drawDebugNumber) drawDebugNumber();
+        if (GameSettings.drawIndexNumber) drawIndexNumber();
         if (GameSettings.drawBestMove) drawBestMove();
         if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
         if (GameSettings.drawSortedPosition) drawSortedPosition();
@@ -63,14 +63,16 @@ public class BoardRenderer {
 
     private void drawGrid(){
         int size = GameSettings.GAME_SIZE;
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(GameSettings.gridWidth);
+        double x = GameSettings.gridWidth / 2;
+        double frac = x - Math.floor(x);
         for (int i = 0; i < size; i++)
         {
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(2);
-            int start = i * TILE_SIZE;
-            int length = (size - 1) * TILE_SIZE;
-            gc.strokeLine(start, 0, start, length);
-            gc.strokeLine(0, start, length, start);
+            double start = i * TILE_SIZE + frac;
+            double length = (size - 1) * TILE_SIZE;
+            gc.strokeLine(start, frac, start, length);
+            gc.strokeLine(frac, start, length, start);
         }
     }
 
@@ -137,7 +139,7 @@ public class BoardRenderer {
         }
     }
 
-    private void drawDebugNumber(){
+    private void drawIndexNumber(){
         int size = GameSettings.GAME_SIZE;
         for (int y = 0; y < size; y++) {
             for (int x = 0; x < size; x++) {

@@ -43,6 +43,7 @@ public abstract class GameSettings {
     /* Board visual */
 
     public static boolean gridToggle = true;
+    public static double gridWidth = 2f;
     public static boolean labelToggle = true;
     public static boolean labelXNumberBase = true;
     public static boolean labelYNumberBase = true;
@@ -52,7 +53,7 @@ public abstract class GameSettings {
 
     /* Board Debug */
 
-    public static boolean drawDebugNumber = false;
+    public static boolean drawIndexNumber = false;
     public static boolean drawBestMove = false;
     public static boolean drawEvaluatedPosition = false;
     public static boolean drawSortedPosition = false;
