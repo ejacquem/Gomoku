@@ -123,6 +123,9 @@ public class BoardGame {
     }
 
     private void placePieceAttempt(int index) {
+        if (gameState == GameState.GAME_OVER){
+            return;
+        }
         if (!board.isInBound(index)){
             System.out.println("Can't place piece: Out of Bound");
             return;
@@ -135,17 +138,23 @@ public class BoardGame {
         board.placePieceAt(index);
 
         tick();
-        
-        // bestMove = AI.getBestMove();
-        if (GameSettings.aiPlaysAutomatic){
-            if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
-                // bestMove = AI.getBestMove();
-                placePieceAttempt(bestMove);
+
+        boolean analysed = false;
+        if (GameSettings.analyseBoard){
+            analysed = true;
+            bestMove = AI.getBestMove();
+        }
+        if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
+            if (!analysed){
+                bestMove = AI.getBestMove();
             }
-            else if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
-                // bestMove = AI.getBestMove();
-                placePieceAttempt(bestMove);
+            placePieceAttempt(bestMove);
+        }
+        if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
+            if (!analysed){
+                bestMove = AI.getBestMove();
             }
+            placePieceAttempt(bestMove);
         }
     }
 

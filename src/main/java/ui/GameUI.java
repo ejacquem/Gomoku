@@ -42,7 +42,7 @@ public class GameUI {
     private HBox player1Panel;
     private HBox player2Panel;
     private Label infoLabel, moveLabel, playerLabel, winnerLabel;
-    private Button restartButton, startButton, randomButton, undoButton;
+    private Button restartButton, startButton, randomButton, evaluateButton, undoButton;
     private Background background;
     private VBox titlePane;
     private StackPane evalBar;
@@ -92,10 +92,12 @@ public class GameUI {
         startButton = new Button("Start");
         restartButton = new Button("Restart");
         randomButton = new Button("Random");
+        evaluateButton = new Button("Evaluate");
         undoButton = new Button("Undo");
         restartButton.getStyleClass().addAll("button-base", "simple-button");
         startButton.getStyleClass().addAll("button-base", "simple-button");
         randomButton.getStyleClass().addAll("button-base", "simple-button");
+        evaluateButton.getStyleClass().addAll("button-base", "simple-button");
         undoButton.getStyleClass().addAll("button-base", "undo-button");
 
         // Button button = new Button("Click Me");
@@ -133,7 +135,7 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, overlayCanvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
-        rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, undoButton, infoLabel, moveLabel, playerLabel, winnerLabel);
+        rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, evaluateButton, undoButton, infoLabel, moveLabel, playerLabel, winnerLabel);
         leftPanel = new VBox(0, player1Panel, canvasStack, player2Panel);
         mainPanel = new HBox(0, evalBar, leftPanel, rightPanel);
         root = new BorderPane(mainPanel);
@@ -334,6 +336,11 @@ public class GameUI {
         randomButton.setOnAction(e -> {
             game.startGame();
             game.board.random(.2f, game.boardAnalyser);
+            renderer.draw();
+        });
+
+        evaluateButton.setOnAction(e -> {
+            game.AI.getBestMove(1);
             renderer.draw();
         });
 

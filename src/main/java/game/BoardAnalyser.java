@@ -43,7 +43,7 @@ public class BoardAnalyser {
         playerScore[0] = 0;
         playerScore[1] = 0;
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
-            if (getScoreAtPos(i) > 0){
+            if (Math.abs(getScoreAtPos(i)) != 0){
                 for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
                     int score = getScoreAtPosAtDir(i, dirIndex);
                     int index = score > 0 ? 0 : 1;
@@ -67,6 +67,8 @@ public class BoardAnalyser {
                 score += getScoreFromPieceNumber(Math.abs(right));
             }
         }
+        if (score < 0)
+            System.out.println("??????????????????");
         setScoreAtPosAtDir(index, 8, score);
     }
 
@@ -116,6 +118,15 @@ public class BoardAnalyser {
     //     }
     // }
 
+    public static class PosScore {
+        public final int index;
+        public final int score;
+        public PosScore(int index, int score) {
+            this.index = index;
+            this.score = score;
+        }
+    }
+
     List<Integer> filteredCell = new ArrayList<>();
     public int[] getSortedIndices() {
         updateMoveCount();
@@ -126,6 +137,21 @@ public class BoardAnalyser {
         // filteredCell.sort((a, b) -> Integer.compare(scoregrid[b], scoregrid[a]));
         filteredCell.sort((a, b) -> Integer.compare(getScoreAtPos(b), getScoreAtPos(a)));
         return filteredCell.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    public List<PosScore> getSortedPositions() {
+        updateMoveCount();
+        filteredCell.clear();
+        for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
+            if (getScoreAtPos(i) >= 1) filteredCell.add(i);
+        }
+    
+        filteredCell.sort((a, b) -> Integer.compare(getScoreAtPos(b), getScoreAtPos(a)));
+    
+        // map to PosScore list
+        return filteredCell.stream()
+            .map(i -> new PosScore(i, getScoreAtPos(i)))
+            .toList();  // Java 16+, else use .collect(Collectors.toList())
     }
 
     // go through the cell impacted by the last move and calculate a rough score
@@ -154,6 +180,12 @@ public class BoardAnalyser {
 
     public void updateMoveCount(){
         this.moveCount = board.getMoveCount();
+    }
+
+    private void scanBoard(){
+        for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
+            scanMove(board.getPieceAt(i) == 0 ? -i : i);
+        }
     }
 
     // scan the position at the current move, the move is the position where a piece a modified

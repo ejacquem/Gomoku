@@ -76,9 +76,10 @@ public class GameUISettings {
             createSettingItem("Draw Mouse Pos",             () -> GameSettings.drawMousePos,           val -> GameSettings.drawMousePos = val),
             createSettingItem("Draw Mouse Grid Pos",        () -> GameSettings.drawMouseGridPos,       val -> GameSettings.drawMouseGridPos = val),
             createSettingItem("Draw Mouse Cell Pos",        () -> GameSettings.drawMouseCellPos,       val -> GameSettings.drawMouseCellPos = val)
-        );
+            );
         settingsMenu.getItems().addAll(
-            createSettingItem("Ai Play Automatic",       () -> GameSettings.aiPlaysAutomatic,       val -> GameSettings.aiPlaysAutomatic = val),
+            createSettingItem("Analyse Board",             () -> GameSettings.analyseBoard,              val -> GameSettings.analyseBoard = val),
+            new SeparatorMenuItem(),
             createSettingItem("Player 1 AI",             () -> GameSettings.player1AI,              val -> GameSettings.player1AI = val),
             createSettingItem("Player 2 AI",             () -> GameSettings.player2AI,              val -> GameSettings.player2AI = val)
         );

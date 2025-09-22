@@ -1,12 +1,10 @@
 package main.java.ui;
-// src/BoardRenderer.java
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import main.java.app.GameSettings;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
-// import main.java.game.Board.CellScore;
 import main.java.game.GomokuAI;
 
 public class BoardRenderer {
@@ -78,9 +76,9 @@ public class BoardRenderer {
 
     private void drawLabel(){
         int size = GameSettings.GAME_SIZE;
-        int labelxoffset = (GameSettings.labelXNumberBase ? 0 : 10);
+        int labelxoffset = (GameSettings.labelXNumberBase ? 1 : 10);
         int labelxbase = (GameSettings.labelXNumberBase ? 10 : 36);
-        int labelyoffset = (GameSettings.labelYNumberBase ? 0 : 10);
+        int labelyoffset = (GameSettings.labelYNumberBase ? 1 : 10);
         int labelybase = (GameSettings.labelYNumberBase ? 10 : 36);
         for (int i = 0; i < size; i++)
         {
@@ -94,7 +92,7 @@ public class BoardRenderer {
             int w = 8 * n.length(), h = 10, s2 = TILE_SIZE / 2; // 8 = size of a letter
             gc.fillText(n, start - w / 2, - s2);
             gc.fillText(n, start - w / 2, length + h + s2);
-            n = Integer.toString(i + labelyoffset, labelybase).toUpperCase();
+            n = Integer.toString(size - 1 - i + labelyoffset, labelybase).toUpperCase();
             w = 8 * n.length(); h = 10; // 8 = size of a letter 
             gc.fillText(n, -w - s2, start + h / 2);
             gc.fillText(n, length + s2, start + h / 2);
@@ -202,6 +200,9 @@ public class BoardRenderer {
             gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
 
             String n = Integer.toString(evalpos.score);
+            // if (Math.abs(evalpos.score) >= 10000){
+            //     n = Double.toString(Math.round(Math.log(Math.abs(evalpos.score))) * Math.signum(evalpos.score));
+            // }
             gc.setFill(Color.WHITE);
             gc.fillText(n, px - w * n.length() / 2, py + h / 2);
         }
@@ -264,11 +265,11 @@ public class BoardRenderer {
                     int index = pos.add(1).getId();
                     int score = game.boardAnalyser.getScoreAtPosAtDir(index, dirIndex);
                     Color color = score > 0 ? GameSettings.PLAYER1_COLOR.darker() : GameSettings.PLAYER2_COLOR.darker();
-                    if (Math.abs(score) > 5){
-                        color = Color.RED;
-                    }
+                    // if (Math.abs(score) > 5){
+                    //     color = Color.RED;
+                    // }
                     if (score != 0)
-                        drawNumberAt(pos, dirCoords.x, dirCoords.y, Math.abs(score), color);
+                        drawNumberAt(pos, dirCoords.x, dirCoords.y, score, color);
                     dirIndex++;
                 }
             }
