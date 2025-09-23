@@ -426,23 +426,27 @@ public class Board {
     // print current state of the board
     public void printBoard(){
         System.out.println("Print Board Move " + moveCount + ": ");
+        System.out.println(toString());
+    }
+
+    public String toString(){
         int size = GameSettings.GAME_SIZE;
+        StringBuilder s = new StringBuilder();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Coords pos = new Coords(col, row);
                 int index = pos.add(1).getId();
                 int piece = getPieceAt(index);
-                String s;
                 switch (piece) {
-                    case 0: s = "."; break;
-                    case 1: s = "1"; break;
-                    case 2: s = "2"; break;
-                    default: s = "?"; break;
+                    case 0: s.append("."); break;
+                    case 1: s.append("1"); break;
+                    case 2: s.append("2"); break;
+                    default: s.append("?"); break;
                 }
-                System.out.print(s);
             }
-            System.out.println();
+            s.append("\n");
         }
+        return s.toString();
     }
 
     /* This will mess up the board, only call when it crashes */

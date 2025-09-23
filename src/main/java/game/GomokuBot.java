@@ -13,6 +13,7 @@ class GomokuBot implements Callable<Integer> {
     public final long TIME_LIMIT = 30000;
     public boolean limitExcceeded = false;
     private long start = 0;
+    private final int id;
 
     public final int INF = 1_000_000;
     public final int MAX_DEPTH;
@@ -21,11 +22,12 @@ class GomokuBot implements Callable<Integer> {
     public int[] prunningPerDepth;
     public int prunningCount = 0;
 
-    public GomokuBot(BoardAnalyser boardAnalyser, int maxDepth) {
+    public GomokuBot(BoardAnalyser boardAnalyser, int maxDepth, int id) {
         // deep copy so each thread works independently
         this.boardAnalyser = boardAnalyser.deepCopy(); 
-        this.board = boardAnalyser.board;
+        this.board = this.boardAnalyser.board;
         this.MAX_DEPTH = maxDepth;
+        this.id = id;
         iterationPerDepth = new int[MAX_DEPTH];
         prunningPerDepth = new int[MAX_DEPTH];
     }
@@ -34,6 +36,10 @@ class GomokuBot implements Callable<Integer> {
     
     @Override
     public Integer call() {
+        // String s = "";
+        // s = board.toString() + "@@@@@@@";
+        // System.out.println("@@@@@@@\nThread: " + id + " doing its job\n" + s);
+        // return captureScore[board.getCaptureCount(1) / 2];
         return -search(MAX_DEPTH, -INF, INF);
     }
 
@@ -48,9 +54,14 @@ class GomokuBot implements Callable<Integer> {
         }
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
         boardAnalyser.getPlayerScore(playerPositionScore);
-        int player1Score = playerPositionScore[0] + captureScore[board.getCaptureCount(1) / 2];
-        int player2Score = playerPositionScore[1] + captureScore[board.getCaptureCount(2) / 2];
-        int positionScore = player1Score - player2Score;
+        int player1CaptureScore = captureScore[board.getCaptureCount(1) / 2];
+        int player2CaptureScore = captureScore[board.getCaptureCount(2) / 2];
+        if (player1CaptureScore > 0) player1CaptureScore -= (MAX_DEPTH - depth) * 100;
+        if (player2CaptureScore > 0) player2CaptureScore -= (MAX_DEPTH - depth) * 100;
+        // int player1Score = playerPositionScore[0] + player1CaptureScore;
+        // int player2Score = playerPositionScore[1] + player2CaptureScore;
+        // int positionScore = player1Score - player2Score;
+        int positionScore = player1CaptureScore - player2CaptureScore;
         return color * positionScore;
     }
 
@@ -87,18 +98,18 @@ class GomokuBot implements Callable<Integer> {
 
         int value = -INF;
         for (PosScore pos : sortedPos) {
-            if (depth <= MAX_DEPTH - 1 && pos.score <= 1) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 2 && pos.score <= 2) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 3 && pos.score < 20) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 4 && pos.score < 100) {
-                break;
-            }
+            // if (depth <= MAX_DEPTH - 2 && pos.score <= 1) {
+            //     break;
+            // }
+            // if (depth <= MAX_DEPTH - 3 && pos.score <= 2) {
+            //     break;
+            // }
+            // if (depth <= MAX_DEPTH - 4 && pos.score < 20) {
+            //     break;
+            // }
+            // if (depth <= MAX_DEPTH - 5 && pos.score < 100) {
+            //     break;
+            // }
             board.placePieceAt(pos.index);
             boardAnalyser.scanLastMove();
             
