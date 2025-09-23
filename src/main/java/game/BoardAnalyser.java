@@ -26,24 +26,24 @@ public class BoardAnalyser {
     private int[] pieceBoard; // to avoid board.getPieceAt() call
     private int moveCount = 0;
 
-    public BoardAnalyser(Board board){
+    public BoardAnalyser(Board board) {
         this.board = board;
         this.pieceBoard = board.getBoard();
     }
 
-    private int[] getCurrentScoreGrid(){
+    private int[] getCurrentScoreGrid() {
         return scoreGridHistory[moveCount];
     }
 
-    public int getScoreAtPos(int index){
+    public int getScoreAtPos(int index) {
         return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + 8];
     }
 
-    public void getPlayerScore(int[] playerScore){
+    public void getPlayerScore(int[] playerScore) {
         playerScore[0] = 0;
         playerScore[1] = 0;
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
-            if (Math.abs(getScoreAtPos(i)) != 0){
+            if (Math.abs(getScoreAtPos(i)) != 0) {
                 for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
                     int score = getScoreAtPosAtDir(i, dirIndex);
                     int index = score > 0 ? 0 : 1;
@@ -53,13 +53,13 @@ public class BoardAnalyser {
         }
     }
 
-    private void computeScoreAtPos(int index){
+    private void computeScoreAtPos(int index) {
         int[] grid = getCurrentScoreGrid();
         int score = 0;
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             int left = Math.abs(grid[index * CELL_INFO_SIZE + i]);
             int right = Math.abs(grid[index * CELL_INFO_SIZE + (7 - i)]);
-            if (left != 0 && Integer.signum(left) == Integer.signum(right)){
+            if (left != 0 && Integer.signum(left) == Integer.signum(right)) {
                 score += getScoreFromDoublePieceNumber(Math.abs(left), Math.abs(right));
             }
             else{
@@ -72,7 +72,7 @@ public class BoardAnalyser {
         setScoreAtPosAtDir(index, 8, score);
     }
 
-    private int getScoreFromPieceNumber(int pieceNumber){
+    private int getScoreFromPieceNumber(int pieceNumber) {
         switch (pieceNumber) {
             case 1: return 1;
             case 2: return 2;
@@ -83,7 +83,7 @@ public class BoardAnalyser {
         return 0;
     }
 
-    private int getScoreFromDoublePieceNumber(int leftPieceNumber, int rightPieceNumber){
+    private int getScoreFromDoublePieceNumber(int leftPieceNumber, int rightPieceNumber) {
         switch (leftPieceNumber + rightPieceNumber) {
             case 0: return 0;
             case 1: return 1;
@@ -98,12 +98,12 @@ public class BoardAnalyser {
         }
     }
 
-    public int getScoreAtPosAtDir(int index, int dirIndex){
+    public int getScoreAtPosAtDir(int index, int dirIndex) {
         // if (dirIndex < 0 || dirIndex >= 8) throw new IllegalStateException("Invalid dirIndex " + index); // comment later for efficiency 
         return scoreGridHistory[board.getMoveCount()][index * CELL_INFO_SIZE + dirIndex];
     }
 
-    private void setScoreAtPosAtDir(int posIndex, int flagIndex, int score){
+    private void setScoreAtPosAtDir(int posIndex, int flagIndex, int score) {
         // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);
         scoreGridHistory[moveCount][posIndex * CELL_INFO_SIZE + flagIndex] = score;
     }
@@ -111,8 +111,8 @@ public class BoardAnalyser {
     // go through every cell and calculate a rough score
     // public void scanBoard() {
     //     int[] scoregrid = getCurrentScoreGrid();
-    //     for (int i = 0; i < Board.BOARD_MAX_INDEX; i++){
-    //         if (board.getPieceAt(i) != -1){
+    //     for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
+    //         if (board.getPieceAt(i) != -1) {
     //             scoregrid[i] = getScoreAt(i);
     //         }
     //     }
@@ -167,22 +167,22 @@ public class BoardAnalyser {
     // .......
     // private SequenceData data = new SequenceData();
     private int[] dirCount = new int[8];
-    public void scanLastMove(){
+    public void scanLastMove() {
         updateMoveCount();
         if (moveCount <= 0)
             return;
         copyLastHistory();
         int[] lastMove = board.getLastMoves();
-        for (int i = 0; i < lastMove[0]; i++){
+        for (int i = 0; i < lastMove[0]; i++) {
             scanMove(lastMove[i + 1]); // +1 to skip first elem which is the length
         }
     }
 
-    public void updateMoveCount(){
+    public void updateMoveCount() {
         this.moveCount = board.getMoveCount();
     }
 
-    private void scanBoard(){
+    public void scanBoard() {
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
             scanMove(board.getPieceAt(i) == 0 ? -i : i);
         }
@@ -191,7 +191,7 @@ public class BoardAnalyser {
     // scan the position at the current move, the move is the position where a piece a modified
     // positive if placed
     // negative if removed
-    private void scanMove(int move){
+    private void scanMove(int move) {
         // System.out.println("\nScan move: " + move);
         int index = Math.abs(move);
         int placedPieceSign = Board.getPlayerSign(pieceBoard[index]);
@@ -207,18 +207,18 @@ public class BoardAnalyser {
             int rightEndIndex = index + (1 + Math.abs(right)) * dir;
             int score = 0;
             int capturesign;
-            if (move < 0){
+            if (move < 0) {
                 score = left;
                 capturesign = checkCaptureFromRunLength(left, index, dir);
-                if (capturesign != 0){
+                if (capturesign != 0) {
                     score = 9 * capturesign;
                 }
             }
             setScoreAtPosAtDir(index, dirIndex, score); // compute the score of the current cell, set to 0 if placed
-            if (pieceBoard[rightEndIndex] == 0){ // if cell is empty at the end of sequence, compute the score
+            if (pieceBoard[rightEndIndex] == 0) { // if cell is empty at the end of sequence, compute the score
                 score = computeCountDir(right, placedPieceSign, left);
                 capturesign = checkCaptureFromRunLength(score, rightEndIndex, dir);
-                if (capturesign != 0){
+                if (capturesign != 0) {
                     score = 9 * capturesign;
                 }
                 setScoreAtPosAtDir(rightEndIndex, dirIndex, score);
@@ -228,14 +228,14 @@ public class BoardAnalyser {
         computeScoreAtPos(index);
     }
 
-    private int checkCaptureFromRunLength(Integer runLength, int endIndex, int dir){
-        if (Math.abs(runLength) == 2){
+    private int checkCaptureFromRunLength(Integer runLength, int endIndex, int dir) {
+        if (Math.abs(runLength) == 2) {
             // System.out.println("endIndex: " + endIndex);
             // System.out.println("dir: " + dir);
             // System.out.println("endIndex - dir * 3: " + (endIndex - dir * 3));
             // System.out.println("board.getPieceAt(endIndex - dir * 3): " + board.getPieceAt(endIndex - dir * 3));
             int potentialCapturePiece = pieceBoard[endIndex - dir * 3];
-            if (runLength == -2 && potentialCapturePiece == 1 || runLength == 2 && potentialCapturePiece == 2){ // can't check sign here, pcp could be a wall
+            if (runLength == -2 && potentialCapturePiece == 1 || runLength == 2 && potentialCapturePiece == 2) { // can't check sign here, pcp could be a wall
                 return Board.getPlayerSign(potentialCapturePiece);
             }
         }
@@ -254,11 +254,11 @@ public class BoardAnalyser {
     // 02n 0nn : left + 1 + right
     // n2p nnp : left + 1
     // n2n nnn : left + 1 + right
-    private int computeCountDir(int left, int placedPieceSign, int right){
+    private int computeCountDir(int left, int placedPieceSign, int right) {
         if (placedPieceSign == 0)
             return left;
         int score = left;
-        if (left == 0 || (Integer.signum(left) == placedPieceSign)){
+        if (left == 0 || (Integer.signum(left) == placedPieceSign)) {
             score += placedPieceSign;
             if (placedPieceSign == Integer.signum(right))
                 score += right;
@@ -268,19 +268,19 @@ public class BoardAnalyser {
 
     // return the length of the sequence of equal pieces in a direction
     // return a positive number for white, negative for black
-    private int countSamePiecesInDir(int pos, int dir){
+    private int countSamePiecesInDir(int pos, int dir) {
         // int curr = board.getPieceAt(pos);
         int curr = pieceBoard[pos];
         if (curr == 0 || curr == -1)
             return 0;
         int count = 1;
-        while (curr == pieceBoard[pos + dir * count] && count < 4){
+        while (curr == pieceBoard[pos + dir * count] && count < 4) {
             count++;
         }
         return count * (curr == 2 ? -1 : 1);
     }
 
-    private void copyLastHistory(){
+    private void copyLastHistory() {
         if (moveCount == 0)
             return;
         System.arraycopy(scoreGridHistory[moveCount - 1], 0,
@@ -288,22 +288,22 @@ public class BoardAnalyser {
                  SCOREGRID_LENGTH);
     }
 
-    public void inDepthAnalyse(){
+    public void inDepthAnalyse() {
         
     }
 
-    public void reset(){
-        for (int i = 0; i < MAX_HISTORY_LEN; i++){
-            for (int j = 0; j < SCOREGRID_LENGTH; j++){
+    public void reset() {
+        for (int i = 0; i < MAX_HISTORY_LEN; i++) {
+            for (int j = 0; j < SCOREGRID_LENGTH; j++) {
                 scoreGridHistory[i][j] = 0;
             }
         }
     }
 
-    public void printHistory(){
-        for (int i = 0; i < board.getMoveCount(); i++){
+    public void printHistory() {
+        for (int i = 0; i < board.getMoveCount(); i++) {
             System.out.println("History " + i + ": ");
-            for (int j = 0; j < SCOREGRID_LENGTH; j++){
+            for (int j = 0; j < SCOREGRID_LENGTH; j++) {
                 System.out.print(scoreGridHistory[i][j]);
                 if (j % GameSettings.BOARD_SIZE == GameSettings.BOARD_SIZE - 1)
                     System.out.println();

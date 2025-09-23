@@ -183,7 +183,7 @@ public class Coords {
         return x + GameSettings.BOARD_SIZE * y;
     }
 
-    public static Coords getCoordsById(int id){
+    public static Coords getCoordsById(int id) {
         return new Coords(id % GameSettings.BOARD_SIZE, id / GameSettings.BOARD_SIZE);
     }
     
@@ -191,7 +191,7 @@ public class Coords {
         return x + gridSize * y;
     }
 
-    public static Coords getCoordsById(int id, int gridSize){
+    public static Coords getCoordsById(int id, int gridSize) {
         return new Coords(id % gridSize, id / gridSize);
     }
     
@@ -207,7 +207,7 @@ public class Coords {
     // 0 1 2              7 6 5
     // 3   4  opposite -> 4   3
     // 5 6 7              2 1 0
-    public static int oppositeDirIndex(int dirIndex){ return 7 - dirIndex; }
+    public static int oppositeDirIndex(int dirIndex) { return 7 - dirIndex; }
 
     public static final Coords NW = new Coords(-1, -1);
     public static final Coords N  = new Coords(0, -1);

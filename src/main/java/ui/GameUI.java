@@ -154,7 +154,7 @@ public class GameUI {
         bindStuff();
     }
 
-    private Label creatLabel(String text, Font font, Color color){
+    private Label creatLabel(String text, Font font, Color color) {
         Label label;
         label = new Label(text);
         label.setFont(font);
@@ -224,7 +224,7 @@ public class GameUI {
         return panel;
     }
 
-    private HBox createClockPanel(PlayerData data){
+    private HBox createClockPanel(PlayerData data) {
         Label clockLabel = new Label("0:00.0");
         HBox clockPanel = new HBox(clockLabel);
         // clockLabel.setBackground(createBackground(Color.BLACK));
@@ -296,7 +296,7 @@ public class GameUI {
         fill.setHeight(Math.round(barHeight * percentage));
     }
 
-    private Background createBackground(Color color){
+    private Background createBackground(Color color) {
         return new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY));
     }
 
@@ -378,14 +378,14 @@ public class GameUI {
         });
     }
 
-    private void updateCapturedPieces(int n, FlowPane pane){
+    private void updateCapturedPieces(int n, FlowPane pane) {
         for (Node node : pane.getChildren()) {
             node.setVisible(n > 0);
             n--;
         }
     }
 
-    // private void setPlayerText(){
+    // private void setPlayerText() {
     //     playerLabel.setText(null);
     // }
 

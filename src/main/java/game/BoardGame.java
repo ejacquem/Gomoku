@@ -54,11 +54,11 @@ public class BoardGame {
         timeline2 = createTimeline(player2Timer);
     }
 
-    public void undo(){
+    public void undo() {
         System.out.println("Undo Called");
         if (board.getMoveCount() == 0)
             return;
-        if (gameState == GameState.GAME_OVER){
+        if (gameState == GameState.GAME_OVER) {
             System.out.println("Undo Game Over");
             gameState = GameState.STARTED;
             winner.set(0);
@@ -67,18 +67,18 @@ public class BoardGame {
         tick();
     }
 
-    public void startGame(){    
+    public void startGame() {    
         System.out.println("Game started");
         reset();
         gameState = GameState.STARTED;
     }
 
-    public void setWinner(int player){
+    public void setWinner(int player) {
         System.out.println("Winner is " + player);
         winner.set(player);
     }
 
-    public void setGameOver(){
+    public void setGameOver() {
         System.out.println("Game Over");
         gameState = GameState.GAME_OVER;
         timeline1.pause();
@@ -89,8 +89,8 @@ public class BoardGame {
         return winner.get() != 0;
     }
 
-    public void checkWinner(){
-        if (board.getWinner() != 0){
+    public void checkWinner() {
+        if (board.getWinner() != 0) {
             setWinner(board.getWinner());
         }
 
@@ -100,16 +100,16 @@ public class BoardGame {
             setWinner(2);
     }
 
-    public void handleInput(Coords pos){
+    public void handleInput(Coords pos) {
         System.out.println("Handle Input");
         Coords realPos = pos.add(GameSettings.BOARD_WALL_WIDTH);
-        if (gameState == GameState.NOT_STARTED){
+        if (gameState == GameState.NOT_STARTED) {
             startGame();
         }
         System.out.println("Trying to place a piece at pos " + pos);
         placePieceAttempt(realPos);
 
-        if (gameState == GameState.GAME_OVER){
+        if (gameState == GameState.GAME_OVER) {
             return;
         }
     }
@@ -119,11 +119,11 @@ public class BoardGame {
     }
 
     private void placePieceAttempt(int index) {
-        if (gameState == GameState.GAME_OVER){
+        if (gameState == GameState.GAME_OVER) {
             System.out.println("Can't place piece: Game Over");
             return;
         }
-        if (!board.isInBound(index)){
+        if (!board.isInBound(index)) {
             System.out.println("Can't place piece: Out of Bound");
             return;
         }
@@ -137,25 +137,25 @@ public class BoardGame {
         tick();
 
         boolean analysed = false;
-        if (GameSettings.analyseBoard){
+        if (GameSettings.analyseBoard) {
             analysed = true;
             bestMove = AI.getBestMove();
         }
-        if (GameSettings.player1AI && board.getCurrentPlayer() == 1){
-            if (!analysed){
+        if (GameSettings.player1AI && board.getCurrentPlayer() == 1) {
+            if (!analysed) {
                 bestMove = AI.getBestMove();
             }
             placePieceAttempt(bestMove);
         }
-        if (GameSettings.player2AI && board.getCurrentPlayer() == 2){
-            if (!analysed){
+        if (GameSettings.player2AI && board.getCurrentPlayer() == 2) {
+            if (!analysed) {
                 bestMove = AI.getBestMove();
             }
             placePieceAttempt(bestMove);
         }
     }
 
-    public void tick(){
+    public void tick() {
         player1CapturedPieces.set(board.getCaptureCount(1));
         player2CapturedPieces.set(board.getCaptureCount(2));
         switchPlayerTo(board.getCurrentPlayer());
@@ -167,8 +167,8 @@ public class BoardGame {
         boardAnalyser.scanLastMove();
     }
 
-    private void switchPlayerTo(int player){
-        if (player == 1){
+    private void switchPlayerTo(int player) {
+        if (player == 1) {
             currentPlayer.set(1);
             timeline1.play();
             timeline2.pause();
@@ -199,20 +199,20 @@ public class BoardGame {
 
     /* BOARD ACTION */
 
-    // private void placePiece(int row, int col){
+    // private void placePiece(int row, int col) {
     //     System.out.println("Player " + getCurrentPlayer() + " placing piece at: " + row + ", " + col);
     //     int p = getCurrentPlayer();
     //     addPiece(row, col, p);
     //     actions.add(new BoardAction(ActionType.ADD, row, col, p));
     // }
 
-    public int getOpponent(int player){
+    public int getOpponent(int player) {
         return player == 1 ? 2 : 1;
     }
 
     // utils
 
-    private Timeline createTimeline(LongProperty timer){
+    private Timeline createTimeline(LongProperty timer) {
         Timeline timeline =  new Timeline(
             new KeyFrame(Duration.millis(100), e -> {
                 timer.set(timer.get() - 100);

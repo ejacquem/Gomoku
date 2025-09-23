@@ -61,7 +61,7 @@ public abstract class GameSettings {
     public static boolean drawScoreNumber = false;
     public static boolean drawScorePlayerNumber = false;
 
-    public static boolean analyseBoard = true;
+    public static boolean analyseBoard = false;
     public static boolean player1AI = false;
     public static boolean player2AI = false;
 
@@ -70,7 +70,7 @@ public abstract class GameSettings {
     public static boolean drawMouseCellPos = false;
     public static boolean drawSequenceDataOnMouse = false;
 
-    public static Color getHeatMapColor(int value, int maxValue){
+    public static Color getHeatMapColor(int value, int maxValue) {
         float fvalue = Math.min((float)value / (float)maxValue, 1);
         fvalue *= (HEATMAP_COLOR.length - 1);
         int colorStartIndex = (int)Math.floor(fvalue);

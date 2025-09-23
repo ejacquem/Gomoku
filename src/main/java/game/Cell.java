@@ -12,32 +12,32 @@ public class Cell {
     
     private int neighbours; // count of the eight neibours
 
-    public boolean isNeighbour(){
+    public boolean isNeighbour() {
         return neighbours != 0;
     }
 
-    public void setNeighbour(Coords pos, int bit){
+    public void setNeighbour(Coords pos, int bit) {
         setNeighbour(pos.getId(3), bit);
     }
 
-    public void setNeighbour(int index, int bit){
+    public void setNeighbour(int index, int bit) {
         neighbours = ((neighbours & ~(1 << index)) | (bit << index));
         neighbours |= (bit << index);
     }
 
-    public int getNeighbourNumber(){
+    public int getNeighbourNumber() {
         int count = 0;
-        for (int i = 0; i < 9; i++){
+        for (int i = 0; i < 9; i++) {
             count += (neighbours >> i) & 1;
         }
         return count;
     }
 
-    Cell(){
+    Cell() {
         
     }
 
-    Cell(int player){
+    Cell(int player) {
         this.player = player;
     }
 
@@ -54,15 +54,15 @@ public class Cell {
         return can_be_free3_h || can_be_free3_v || can_be_free3_p || can_be_free3_n ;
     }
 
-    public boolean has_piece(){
+    public boolean has_piece() {
         return player == 1 || player == 2;
     }
 
-    public boolean empty(){
+    public boolean empty() {
         return player == 0;
     }
 
-    public void reset(){
+    public void reset() {
         player = 0;
         winning = false;
         can_be_captured = false;
@@ -70,14 +70,14 @@ public class Cell {
         resetFreeThree();
     }
 
-    public void resetFreeThree(){
+    public void resetFreeThree() {
         can_be_free3_h = false;
         can_be_free3_v = false;
         can_be_free3_p = false;
         can_be_free3_n = false;
     }
 
-    public Cell defaultValue(int value){
+    public Cell defaultValue(int value) {
         this.player = value;
         return this;
     }
@@ -86,7 +86,7 @@ public class Cell {
     // V -> 0, 1 || 0, 1
     // P -> 1, -1 || -1, 1
     // N -> 1, 1 || -1, -1
-    public void setFreeThree(Coords dir){
+    public void setFreeThree(Coords dir) {
         if (dir.y == 0) can_be_free3_h = true;
         else if (dir.x == 0) can_be_free3_v = true;
         else if (dir.x == dir.y) can_be_free3_n = true;

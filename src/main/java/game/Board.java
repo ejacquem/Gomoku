@@ -16,14 +16,16 @@ public class Board {
      * if the move are 1, 0, 2, 3 which give the position 0XX0 and creates a capture 0..0
      * the history is 1, 0, 2, 3, -1, -2
     */
-    private int[] history = new int[BOARD_MAX_INDEX * 10]; // safe buffer size
+    private int[] history = new int[BOARD_MAX_INDEX * 2]; // safe buffer size
     private int historyIndex = 0;
     private int maxHistoryIndex = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER; // 1 is white, 2 is black
     private int moveCount = 0;
     private int winner = 0;
     private int[] pieceCount = {0,0};
-    private List<Integer> endGameCapture = new ArrayList<Integer>();
+    private boolean[] EGChistory = new boolean[BOARD_MAX_INDEX * 2]; // contains a flag per move if the move introduced an EGC
+    // private 
+    public List<Integer> endGameCapture = new ArrayList<Integer>();
 
     private static final int x = 1;
     private static final int y = BOARD_SIZE;
@@ -39,41 +41,41 @@ public class Board {
         +y + x  // SE
     };
 
-    public Board(){
+    public Board() {
         reset();
     }
 
     /* Core Action */
 
-    private void addPieceAt(int index, int player){
-        if (!isSpaceAt(index)){
+    private void addPieceAt(int index, int player) {
+        if (!isSpaceAt(index)) {
             throw new IllegalStateException("No space at index " + index); 
         }
         pieceCount[player - 1]++;
         setPieceAt(index, player);
     }
 
-    private void removePieceAt(int index){
+    private void removePieceAt(int index) {
         pieceCount[getPieceAt(index) - 1]--;
         setPieceAt(index, 0);
     }
 
     /* Board Action */
 
-    public void placePieceAt(int index){
+    public void placePieceAt(int index) {
         moveCount++;
         maxHistoryIndex = moveCount;
         addPieceAt(index, currentPlayer);
         addHistory(index);
         checkCapturesAt(index);
+        checkWinnerEndGameCapture();
         checkWinnerAt(index, currentPlayer);
         checkWinnerCapture();
-        // checkPotentialWinner();
         switchPlayer();
     }
 
-    public void undo(){
-        if (moveCount == 0){
+    public void undo() {
+        if (moveCount == 0) {
             return ;
         }
         setWinner(0);
@@ -82,11 +84,19 @@ public class Board {
             addPieceAt(popHistory() * -1, currentPlayer);
         }
         removePieceAt(popHistory()); // remove the placed piece
+        if (EGChistory[moveCount]) { // some weird stuff here but it works
+            // System.out.println("EGChistory[moveCount] is true, moveCount: " +  moveCount);
+            // System.out.println("peekHistory(): " +  peekHistory());
+            checkWinnerAt(peekHistory(), currentPlayer);
+        }
+        else {
+            endGameCapture.clear();
+        }
         switchPlayer();
     }
 
-    public void redo(){
-        if (moveCount == maxHistoryIndex){
+    public void redo() {
+        if (moveCount == maxHistoryIndex) {
             return;
         }
         addPieceAt(pipHistory(), currentPlayer);
@@ -96,7 +106,7 @@ public class Board {
         switchPlayer();
     }
 
-    public void reset(){
+    public void reset() {
         initBoard();
         moveCount = 0;
         historyIndex = 0;
@@ -106,10 +116,10 @@ public class Board {
         pieceCount[1] = 0;
     }
 
-    private void initBoard(){
+    private void initBoard() {
         final int b = BOARD_SIZE - 1;
-        for (int y = 0; y < BOARD_SIZE; y++){
-            for (int x = 0; x < BOARD_SIZE; x++){
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            for (int x = 0; x < BOARD_SIZE; x++) {
                 int value = (x == b || y == b || x == 0 || y == 0) ? -1 : 0;
                 setPieceAt(x + y * BOARD_SIZE, value);
             }
@@ -122,7 +132,7 @@ public class Board {
     {
         reset();
         for (int i = 0; i < BOARD_MAX_INDEX; i++) {
-            if (getPieceAt(i) == 0 && Math.random() < density){
+            if (getPieceAt(i) == 0 && Math.random() < density) {
                 placePieceAt(i);
                 analyser.scanLastMove();
             }
@@ -131,19 +141,19 @@ public class Board {
 
     /* Game Logic */
 
-    private void switchPlayer(){
+    private void switchPlayer() {
         currentPlayer = getOpponent(currentPlayer);
     }
 
     /* checks if the piece at index creates a capture */
-    private void checkCapturesAt(int index){
+    private void checkCapturesAt(int index) {
         if (getPieceAt(index) != currentPlayer)
             return;
         int opponent = getCurrentOpponent();
-        for (int dir : DIRECTION8){
+        for (int dir : DIRECTION8) {
             if (getPieceAt(index + dir) == opponent && 
                 getPieceAt(index + dir * 2) == opponent && 
-                getPieceAt(index + dir * 3) == currentPlayer){
+                getPieceAt(index + dir * 3) == currentPlayer) {
                 capture(index + dir);
                 capture(index + dir * 2);
                 // addCaptureCount(currentPlayer);
@@ -152,30 +162,30 @@ public class Board {
     }
 
     /* checks if the current piece can be captured this turn*/
-    public boolean canBeCapturedAt(int index, int capturingPlayer){
+    public boolean canBeCapturedAt(int index, int capturingPlayer) {
         int opponent = getOpponent(capturingPlayer);
         if (getPieceAt(index) != opponent)
             return false;
-        for (int dir : DIRECTION8){
+        for (int dir : DIRECTION8) {
             int left = getPieceAt(index - dir); 
             int right = getPieceAt(index + dir);
-            if (left == capturingPlayer){ // 2x10
-                if (right == opponent && getPieceAt(index + dir * 2) == 0){
+            if (left == capturingPlayer) { // 2x10
+                if (right == opponent && getPieceAt(index + dir * 2) == 0) {
                     return true;
                 } else continue;
             } 
-            if (right == capturingPlayer){ // 01x2
-                if (left == opponent && getPieceAt(index - dir * 2) == 0){
+            if (right == capturingPlayer) { // 01x2
+                if (left == opponent && getPieceAt(index - dir * 2) == 0) {
                     return true;
                 } else continue;
             } 
-            if (right == 0){ // 21x0
-                if (left == opponent && getPieceAt(index - dir * 2) == capturingPlayer){
+            if (right == 0) { // 21x0
+                if (left == opponent && getPieceAt(index - dir * 2) == capturingPlayer) {
                     return true;
                 } else continue;
             } 
-            if (left == 0){ // 0x12
-                if (right == opponent && getPieceAt(index + dir * 2) == capturingPlayer){
+            if (left == 0) { // 0x12
+                if (right == opponent && getPieceAt(index + dir * 2) == capturingPlayer) {
                     return true;
                 } else continue;
             } 
@@ -183,140 +193,156 @@ public class Board {
         return false;
     }
 
-    // private void checkPotentialWinner(){
+    // private void checkPotentialWinner() {
     //     if (winner != 0)
     //         return ;
-    //     for (int index : potentialWinner){
+    //     for (int index : potentialWinner) {
     //         checkWinnerAt(index, getCurrentOpponent());
     //     }
     // }
 
-    private void checkWinnerCapture(){
-        if (getCaptureCount(1) >= 10){
+    private void checkWinnerCapture() {
+        if (getCaptureCount(1) >= 10) {
             setWinner(1);
         }
-        if (getCaptureCount(2) >= 10){
+        if (getCaptureCount(2) >= 10) {
             setWinner(2);
         }
     }
 
-    private void checkWinnerAt(int index, int player){
+    private void checkWinnerEndGameCapture() {
+        for (int index : endGameCapture) {
+            if (getPieceAt(index) != 0) {
+                checkWinnerAt(index, getCurrentOpponent());
+            }
+        }
+        if (getWinner() == 0) { // no winner, which means a piece has been captured
+            endGameCapture.clear();
+            System.out.println("clearing endGameCapture");
+        }
+    }
+
+    private void checkWinnerAt(int index, int player) {
+        EGChistory[moveCount] = false;
         if (getPieceAt(index) != player)
             return;
         int right, left, count;
-        for (int dir : DIRECTION4){
+        for (int dir : DIRECTION4) {
             count = 1;
             right = index + dir;
-            while (getPieceAt(right) == player){
+            while (getPieceAt(right) == player) {
                 count++;
                 right += dir;
             }
             left = index - dir;
-            while (getPieceAt(left) == player){
+            while (getPieceAt(left) == player) {
                 count++;
                 left -= dir;
             }
-            if (count >= 5){
+            if (count >= 5) {
                 left += dir;
                 int opponent = getOpponent(currentPlayer); // check only for currentPlayer and not player
-                while (count > 0){
+                int maxChain = 0;
+                while (count > 0) {
                     count--;
-                    if (canBeCapturedAt(left, opponent) && count < 5){
-                        // System.out.println("Can't win because can be capture at: " + left);
-                        endGameCapture.add(index);
-                        return;
+                    maxChain++;
+                    if (canBeCapturedAt(left, opponent)) {
+                        EGChistory[moveCount] = true;
+                        endGameCapture.add(left);
+                        maxChain = 0;
                     }
                     left += dir;
                 }
-                setWinner(player);
-                return;
+                if (maxChain >= 5) {
+                    setWinner(player);
+                }
             }
         }
     }
 
-    private void capture(int index){
+    private void capture(int index) {
         addHistory(-index);
         removePieceAt(index);
     }
 
-    public boolean isInBound(int index){
+    public boolean isInBound(int index) {
         return index >= 0 && index < BOARD_MAX_INDEX;
     }
 
-    public boolean isPlayerAt(int index){
+    public boolean isPlayerAt(int index) {
         int piece = getPieceAt(index);
         return piece == 1 || piece == 2;
     }
 
-    public boolean isSpaceAt(int index){
+    public boolean isSpaceAt(int index) {
         int piece = getPieceAt(index);
         return piece == 0;
     }
 
-    public boolean isWallAt(int index){
+    public boolean isWallAt(int index) {
         int piece = getPieceAt(index);
         return piece == -1;
     }
 
-    public int isFirst(int player){
+    public int isFirst(int player) {
         return player == GameSettings.FIRST_PLAYER ? 1 : 0;
     }
 
     /* setter */
 
-    private void setPieceAt(int index, int value){
+    private void setPieceAt(int index, int value) {
         board[index] = value;
     }
 
-    private void setWinner(int player){
+    private void setWinner(int player) {
         winner = player;
     }
 
     /* getter */
 
     /* /!\ Use this carefully only to GET pieces on the board faster, never use for SET */
-    public int[] getBoard(){
+    public int[] getBoard() {
         return board;
     }
 
-    public int getCaptureCount(int player){
+    public int getCaptureCount(int player) {
         return ((moveCount + isFirst(getOpponent(player))) / 2) - pieceCount[getOpponent(player) - 1];
     }
 
-    public int getPieceCount(int player){
+    public int getPieceCount(int player) {
         return pieceCount[player - 1];
     }
 
-    public int getPieceAt(int index){
+    public int getPieceAt(int index) {
         return board[index];
     }
 
-    public int getPieceAt(int x, int y){
+    public int getPieceAt(int x, int y) {
         return getPieceAt(x + y * BOARD_SIZE);
     }
 
-    public int getMoveCount(){
+    public int getMoveCount() {
         return moveCount;
     }
 
-    public int getCurrentPlayer(){
+    public int getCurrentPlayer() {
         return currentPlayer;
     }
 
-    public int getCurrentOpponent(){
+    public int getCurrentOpponent() {
         return (currentPlayer == 1) ? 2 : 1;
     }
 
-    public int getOpponent(int player){
+    public int getOpponent(int player) {
         return (player == 1) ? 2 : 1;
     }
 
-    public int getWinner(){
+    public int getWinner() {
         return winner;
     }
 
     // return 0 if 0, 1 if 1, -1 if 2
-    public static int getPlayerSign(int player){
+    public static int getPlayerSign(int player) {
         if (player == 2)
             return -1;
         return player;
@@ -326,7 +352,7 @@ public class Board {
     // not thread safe
     // return an array of the last board action (rm/add) in the last executed move, 
     // /!\ first element is the number of moves
-    public int[] getLastMoves(){
+    public int[] getLastMoves() {
         int count = 1;
         while (history[historyIndex - count] < 0) {
             moves[count] = history[historyIndex - count];
@@ -338,29 +364,29 @@ public class Board {
     }
     /* History */
 
-    private void addHistory(int move){
+    private void addHistory(int move) {
         history[historyIndex] = move;
         historyIndex++;
     }
 
-    private int popHistory(){
+    private int popHistory() {
         // if (historyIndex == 0)
         //     return 0;
         historyIndex--;
         return history[historyIndex];
     }
 
-    private int pipHistory(){
+    private int pipHistory() {
         historyIndex++;
         return history[historyIndex - 1];
     }
     
     // cut the history at current location
-    // private void pruneHistory(){
+    // private void pruneHistory() {
     //     history[historyIndex + 1] = 0;
     // }
 
-    private int peekHistory(){
+    private int peekHistory() {
         return history[historyIndex - 1];
     }
 }

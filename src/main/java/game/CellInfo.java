@@ -6,7 +6,7 @@ public class CellInfo{
     public Coords pos;
     private float[] playerScore = new float[]{0, 0};
 
-    public CellInfo(){}
+    public CellInfo() {}
 
     public void setScore(float score, int player) {
         playerScore[player - 1] = score;
@@ -20,7 +20,7 @@ public class CellInfo{
         return playerScore[player - 1];
     }
 
-    public float getScore(){
+    public float getScore() {
         return playerScore[0] + playerScore[1];
     }
 
@@ -32,7 +32,7 @@ public class CellInfo{
     public static final Comparator<CellInfo> SCORE_COMPARATOR =
         (a, b) -> Float.compare(b.getScore(), a.getScore());
 
-    public void resetScore(){
+    public void resetScore() {
         this.playerScore[0] = 0;
         this.playerScore[1] = 0;
     }
