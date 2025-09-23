@@ -1,8 +1,11 @@
 package main.java.ui;
+import java.util.List;
+
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import main.java.app.GameSettings;
+import main.java.game.BoardAnalyser.PosScore;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
 import main.java.game.GomokuAI;
@@ -209,13 +212,12 @@ public class BoardRenderer {
     }
 
     private void drawSortedPosition() {
-        int[] sortedIndices = game.boardAnalyser.getSortedIndices();
-
+        List<PosScore> sortedPos = game.boardAnalyser.getSortedPositions();
         // final int w = 8, h = 8; // size of a letter
         int i = 1;
-        for (int index : sortedIndices) {
+        for (PosScore posScore : sortedPos) {
             // float radius = TILE_SIZE * 0.8f / 2f;
-            Coords pos = Coords.getCoordsById(index, GameSettings.BOARD_SIZE).add(-1);
+            Coords pos = Coords.getCoordsById(posScore.index, GameSettings.BOARD_SIZE).add(-1);
             // int px = pos.x * TILE_SIZE;
             // int py = pos.y * TILE_SIZE;
             // gc.setFill(Color.rgb(0, 0, 0, 0.3f));

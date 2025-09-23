@@ -19,7 +19,8 @@ import main.java.app.GameSettings;
 public class BoardAnalyser {
     private Board board;
     // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
-    private static final int CELL_INFO_SIZE = 8 + 1;
+    private static final int CELL_INFO_SIZE = 8 + 8 + 1;
+    private static final int CELL_INFO_SCORE_INDEX = 8 + 8;
     private static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX * CELL_INFO_SIZE;
     private static final int MAX_HISTORY_LEN = 500;
     private int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
@@ -36,7 +37,7 @@ public class BoardAnalyser {
     }
 
     public int getScoreAtPos(int index) {
-        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + 8];
+        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_SCORE_INDEX];
     }
 
     public void getPlayerScore(int[] playerScore) {
@@ -57,19 +58,22 @@ public class BoardAnalyser {
         int[] grid = getCurrentScoreGrid();
         int score = 0;
         for (int i = 0; i < 4; i++) {
-            int left = Math.abs(grid[index * CELL_INFO_SIZE + i]);
-            int right = Math.abs(grid[index * CELL_INFO_SIZE + (7 - i)]);
+            int left = grid[index * CELL_INFO_SIZE + i];
+            int right = grid[index * CELL_INFO_SIZE + (7 - i)];
             if (left != 0 && Integer.signum(left) == Integer.signum(right)) {
-                score += getScoreFromDoublePieceNumber(Math.abs(left), Math.abs(right));
+                 // if capture or enough space add score
+                if (Math.abs(left) == 9 || Math.abs(right) == 9 || isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i])) {
+                    score += getScoreFromDoublePieceNumber(Math.abs(left), Math.abs(right));
+                }
             }
             else{
-                score += getScoreFromPieceNumber(Math.abs(left));
-                score += getScoreFromPieceNumber(Math.abs(right));
+                if (Math.abs(left) == 9 || isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i]))
+                    score += getScoreFromPieceNumber(Math.abs(left));
+                if (Math.abs(right) == 9 || isEnoughSpace(index, (Integer.signum(right) == 1 ? 1 : 2), Board.DIRECTION4[i]))
+                    score += getScoreFromPieceNumber(Math.abs(right));
             }
         }
-        if (score < 0)
-            System.out.println("??????????????????");
-        setScoreAtPosAtDir(index, 8, score);
+        setScoreAtPosAtDir(index, CELL_INFO_SCORE_INDEX, score);
     }
 
     private int getScoreFromPieceNumber(int pieceNumber) {
@@ -96,6 +100,26 @@ public class BoardAnalyser {
             case 8: return 1000;
             default: return 150; // capture
         }
+    }
+
+    private boolean isEnoughSpace(int index, int player, int dir){
+        // System.out.println("isEnoughSpace for " + player + " at index: " + index + " in dir " + dir);
+        int count = 1;
+        int left = index + dir;
+        int curr = pieceBoard[left];
+        while ((curr == 0 || curr == player) && count < 5){
+            left += dir;
+            curr = pieceBoard[left];
+            count++;
+        }
+        int right = index - dir;
+        curr = pieceBoard[right];
+        while ((curr == 0 || curr == player) && count < 5){
+            right -= dir;
+            curr = pieceBoard[right];
+            count++;
+        }
+        return count == 5;
     }
 
     public int getScoreAtPosAtDir(int index, int dirIndex) {
@@ -127,31 +151,22 @@ public class BoardAnalyser {
         }
     }
 
-    List<Integer> filteredCell = new ArrayList<>();
-    public int[] getSortedIndices() {
-        updateMoveCount();
-        filteredCell.clear();
-        for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
-            if (getScoreAtPos(i) >= 1) filteredCell.add(i);
-        }
-        // filteredCell.sort((a, b) -> Integer.compare(scoregrid[b], scoregrid[a]));
-        filteredCell.sort((a, b) -> Integer.compare(getScoreAtPos(b), getScoreAtPos(a)));
-        return filteredCell.stream().mapToInt(Integer::intValue).toArray();
-    }
-
     public List<PosScore> getSortedPositions() {
         updateMoveCount();
-        filteredCell.clear();
+        List<PosScore>filteredCell = new ArrayList<>();
+    
+        // Build list of PosScore with score computed once
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
-            if (getScoreAtPos(i) >= 1) filteredCell.add(i);
+            int score = getScoreAtPos(i);
+            if (score >= 1) {
+                filteredCell.add(new PosScore(i, score));
+            }
         }
     
-        filteredCell.sort((a, b) -> Integer.compare(getScoreAtPos(b), getScoreAtPos(a)));
+        // Sort by precomputed score
+        filteredCell.sort((a, b) -> Integer.compare(b.score, a.score));
     
-        // map to PosScore list
-        return filteredCell.stream()
-            .map(i -> new PosScore(i, getScoreAtPos(i)))
-            .toList();  // Java 16+, else use .collect(Collectors.toList())
+        return filteredCell;
     }
 
     // go through the cell impacted by the last move and calculate a rough score
@@ -166,7 +181,6 @@ public class BoardAnalyser {
     // .2.1...
     // .......
     // private SequenceData data = new SequenceData();
-    private int[] dirCount = new int[8];
     public void scanLastMove() {
         updateMoveCount();
         if (moveCount <= 0)
@@ -191,6 +205,7 @@ public class BoardAnalyser {
     // scan the position at the current move, the move is the position where a piece a modified
     // positive if placed
     // negative if removed
+    private int[] dirCount = new int[8];
     private void scanMove(int move) {
         // System.out.println("\nScan move: " + move);
         int index = Math.abs(move);

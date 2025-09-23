@@ -35,10 +35,10 @@ public class Board {
         +y - x, +y, +y + x
     };
     public static final int[] DIRECTION4 = {
-        -y,     // N
+        -y - x, // NW 
+            -y, // N
         -y + x, // NE
-        + x,    // E
-        +y + x  // SE
+           - x, // W
     };
 
     public Board() {
@@ -81,13 +81,13 @@ public class Board {
             return ;
         }
         setWinner(0);
-        EGChistory[moveCount] = false;
+        EGChistory[moveCount] = false; // remove egc flag of old move
         moveCount--;
         while (peekHistory() < 0) { // add back captures
             addPieceAt(popHistory() * -1, currentPlayer);
         }
         removePieceAt(popHistory()); // remove the placed piece
-        if (EGChistory[moveCount]) { // some weird stuff here but it works
+        if (EGChistory[moveCount]) { // if the flag was set for this move, recalculate the egc for this. better solution would be to store the RGC index per move
             // System.out.println("[Undo]EGChistory at moveCount: " + moveCount + " is set, checking for winner at: " + peekLastPlacedMoveHistory() + " for player: " + getCurrentPlayer());
             checkWinnerAt(peekLastPlacedMoveHistory(), getCurrentPlayer());
         }
