@@ -106,10 +106,6 @@ public class BoardGame {
         if (gameState == GameState.NOT_STARTED){
             startGame();
         }
-        if (gameState == GameState.GAME_OVER){
-            System.out.println("Can't place piece: Game Over");
-            return;
-        }
         System.out.println("Trying to place a piece at pos " + pos);
         placePieceAttempt(realPos);
 
@@ -124,6 +120,7 @@ public class BoardGame {
 
     private void placePieceAttempt(int index) {
         if (gameState == GameState.GAME_OVER){
+            System.out.println("Can't place piece: Game Over");
             return;
         }
         if (!board.isInBound(index)){

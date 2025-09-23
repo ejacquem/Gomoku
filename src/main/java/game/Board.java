@@ -23,7 +23,7 @@ public class Board {
     private int moveCount = 0;
     private int winner = 0;
     private int[] pieceCount = {0,0};
-    private List<Integer> potentialWinner = new ArrayList<Integer>();
+    private List<Integer> endGameCapture = new ArrayList<Integer>();
 
     private static final int x = 1;
     private static final int y = BOARD_SIZE;
@@ -68,7 +68,7 @@ public class Board {
         checkCapturesAt(index);
         checkWinnerAt(index, currentPlayer);
         checkWinnerCapture();
-        checkPotentialWinner();
+        // checkPotentialWinner();
         switchPlayer();
     }
 
@@ -183,13 +183,13 @@ public class Board {
         return false;
     }
 
-    private void checkPotentialWinner(){
-        if (winner != 0)
-            return ;
-        for (int index : potentialWinner){
-            checkWinnerAt(index, getCurrentOpponent());
-        }
-    }
+    // private void checkPotentialWinner(){
+    //     if (winner != 0)
+    //         return ;
+    //     for (int index : potentialWinner){
+    //         checkWinnerAt(index, getCurrentOpponent());
+    //     }
+    // }
 
     private void checkWinnerCapture(){
         if (getCaptureCount(1) >= 10){
@@ -223,8 +223,7 @@ public class Board {
                     count--;
                     if (canBeCapturedAt(left, opponent) && count < 5){
                         // System.out.println("Can't win because can be capture at: " + left);
-                        potentialWinner.clear();
-                        potentialWinner.add(index);
+                        endGameCapture.add(index);
                         return;
                     }
                     left += dir;

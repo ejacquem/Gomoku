@@ -340,7 +340,7 @@ public class GameUI {
         });
 
         evaluateButton.setOnAction(e -> {
-            game.AI.getBestMove(1);
+            game.AI.getBestMove(game.AI.MAX_DEPTH);
             renderer.draw();
         });
 
