@@ -69,8 +69,10 @@ public class Board {
         addHistory(index);
         checkCapturesAt(index);
         checkWinnerEndGameCapture();
-        checkWinnerAt(index, currentPlayer);
-        checkWinnerCapture();
+        if (getWinner() == 0) { // only check winner if EGC failed
+            checkWinnerAt(index, currentPlayer);
+            checkWinnerCapture();
+        }
         switchPlayer();
     }
 
@@ -79,15 +81,15 @@ public class Board {
             return ;
         }
         setWinner(0);
+        EGChistory[moveCount] = false;
         moveCount--;
         while (peekHistory() < 0) { // add back captures
             addPieceAt(popHistory() * -1, currentPlayer);
         }
         removePieceAt(popHistory()); // remove the placed piece
         if (EGChistory[moveCount]) { // some weird stuff here but it works
-            // System.out.println("EGChistory[moveCount] is true, moveCount: " +  moveCount);
-            // System.out.println("peekHistory(): " +  peekHistory());
-            checkWinnerAt(peekHistory(), currentPlayer);
+            // System.out.println("[Undo]EGChistory at moveCount: " + moveCount + " is set, checking for winner at: " + peekLastPlacedMoveHistory() + " for player: " + getCurrentPlayer());
+            checkWinnerAt(peekLastPlacedMoveHistory(), getCurrentPlayer());
         }
         else {
             endGameCapture.clear();
@@ -218,7 +220,6 @@ public class Board {
         }
         if (getWinner() == 0) { // no winner, which means a piece has been captured
             endGameCapture.clear();
-            System.out.println("clearing endGameCapture");
         }
     }
 
@@ -388,5 +389,47 @@ public class Board {
 
     private int peekHistory() {
         return history[historyIndex - 1];
+    }
+
+    private int peekLastPlacedMoveHistory() {
+        int count = 1;
+        while (history[historyIndex - count] < 0) {
+            count++;
+        }
+        return history[historyIndex - count];
+    }
+
+    /* Print */
+
+    // print current state of the board
+    public void printBoard(){
+        System.out.println("Print Board Move " + moveCount + ": ");
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Coords pos = new Coords(col, row);
+                int index = pos.add(1).getId();
+                int piece = getPieceAt(index);
+                String s;
+                switch (piece) {
+                    case 0: s = "."; break;
+                    case 1: s = "1"; break;
+                    case 2: s = "2"; break;
+                    default: s = "?"; break;
+                }
+                System.out.print(s);
+            }
+            System.out.println();
+        }
+    }
+
+    /* This will mess up the board, only call when it crashes */
+    public void printAll(){
+        System.out.println("Print Board: ");
+        while (moveCount > 0){
+            EGChistory[moveCount] = false;
+            printBoard();
+            undo();
+        }
     }
 }
