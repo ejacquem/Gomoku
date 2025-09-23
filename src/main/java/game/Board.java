@@ -45,6 +45,28 @@ public class Board {
         reset();
     }
 
+    public Board deepCopy() {
+        Board copy = new Board();
+    
+        copy.board = this.board.clone();
+    
+        copy.history = this.history.clone();
+        copy.historyIndex = this.historyIndex;
+        copy.maxHistoryIndex = this.maxHistoryIndex;
+    
+        copy.currentPlayer = this.currentPlayer;
+        copy.moveCount = this.moveCount;
+        copy.winner = this.winner;
+    
+        copy.pieceCount = this.pieceCount.clone();
+    
+        copy.EGChistory = this.EGChistory.clone();
+    
+        copy.endGameCapture = new ArrayList<>(this.endGameCapture);
+    
+        return copy;
+    }
+
     /* Core Action */
 
     private void addPieceAt(int index, int player) {

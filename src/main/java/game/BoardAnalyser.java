@@ -17,7 +17,7 @@ import main.java.app.GameSettings;
  * special case for capture
  */
 public class BoardAnalyser {
-    private Board board;
+    public final Board board;
     // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
     private static final int CELL_INFO_SIZE = 8 + 8 + 1;
     private static final int CELL_INFO_SCORE_INDEX = 8 + 8;
@@ -30,6 +30,22 @@ public class BoardAnalyser {
     public BoardAnalyser(Board board) {
         this.board = board;
         this.pieceBoard = board.getBoard();
+    }
+
+    public BoardAnalyser deepCopy() {
+        Board boardCopy = this.board.deepCopy();
+    
+        BoardAnalyser copy = new BoardAnalyser(boardCopy);
+    
+        copy.scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
+        for (int i = 0; i < MAX_HISTORY_LEN; i++) {
+            copy.scoreGridHistory[i] = this.scoreGridHistory[i].clone();
+        }
+
+        copy.moveCount = this.moveCount;
+        copy.pieceBoard = boardCopy.getBoard();
+
+        return copy;
     }
 
     private int[] getCurrentScoreGrid() {

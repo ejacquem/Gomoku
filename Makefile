@@ -14,6 +14,7 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/game/Coords.java \
 		$(SRC)/game/Move.java \
 		$(SRC)/game/GomokuAI.java \
+		$(SRC)/game/GomokuBot.java \
 		$(SRC)/ui/BoardRenderer.java \
 		$(SRC)/ui/GameUI.java \
 		$(SRC)/ui/GameUISettings.java \

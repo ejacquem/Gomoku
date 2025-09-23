@@ -85,12 +85,19 @@ public class GomokuAI {
         int bestMove = 0;
 
         // int i = 0;
-        for (PosScore pos : sortedPos) {
+        GomokuBot bots[] = new GomokuBot[sortedPos.size()];
+        for (int i = 0; i < sortedPos.size(); i++) {
+            PosScore pos = sortedPos.get(i);
             // System.out.println("sortedIndices: " + pos.index);
             board.placePieceAt(pos.index);
             boardAnalyser.scanLastMove();
             // System.out.println("player: " + board.getCurrentPlayer());
-            int score = -search(depth, Integer.MIN_VALUE, Integer.MAX_VALUE); // = negamax(rootNode, depth, −∞, +∞);
+            // int score = -search(depth, Integer.MIN_VALUE, Integer.MAX_VALUE); // = negamax(rootNode, depth, −∞, +∞);
+            
+            bots[i] = new GomokuBot(boardAnalyser, MAX_DEPTH);
+            GomokuBot bot = bots[i];
+            int score = bot.call();
+
             evaluatedPos.add(new EvaluatedPosition(Coords.getCoordsById(pos.index), score));
             // System.out.println("searchReturnValue: " + searchReturnValue);
             // System.out.println("Move score: " + score);
@@ -102,7 +109,7 @@ public class GomokuAI {
             // GomokuUtils.printLoadingBar(++i / (double)sortedPos.size());
         }
 
-        printThinkingResult(bestEval, bestMove);
+        // printThinkingResult(bestEval, bestMove);
 
         return bestMove;
     }
@@ -125,136 +132,4 @@ public class GomokuAI {
         System.out.println("Best move: " + bestMove);
     }
 
-    // public void evaluate() {
-    //     // System.out.println("Evaluating");
-    //     player1Score.set(findAndSumMatch(patterns, 1, 2, game.getCurrentPlayer() == 1 ? 1 : 0));
-    //     player2Score.set(findAndSumMatch(patterns2, 2, 1, game.getCurrentPlayer() == 2 ? 1 : 0));
-
-    //     System.out.println("Eval: P1 " + player1Score.get() + " P2 " + player2Score.get());
-
-    //     double score1 = (double)player1Score.get();
-    //     double score2 = (double)player2Score.get();
-    //     percentage.set(score2 / (score1 + score2));
-    // }
-
-    private int[] playerPositionScore = new int[2];
-    public int evaluate(int depth) {
-        if (board.getWinner() != 0) {
-            int score = (50_000 - (MAX_DEPTH - depth) * 10);
-            if (board.getWinner() != board.getCurrentPlayer()) {
-                return -score;
-            }
-            return score;
-        }
-        int color = board.getCurrentPlayer() == 1 ? 1 : -1;
-        boardAnalyser.getPlayerScore(playerPositionScore);
-        int player1Score = playerPositionScore[0] + captureScore[board.getCaptureCount(1) / 2];
-        int player2Score = playerPositionScore[1] + captureScore[board.getCaptureCount(2) / 2];
-        int positionScore = player1Score - player2Score;
-        return color * positionScore;
-    }
-
-    // public double evaluatepercent(int depth) {
-    //     boardAnalyser.updateMoveCount();
-    //     if (board.getWinner() == 1)
-    //         return (int)(+1000 * depthFactor(depth, 0.5f));
-    //     if (board.getWinner() == 2)
-    //         return (int)(-1000 * depthFactor(depth, 0.5f));
-    //     boardAnalyser.getPlayerScore(playerPositionScore);
-    //     int player1Score = playerPositionScore[0] + captureScore[board.getCaptureCount(1) / 2];
-    //     int player2Score = playerPositionScore[1] + captureScore[board.getCaptureCount(2) / 2];
-
-    //     System.out.printf("Player1 | %-10s | %-15s | %-10s%n", "Score", "Position Score", "Capture Score");
-    //     System.out.printf("Player1 | %-10d | %-15d | %-10d%n",
-    //     player1Score, playerPositionScore[0], captureScore[board.getCaptureCount(1) / 2]);
-    //     System.out.printf("Player2 | %-10d | %-15d | %-10d%n",
-    //     player2Score, playerPositionScore[1], captureScore[board.getCaptureCount(2) / 2]);
-
-    //     double positionScore = (double)(player2Score + 1) / (double)(player2Score + player1Score + 1);
-    //     return positionScore;
-    // }
-
-    // move 0 : - 0%
-    // move MAX_ITERATION : - 50%
-    // private float depthFactor(int depth, float maxFactor) {
-    //     return 1f - (((MAX_DEPTH - depth) / (float)MAX_DEPTH) * maxFactor);
-    // }
-
-    public boolean timeLimitExceeded() {
-        if ((System.currentTimeMillis() - start) >= TIME_LIMIT) {
-            limitExcceeded = true;
-        }
-        return limitExcceeded;
-    }
-
-    /*
-    https://en.wikipedia.org/wiki/Negamax
-    function negamax(node, depth, α, β, color) is
-    if depth = 0 or node is a terminal node then
-        return color × the heuristic value of node
-
-    childNodes := generateMoves(node)
-    childNodes := orderMoves(childNodes)
-    value := −∞
-    foreach child in childNodes do
-        value := max(value, −negamax(child, depth − 1, −β, −α, −color))
-        α := max(α, value)
-        if α ≥ β then
-            break (* cut-off *)
-    return value
-
-
-    (* Initial call for Player A's root node *)
-    negamax(rootNode, depth, −∞, +∞, 1)
-
-     */
-    public int search(int depth, int alpha, int beta) {
-        iterationPerDepth[MAX_DEPTH - depth]++;
-        if (depth == 1 || timeLimitExceeded() || board.getWinner() != 0) {
-            // int eval = evaluate(depth);
-            // if (eval > 0) {
-            //     System.out.println("Search stop at depth: " + depth + " player: " + board.getCurrentPlayer());
-            // }
-            // return eval;
-            return evaluate(depth);
-        }
-
-        List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
-
-        int value = -INF;
-        for (PosScore pos : sortedPos) {
-            if (depth <= MAX_DEPTH - 2 && pos.score <= 1) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 3 && pos.score <= 2) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 4 && pos.score < 5) {
-                break;
-            }
-            // if (depth <= MAX_DEPTH - 6 && pos.score < 50) {
-            //     break;
-            // }
-            if (depth <= MAX_DEPTH - 5 && pos.score < 100) {
-                break;
-            }
-            board.placePieceAt(pos.index);
-            boardAnalyser.scanLastMove();
-            
-            value = Math.max(value, -search(depth - 1, -beta, -alpha));
-            alpha = Math.max(alpha, value);
-
-            board.undo();
-
-            if (alpha >= beta) {
-                prunningCount++;
-                prunningPerDepth[MAX_DEPTH - depth]++;
-                break;
-            }
-        }
-        if (value == -INF) {
-            return evaluate(depth);
-        }
-        return value;
-    }
 }
