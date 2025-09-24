@@ -40,6 +40,7 @@ class GomokuBot implements Callable<Integer> {
         // s = board.toString() + "@@@@@@@";
         // System.out.println("@@@@@@@\nThread: " + id + " doing its job\n" + s);
         // return captureScore[board.getCaptureCount(1) / 2];
+        start = System.currentTimeMillis();
         return -search(MAX_DEPTH, -INF, INF);
     }
 
@@ -98,18 +99,18 @@ class GomokuBot implements Callable<Integer> {
 
         int value = -INF;
         for (PosScore pos : sortedPos) {
-            // if (depth <= MAX_DEPTH - 2 && pos.score <= 1) {
-            //     break;
-            // }
-            // if (depth <= MAX_DEPTH - 3 && pos.score <= 2) {
-            //     break;
-            // }
-            // if (depth <= MAX_DEPTH - 4 && pos.score < 20) {
-            //     break;
-            // }
-            // if (depth <= MAX_DEPTH - 5 && pos.score < 100) {
-            //     break;
-            // }
+            if (depth <= MAX_DEPTH - 2 && pos.score <= 1) {
+                break;
+            }
+            if (depth <= MAX_DEPTH - 3 && pos.score <= 2) {
+                break;
+            }
+            if (depth <= MAX_DEPTH - 4 && pos.score < 20) {
+                break;
+            }
+            if (depth <= MAX_DEPTH - 5 && pos.score < 100) {
+                break;
+            }
             board.placePieceAt(pos.index);
             boardAnalyser.scanLastMove();
             
