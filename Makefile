@@ -19,6 +19,7 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/ui/GameUI.java \
 		$(SRC)/ui/GameUISettings.java \
 		$(SRC)/ui/UtilsRenderer.java \
+		$(SRC)/ui/MoveHistoryPanel.java \
 		$(SRC)/app/GameApp.java \
 		$(SRC)/app/GameSettings.java \
 		$(SRC)/utils/GomokuUtils.java \

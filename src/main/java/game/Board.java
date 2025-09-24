@@ -22,6 +22,7 @@ public class Board {
     private int maxHistoryIndex = 0;
     private int currentPlayer = GameSettings.FIRST_PLAYER; // 1 is white, 2 is black
     private int moveCount = 0;
+    private int maxMove = 0;
     private int winner = 0;
     private int[] pieceCount = {0,0};
     private boolean[] EGChistory = new boolean[BOARD_MAX_INDEX * 2]; // contains a flag per move if the move introduced an EGC
@@ -89,6 +90,7 @@ public class Board {
         moveCount++;
         addPieceAt(index, currentPlayer);
         addHistory(index);
+        maxHistoryIndex = historyIndex;
         checkCapturesAt(index);
         checkWinnerEndGameCapture();
         if (getWinner() == 0) { // only check winner if EGC failed
@@ -110,7 +112,6 @@ public class Board {
         }
         removePieceAt(popHistory()); // remove the placed piece
         if (EGChistory[moveCount]) { // if the flag was set for this move, recalculate the egc for this. better solution would be to store the RGC index per move
-            // System.out.println("[Undo]EGChistory at moveCount: " + moveCount + " is set, checking for winner at: " + peekLastPlacedMoveHistory() + " for player: " + getCurrentPlayer());
             checkWinnerAt(peekLastPlacedMoveHistory(), getCurrentPlayer());
         }
         else {
@@ -120,9 +121,10 @@ public class Board {
     }
 
     public void redo() {
-        if (moveCount == maxHistoryIndex) {
+        if (moveCount >= maxMove) {
             return;
         }
+        moveCount++;
         addPieceAt(pipHistory(), currentPlayer);
         while (peekHistory() < 0) {
             removePieceAt(Math.abs(pipHistory()));
@@ -526,8 +528,9 @@ public class Board {
 
     private void addHistory(int move) {
         history[historyIndex] = move;
+        history[historyIndex + 1] = 0; // cut history
+        maxMove = moveCount;
         historyIndex++;
-        maxHistoryIndex = Math.max(maxHistoryIndex, historyIndex);
     }
 
     private int popHistory() {

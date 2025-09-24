@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -31,6 +32,9 @@ import javafx.scene.Node;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -43,10 +47,11 @@ public class GameUI {
     private HBox player1Panel;
     private HBox player2Panel;
     private Label infoLabel, moveLabel, playerLabel, winnerLabel;
-    private Button restartButton, startButton, randomButton, evaluateButton, undoButton;
+    private Button restartButton, startButton, randomButton, evaluateButton, undoButton, redoButton;
     private Background background;
     private VBox titlePane;
     private StackPane evalBar;
+    private MoveHistoryPanel history;
 
     private Font customFont = Font.loadFont("file:src/main/resources/AttackOfMonster.ttf", 60); 
     private Font robotoFont = Font.loadFont("file:src/main/resources/Roboto.ttf", 20);
@@ -95,14 +100,26 @@ public class GameUI {
         randomButton = new Button("Random");
         evaluateButton = new Button("Evaluate");
         undoButton = new Button("Undo");
+        redoButton = new Button("Redo");
         restartButton.getStyleClass().addAll("button-base", "simple-button");
         startButton.getStyleClass().addAll("button-base", "simple-button");
         randomButton.getStyleClass().addAll("button-base", "simple-button");
         evaluateButton.getStyleClass().addAll("button-base", "simple-button");
         undoButton.getStyleClass().addAll("button-base", "undo-button");
+        redoButton.getStyleClass().addAll("button-base", "undo-button");
 
-        // Button button = new Button("Click Me");
-    
+        history = new MoveHistoryPanel();
+        ScrollPane historyPane = history.createMoveHistoryPanel();
+
+        // List<String> moves = List.of("J10", "K10", "I10", "H10 xI10,J10");
+
+        // // Update panel with click handler
+        // history.setMoveHistoryData(moves, moveIndex -> {
+        //     System.out.println("Clicked move index: " + moveIndex);
+        //     System.out.println("moves: " + moves.get(moveIndex));
+        //     // Here you can jump to that move in the game
+        // });
+
         data1 = new PlayerData(1, "Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1CapturedPiecesProperty());
         data2 = new PlayerData(2, "Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2CapturedPiecesProperty());
         
@@ -136,7 +153,7 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, overlayCanvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
-        rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, evaluateButton, undoButton, infoLabel, moveLabel, playerLabel, winnerLabel);
+        rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, evaluateButton, undoButton, redoButton, infoLabel, moveLabel, playerLabel, winnerLabel, historyPane);
         leftPanel = new VBox(0, player1Panel, canvasStack, player2Panel);
         mainPanel = new HBox(0, evalBar, leftPanel, rightPanel);
         root = new BorderPane(mainPanel);
@@ -350,6 +367,11 @@ public class GameUI {
             renderer.draw();
         });
 
+        redoButton.setOnAction(e -> {
+            game.redo();
+            renderer.draw();
+        });
+
         playerLabel.textProperty().bind(
             game.currentPlayerProperty().asString("Player %d's turn")
         );
@@ -434,7 +456,21 @@ public class GameUI {
     private void handleClick(MouseEvent e) {
         Coords pos = renderer.pixelPosToCoords(e.getX(), e.getY());
         game.handleInput(pos);
+        updateMoveHsitory();
         renderer.draw();
+    }
+
+    private void updateMoveHsitory(){
+
+        String gameString = game.board.exportGame();
+        String[] movesArr = gameString.split("\n");
+        List<String> moves = Arrays.asList(movesArr);
+        // Update panel with click handler
+        history.setMoveHistoryData(moves, moveIndex -> {
+            System.out.println("Clicked move index: " + moveIndex);
+            System.out.println("moves: " + moves.get(moveIndex));
+            // Here you can jump to that move in the game
+        });
     }
 
     private void handleMouseMove(MouseEvent e) {

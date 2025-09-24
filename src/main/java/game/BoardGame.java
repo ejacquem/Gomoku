@@ -67,6 +67,11 @@ public class BoardGame {
         tick();
     }
 
+    public void redo(){
+        board.redo();
+        tick();
+    }
+
     public void startGame() {    
         System.out.println("Game started");
         reset();
