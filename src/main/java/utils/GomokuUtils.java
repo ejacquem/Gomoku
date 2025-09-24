@@ -45,4 +45,20 @@ public class GomokuUtils {
         return col + row;
     }
 
+    public static int stringToIndex(String str){
+        int i = 0;
+        while (i < str.length() && Character.isLetter(str.charAt(i))) i++;
+    
+        String colStr = str.substring(0, i).toUpperCase();
+        String rowStr = str.substring(i);
+    
+        int col = 0;
+        for (char c : colStr.toCharArray()) {
+            col = col * 26 + (c - 'A');
+        }
+        int row = Integer.parseInt(rowStr) - 1;
+
+        return (col + 1) + (row + 1) * GameSettings.BOARD_SIZE;
+    }
+
 }

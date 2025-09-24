@@ -393,13 +393,18 @@ public class GameUI {
         renderer.draw();
     }
 
+    public void importGame(String boardSgtring){
+        game.startGame();
+        game.board.importGame(boardSgtring);
+        renderer.draw();
+    }
+
     public String exportBoard(){
         return game.board.exportPosition();
     }
 
     public String exportGame(){
-        game.board.exportGame();
-        return null;
+        return game.board.exportGame();
     }
 
     // private void setPlayerText() {

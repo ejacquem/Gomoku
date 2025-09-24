@@ -56,13 +56,13 @@ public class FileHelper {
     }
 
     // Prompt user to choose file, then read content
-    public String readFileAt() throws Exception {
+    public String readFileAt(String root, String sufix) throws Exception {
         FileChooser chooser = new FileChooser();
-        chooser.setTitle("Import Position");
-        chooser.setInitialDirectory(new File("saves/positions"));
-        // chooser.getExtensionFilters().add(
-        //         new FileChooser.ExtensionFilter("Gomoku Position Files", "*.pos")
-        // );
+        chooser.setTitle("Import");
+        chooser.setInitialDirectory(new File(root));
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Gomoku Files", "*." + sufix)
+        );
 
         File file = chooser.showOpenDialog(stage);
         if (file != null) {

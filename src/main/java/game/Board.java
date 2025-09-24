@@ -256,28 +256,48 @@ public class Board {
         return boardSizeString + " " + boardPosString + " " + playerTurnString + " " + blackCaptureString + " " + whiteCaptureString;
     }
 
-    public void exportGame(){
+    public String exportGame(){
         int _moveCount = 1;
         boolean first;
+        StringBuilder strBuilder = new StringBuilder();
         for (int i = 0; i < maxHistoryIndex;){
-            System.out.printf("%2d. %s", _moveCount, GomokuUtils.indexToString(history[i]));
+            strBuilder.append(String.format("%2d. %s", _moveCount, GomokuUtils.indexToString(history[i])));
             i++;
             if (history[i] < 0){
-                System.out.print(" x");
+                strBuilder.append(" x");
             }
             first = true;
             while(history[i] < 0){
                 if (!first){
-                    System.out.printf(",");
+                    strBuilder.append(",");
                 }
                 first = false;
-                System.out.printf("%s", GomokuUtils.indexToString(-history[i]));
+                strBuilder.append(String.format("%s", GomokuUtils.indexToString(-history[i])));
                 i++;
             }
             _moveCount++;
-            System.out.println();
+            strBuilder.append("\n");
+        }
+        return strBuilder.toString();
+    }
+    
+    /*
+        1. J10
+        2. K10
+        3. I10
+        4. H10 xI10,J10
+    */
+    public void importGame(String gameString){
+        reset();
+        String[] moves = gameString.trim().split("\n");
+
+        for (String move : moves){
+            String[] parts = move.trim().split("\\s+");
+            int moveIndex = GomokuUtils.stringToIndex(parts[1]);
+            placePieceAt(moveIndex);
         }
     }
+
     /* Game Logic */
 
     private void switchPlayer() {

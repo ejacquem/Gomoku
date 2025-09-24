@@ -12,11 +12,11 @@ public class GameUISettings {
 
     private final GameUI gameUI;
     private final BoardRenderer renderer;
-    private final Stage stage;
+    // private final Stage stage;
     private final FileHelper fileHelper;
 
     public GameUISettings(GameUI gameUI, Stage stage) {
-        this.stage = stage;
+        // this.stage = stage;
         this.gameUI = gameUI;
         this.renderer = this.gameUI.getRenderer();
         fileHelper = new FileHelper(stage);
@@ -28,10 +28,6 @@ public class GameUISettings {
         Menu visualMenu = new Menu("Visual");
         Menu settingsMenu = new Menu("Settings");
         Menu fileMenu = createFileMenu();
-
-        /* File Setting Item */
-
-        
 
         /* Board setting Toggle */
         CustomMenuItem chessItem = createSettingItem("Chess Board", () -> GameSettings.chessBoard, val -> GameSettings.chessBoard = val );
@@ -126,11 +122,12 @@ public class GameUISettings {
         MenuItem importItem = new MenuItem("Import Position");
         MenuItem exportItem = new MenuItem("Export Position");
         MenuItem exportAsItem = new MenuItem("Export Position As");
+        MenuItem importGameItem = new MenuItem("Import Game");
         MenuItem exportGameItem = new MenuItem("Export Game");
 
         importItem.setOnAction(e -> {
             try {
-                String boardString = fileHelper.readFileAt();
+                String boardString = fileHelper.readFileAt("saves/positions", "pos");
                 gameUI.importBoard(boardString);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -156,10 +153,28 @@ public class GameUISettings {
         });
 
         exportGameItem.setOnAction(e -> {
-            gameUI.exportGame();
+            try {
+                String boardString = gameUI.exportGame();
+                fileHelper.saveFile("saves/games/game_" + FileHelper.getTimeStampString() + ".game", boardString);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
-        fileMenu.getItems().addAll(importItem, exportItem, exportAsItem, new SeparatorMenuItem(), exportGameItem);
+        importGameItem.setOnAction(e -> {
+            try {
+                String boardString = fileHelper.readFileAt("saves/games", "game");
+                if (boardString == null) {
+                    return ;
+                }
+                gameUI.importGame(boardString);
+            } catch (Exception ex) {
+                System.out.println("Error while importing game");
+                ex.printStackTrace();
+            }
+        });
+
+        fileMenu.getItems().addAll(importItem, exportItem, exportAsItem, new SeparatorMenuItem(), importGameItem, exportGameItem);
         return fileMenu;
     }
 }
