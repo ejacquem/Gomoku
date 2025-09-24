@@ -3,7 +3,6 @@ package main.java.ui;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.input.MouseEvent;
@@ -26,6 +25,8 @@ public class MoveHistoryPanel {
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefHeight(200);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        scrollPane.vvalueProperty().bind(moveList.heightProperty());
 
         return scrollPane;
     }
@@ -63,10 +64,6 @@ public class MoveHistoryPanel {
             HBox row = createMoveHistoryRow(i + 1, moves.get(i), onClick);
             moveList.getChildren().add(row);
         }
-
-        // Scroll to bottom
-        scrollPane.layout(); // ensure layout is updated
-        scrollPane.setVvalue(1.0);
     }
 }
 
