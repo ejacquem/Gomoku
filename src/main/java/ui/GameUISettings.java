@@ -1,25 +1,25 @@
 package main.java.ui;
 
-import java.io.File;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 import javafx.scene.control.*;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import main.java.app.GameSettings;
+import main.java.utils.FileHelper;
 
 public class GameUISettings {
 
     private final GameUI gameUI;
     private final BoardRenderer renderer;
     private final Stage stage;
+    private final FileHelper fileHelper;
 
     public GameUISettings(GameUI gameUI, Stage stage) {
         this.stage = stage;
         this.gameUI = gameUI;
         this.renderer = this.gameUI.getRenderer();
-
+        fileHelper = new FileHelper(stage);
         createMenu();
     }
 
@@ -126,71 +126,40 @@ public class GameUISettings {
         MenuItem importItem = new MenuItem("Import Position");
         MenuItem exportItem = new MenuItem("Export Position");
         MenuItem exportAsItem = new MenuItem("Export Position As");
+        MenuItem exportGameItem = new MenuItem("Export Game");
 
         importItem.setOnAction(e -> {
-            FileChooser chooser = new FileChooser();
-            chooser.setTitle("Import Position");
-            chooser.setInitialDirectory(new File("saves/positions"));
-            // chooser.getExtensionFilters().add(
-            //     new FileChooser.ExtensionFilter("Gomoku Position Files", "*.pos")
-            // );
-
-            java.io.File file = chooser.showOpenDialog(stage);
-            if (file != null) {
-                try {
-                    gameUI.importBoard(file.getAbsolutePath());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            try {
+                String boardString = fileHelper.readFileAt();
+                gameUI.importBoard(boardString);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
 
         exportItem.setOnAction(e -> {
             try {
-                // ensure folder exists
-                java.nio.file.Path folder = java.nio.file.Paths.get("saves/positions");
-                java.nio.file.Files.createDirectories(folder);
-        
-                // timestamped filename
-                String timestamp = java.time.LocalDateTime.now()
-                        .format(java.time.format.DateTimeFormatter.ofPattern("ddMMyy_HHmmss"));
-                java.nio.file.Path file = folder.resolve("position_" + timestamp + ".pos");
-        
-                // get board string and write to file
-                String boardString = gameUI.exportBoard(); // your function
-                java.nio.file.Files.write(file, boardString.getBytes());
-        
-                System.out.println("Exported to: " + file.toAbsolutePath());
+                String boardString = gameUI.exportBoard();
+                fileHelper.saveFile("saves/positions/position_" + FileHelper.getTimeStampString() + ".pos", boardString);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
         exportAsItem.setOnAction(e -> {
-            FileChooser chooser = new FileChooser();
-            chooser.setTitle("Export Position");
-            chooser.setInitialDirectory(new File("saves/positions"));
-        
-            String timestamp = java.time.LocalDateTime.now()
-                    .format(java.time.format.DateTimeFormatter.ofPattern("ddMMyy_HHmmss"));
-            chooser.setInitialFileName("position_" + timestamp + ".pos");
-        
-            chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Gomoku Position Files", "*.pos")
-            );
-        
-            java.io.File file = chooser.showSaveDialog(stage);
-            if (file != null) {
-                try {
-                    String boardString = gameUI.exportBoard(); // your function that returns the board
-                    java.nio.file.Files.write(file.toPath(), boardString.getBytes());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            try {
+                String boardString = gameUI.exportBoard();
+                fileHelper.saveFileAt("saves/positions", "position_", "pos", boardString);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
 
-        fileMenu.getItems().addAll(importItem, exportItem, exportAsItem);
+        exportGameItem.setOnAction(e -> {
+            gameUI.exportGame();
+        });
+
+        fileMenu.getItems().addAll(importItem, exportItem, exportAsItem, new SeparatorMenuItem(), exportGameItem);
         return fileMenu;
     }
 }

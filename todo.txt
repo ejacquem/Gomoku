@@ -1,11 +1,14 @@
+Board Analyser
+    link it to game
+
 AI
-    auto prune low score move after n depth
     optimize sorting
+    GomokuAi in thread
 
 Game
     redo button
     doube free three
 
-import position
 capture animation?
+sound?
 

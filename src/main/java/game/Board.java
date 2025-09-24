@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.java.app.GameSettings;
+import main.java.utils.GomokuUtils;
 
 public class Board {
     public static final int BOARD_SIZE = GameSettings.BOARD_SIZE;
@@ -86,7 +87,6 @@ public class Board {
 
     public void placePieceAt(int index) {
         moveCount++;
-        maxHistoryIndex = moveCount;
         addPieceAt(index, currentPlayer);
         addHistory(index);
         checkCapturesAt(index);
@@ -256,6 +256,28 @@ public class Board {
         return boardSizeString + " " + boardPosString + " " + playerTurnString + " " + blackCaptureString + " " + whiteCaptureString;
     }
 
+    public void exportGame(){
+        int _moveCount = 1;
+        boolean first;
+        for (int i = 0; i < maxHistoryIndex;){
+            System.out.printf("%2d. %s", _moveCount, GomokuUtils.indexToString(history[i]));
+            i++;
+            if (history[i] < 0){
+                System.out.print(" x");
+            }
+            first = true;
+            while(history[i] < 0){
+                if (!first){
+                    System.out.printf(",");
+                }
+                first = false;
+                System.out.printf("%s", GomokuUtils.indexToString(-history[i]));
+                i++;
+            }
+            _moveCount++;
+            System.out.println();
+        }
+    }
     /* Game Logic */
 
     private void switchPlayer() {
@@ -485,6 +507,7 @@ public class Board {
     private void addHistory(int move) {
         history[historyIndex] = move;
         historyIndex++;
+        maxHistoryIndex = Math.max(maxHistoryIndex, historyIndex);
     }
 
     private int popHistory() {

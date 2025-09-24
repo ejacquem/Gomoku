@@ -13,7 +13,7 @@ class GomokuBot implements Callable<Integer> {
     public final long TIME_LIMIT = 30000;
     public boolean limitExcceeded = false;
     private long start = 0;
-    private final int id;
+    public final int id;
 
     public final int INF = 1_000_000;
     public final int MAX_DEPTH;

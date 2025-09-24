@@ -1,5 +1,7 @@
 package main.java.utils;
 
+import main.java.app.GameSettings;
+
 public class GomokuUtils {
     
     public static void debugCaller() {
@@ -33,6 +35,14 @@ public class GomokuUtils {
         if (percent >= 1.0) {
             System.out.println(); // move to next line when done
         }
+    }
+
+    public static String indexToString(int index){
+        int x = (index % GameSettings.BOARD_SIZE) - 1;
+        int y = (index / GameSettings.BOARD_SIZE) - 1;
+        String col = Integer.toString(x + 10, 36).toUpperCase();
+        String row = Integer.toString(GameSettings.GAME_SIZE + 1 - (y + 1));
+        return col + row;
     }
 
 }
