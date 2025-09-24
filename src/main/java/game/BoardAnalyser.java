@@ -199,10 +199,15 @@ public class BoardAnalyser {
     // private SequenceData data = new SequenceData();
     public void scanLastMove() {
         updateMoveCount();
-        if (moveCount <= 0)
+        if (moveCount <= 0){
             return;
-        copyLastHistory();
+        }
         int[] lastMove = board.getLastMoves();
+        if (lastMove == null){
+            scanBoard();
+            return;
+        }
+        copyLastHistory();
         for (int i = 0; i < lastMove[0]; i++) {
             scanMove(lastMove[i + 1]); // +1 to skip first elem which is the length
         }
@@ -214,7 +219,10 @@ public class BoardAnalyser {
 
     public void scanBoard() {
         for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
-            scanMove(board.getPieceAt(i) == 0 ? -i : i);
+            int piece = board.getPieceAt(i);
+            if (piece != -1){
+                scanMove(piece == 0 ? -i : i);
+            }
         }
     }
 
@@ -312,8 +320,6 @@ public class BoardAnalyser {
     }
 
     private void copyLastHistory() {
-        if (moveCount == 0)
-            return;
         System.arraycopy(scoreGridHistory[moveCount - 1], 0,
                  scoreGridHistory[moveCount], 0,
                  SCOREGRID_LENGTH);

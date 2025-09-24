@@ -27,7 +27,7 @@ public class GameApp extends Application {
         BoardGame game = new BoardGame(AI, board);
 
         GameUI gameUI = new GameUI(game, AI);
-        new GameUISettings(gameUI);
+        new GameUISettings(gameUI, stage);
 
         Scene scene = new Scene(gameUI.getRoot());
 

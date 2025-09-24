@@ -1,23 +1,37 @@
 package main.java.ui;
 
+import java.io.File;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import main.java.app.GameSettings;
 
 public class GameUISettings {
 
     private final GameUI gameUI;
     private final BoardRenderer renderer;
+    private final Stage stage;
 
-    public GameUISettings(GameUI gameUI) {
+    public GameUISettings(GameUI gameUI, Stage stage) {
+        this.stage = stage;
         this.gameUI = gameUI;
         this.renderer = this.gameUI.getRenderer();
 
+        createMenu();
+    }
+
+    private void createMenu(){
         Menu debugSettingsMenu = new Menu("Debug");
         Menu visualMenu = new Menu("Visual");
         Menu settingsMenu = new Menu("Settings");
+        Menu fileMenu = createFileMenu();
+
+        /* File Setting Item */
+
+        
 
         /* Board setting Toggle */
         CustomMenuItem chessItem = createSettingItem("Chess Board", () -> GameSettings.chessBoard, val -> GameSettings.chessBoard = val );
@@ -85,6 +99,7 @@ public class GameUISettings {
         );
 
         MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(settingsMenu);
         menuBar.getMenus().add(visualMenu);
         menuBar.getMenus().add(debugSettingsMenu);
@@ -103,5 +118,79 @@ public class GameUISettings {
         CustomMenuItem item = new CustomMenuItem(box);
         item.setHideOnClick(false); // keeps menu open after clicking
         return item;
+    }
+
+    public Menu createFileMenu() {
+        Menu fileMenu = new Menu("File");
+
+        MenuItem importItem = new MenuItem("Import Position");
+        MenuItem exportItem = new MenuItem("Export Position");
+        MenuItem exportAsItem = new MenuItem("Export Position As");
+
+        importItem.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Import Position");
+            chooser.setInitialDirectory(new File("saves/positions"));
+            // chooser.getExtensionFilters().add(
+            //     new FileChooser.ExtensionFilter("Gomoku Position Files", "*.pos")
+            // );
+
+            java.io.File file = chooser.showOpenDialog(stage);
+            if (file != null) {
+                try {
+                    gameUI.importBoard(file.getAbsolutePath());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        exportItem.setOnAction(e -> {
+            try {
+                // ensure folder exists
+                java.nio.file.Path folder = java.nio.file.Paths.get("saves/positions");
+                java.nio.file.Files.createDirectories(folder);
+        
+                // timestamped filename
+                String timestamp = java.time.LocalDateTime.now()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("ddMMyy_HHmmss"));
+                java.nio.file.Path file = folder.resolve("position_" + timestamp + ".pos");
+        
+                // get board string and write to file
+                String boardString = gameUI.exportBoard(); // your function
+                java.nio.file.Files.write(file, boardString.getBytes());
+        
+                System.out.println("Exported to: " + file.toAbsolutePath());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
+        exportAsItem.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            chooser.setTitle("Export Position");
+            chooser.setInitialDirectory(new File("saves/positions"));
+        
+            String timestamp = java.time.LocalDateTime.now()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("ddMMyy_HHmmss"));
+            chooser.setInitialFileName("position_" + timestamp + ".pos");
+        
+            chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Gomoku Position Files", "*.pos")
+            );
+        
+            java.io.File file = chooser.showSaveDialog(stage);
+            if (file != null) {
+                try {
+                    String boardString = gameUI.exportBoard(); // your function that returns the board
+                    java.nio.file.Files.write(file.toPath(), boardString.getBytes());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        fileMenu.getItems().addAll(importItem, exportItem, exportAsItem);
+        return fileMenu;
     }
 }

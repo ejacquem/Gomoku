@@ -30,6 +30,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.Node;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -383,6 +387,18 @@ public class GameUI {
             node.setVisible(n > 0);
             n--;
         }
+    }
+
+    public void importBoard(String filePath) throws Exception{
+        String boardSgtring = Files.readString(Path.of(filePath));
+        game.startGame();
+        game.board.importPosition(boardSgtring);
+        game.tick();
+        renderer.draw();
+    }
+
+    public String exportBoard(){
+        return game.board.exportPosition();
     }
 
     // private void setPlayerText() {

@@ -27,18 +27,18 @@ public class Board {
     // private 
     public List<Integer> endGameCapture = new ArrayList<Integer>();
 
-    private static final int x = 1;
-    private static final int y = BOARD_SIZE;
+    private static final int _x = 1;
+    private static final int _y = BOARD_SIZE;
     public static final int[] DIRECTION8 = {
-        -y - x, -y, -y + x,
-           - x,        + x,
-        +y - x, +y, +y + x
+        -_y - _x, -_y, -_y + _x,
+           - _x,        + _x,
+        +_y - _x, +_y, +_y + _x
     };
     public static final int[] DIRECTION4 = {
-        -y - x, // NW 
-            -y, // N
-        -y + x, // NE
-           - x, // W
+        -_y - _x, // NW 
+            -_y, // N
+        -_y + _x, // NE
+           - _x, // W
     };
 
     public Board() {
@@ -99,7 +99,7 @@ public class Board {
     }
 
     public void undo() {
-        if (moveCount == 0) {
+        if (moveCount == 0 || historyIndex == 0) {
             return ;
         }
         setWinner(0);
@@ -161,6 +161,99 @@ public class Board {
                 analyser.scanLastMove();
             }
         }
+    }
+
+    // import position of this format 
+    // 19 /////////8wbb8///////// w 0 0
+    public void importPosition(String boardString){
+        reset();
+        System.out.println("Importing board: " + boardString);
+        String[] parts = boardString.trim().split("\\s+");
+
+        String boardSizeString = parts[0];
+        String boardPosString = parts[1];
+        String playerTurnString = parts[2];
+        String blackCaptureString = parts[3];
+        String whiteCaptureString = parts[4];
+
+        // System.out.println("boardSizeString: " + boardSizeString);
+        // System.out.println("boardPosString: " + boardPosString);
+        // System.out.println("playerTurnString: " + playerTurnString);
+        // System.out.println("blackCaptureString: " + blackCaptureString);
+        // System.out.println("whiteCaptureString: " + whiteCaptureString);
+
+        int boardSize = Integer.parseInt(boardSizeString);
+        String[] position = boardPosString.split("/");
+        int pieceCount = 0;
+        for (int y = 0; y < position.length; y++){
+            // System.out.println("row " + y + ": " + position[y]);
+            if (position[y].isEmpty()) { // skip empty row
+                continue;
+            }
+            String[] row = position[y].split("(?<=\\d)(?=\\D)|(?<=\\D)(?=\\d)|(?<=\\D)(?=\\D)");
+            int x = 0;
+            for (int i = 0; i < row.length; i++){
+                char c = row[i].charAt(0);
+                // System.out.printf("row[%d]: %s\n",i , row[i]);
+                if (c == 'w' || c == 'b') {
+                    int player = c == 'w' ? 1 : 2;
+                    // System.out.printf("add piece at x:%d, y:%d, index:%d\n",x, y, (x + 1) + ((y + 1) * boardSize));
+                    addPieceAt((x + 1) + ((y + 1) * (boardSize + GameSettings.BOARD_WALL_WIDTH * 2)), player);
+                    x++;
+                    pieceCount++;
+                }
+                else {
+                    x += Integer.parseInt(row[i]);
+                }
+            }
+        }
+
+        currentPlayer = playerTurnString.charAt(0) == 'w' ? 1 : 2;
+        moveCount = pieceCount + Integer.parseInt(blackCaptureString) + Integer.parseInt(whiteCaptureString);
+
+        // System.out.println("boardSize: " + boardSize);
+        // System.out.println("player turn: " + currentPlayer);
+        // System.out.println("moveCount: " + moveCount);
+        // System.out.println("blackCaptureString: " + blackCaptureString);
+        // System.out.println("whiteCaptureString: " + whiteCaptureString);
+    }
+
+    public String exportPosition(){
+
+        String boardSizeString = "19";
+        String boardPosString;
+        String playerTurnString = currentPlayer == 1 ? "w" : "b";
+        String blackCaptureString = Integer.toString(getCaptureCount(2));
+        String whiteCaptureString = Integer.toString(getCaptureCount(1));
+
+        StringBuilder strBuilder = new StringBuilder();
+        for (int i = 0; i < BOARD_MAX_INDEX;){
+            while (i < BOARD_MAX_INDEX && getPieceAt(i) == -1) { // skip wall
+                i++;
+            }
+            if (i >= BOARD_MAX_INDEX) {
+                break;
+            }
+            int spaceCount = 0;
+            while (getPieceAt(i) == 0) { // count space
+                spaceCount++;
+                i++;
+            }
+            if (getPieceAt(i) == 1 || getPieceAt(i) == 2) {
+                if (spaceCount > 0){
+                    strBuilder.append(Integer.toString(spaceCount));
+                }
+                strBuilder.append(getPieceAt(i) == 1 ? "w" : "b");
+                i++;
+            }
+            if (getPieceAt(i) == -1) {
+                strBuilder.append("/");
+            }
+        }
+        strBuilder.deleteCharAt(strBuilder.length() - 1);
+        boardPosString = strBuilder.toString();
+
+        return boardSizeString + " " + boardPosString + " " + playerTurnString + " " + blackCaptureString + " " + whiteCaptureString;
     }
 
     /* Game Logic */
@@ -377,6 +470,8 @@ public class Board {
     // /!\ first element is the number of moves
     public int[] getLastMoves() {
         int count = 1;
+        if (historyIndex == 0)
+            return null;
         while (history[historyIndex - count] < 0) {
             moves[count] = history[historyIndex - count];
             count++;
