@@ -24,8 +24,13 @@ public class GomokuAI {
     public LongProperty player2ScoreProperty() { return player2Score; }
     public DoubleProperty percentageProperty() { return percentage; }
 
+    public int[] iterationPerDepth;
+    public int[] prunningPerDepth;
+    public int prunningCount = 0;
+    private List<GomokuBot> bots = new ArrayList<>();
+
     private long start = 0;
-    public final int MAX_DEPTH = 10;
+    public final int MAX_DEPTH = 12;
     private AIState state = AIState.READY;
     private int bestEval;
 
@@ -90,6 +95,9 @@ public class GomokuAI {
             reset();
             // System.out.println("Ai calculate best move for player: " + (board.getCurrentPlayer() == 1 ? " white" : " black"));
             start = System.currentTimeMillis();
+
+            iterationPerDepth = new int[MAX_DEPTH];
+            prunningPerDepth = new int[MAX_DEPTH];
     
             computeBestEval();
     
@@ -105,15 +113,15 @@ public class GomokuAI {
 
         ExecutorService executor = Executors.newFixedThreadPool(sortedPos.size());
         List<Future<Integer>> result = new ArrayList<>(sortedPos.size());
+        bots.clear();
         for (int i = 0; i < sortedPos.size(); i++) {
             PosScore pos = sortedPos.get(i);
             board.placePieceAt(pos.index);
             // boardAnalyser.scanLastMove();
             // System.out.println("----------- Ai launch thread " + i + "\n" + board.toString());
             // System.out.println("Laucnh Bot for move " + GomokuUtils.indexToString(pos.index));
-            
-            GomokuBot bot = new GomokuBot(boardAnalyser, MAX_DEPTH, i);
-            Future<Integer> future = executor.submit(bot);
+            bots.add(new GomokuBot(boardAnalyser, MAX_DEPTH, i));
+            Future<Integer> future = executor.submit(bots.get(i));
             result.add(future);
 
             board.undo();
@@ -141,12 +149,34 @@ public class GomokuAI {
         state = AIState.IDLE;
     }
 
+    // private void printThinkingResult(int bestEval, int bestMove) {
+    //     System.out.println("Best Move Score: " + bestEval);
+
+    //     long totalTime = System.currentTimeMillis() - start;
+    //     System.out.printf("Execution time: %d ms%n", totalTime);
+
+    //     System.out.println("Best move: " + bestMove);
+    // }
+
     private void printThinkingResult(int bestEval, int bestMove) {
         System.out.println("Best Move Score: " + bestEval);
 
         long totalTime = System.currentTimeMillis() - start;
         System.out.printf("Execution time: %d ms%n", totalTime);
 
+        for (GomokuBot bot : bots) {
+            for (int i = 0; i < MAX_DEPTH; i++) {
+                iterationPerDepth[i] += bot.iterationPerDepth[i];
+                prunningPerDepth[i] += bot.prunningPerDepth[i];
+            }
+        }
+
+        System.out.println("prunningCount: " + prunningCount);
+        // System.out.println("weakPrunningCount: " + weakPrunningCount);
+        for (int i = 0; i < MAX_DEPTH; i++) {
+            System.out.println("Iteration at depth " + (i + 1 < 10 ? " " : "") + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
+        }
+        // percentage.set(evaluatepercent(1));
         System.out.println("Best move: " + bestMove);
     }
 
