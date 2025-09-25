@@ -26,6 +26,16 @@ public class GomokuAI {
 
     private long start = 0;
     public final int MAX_DEPTH = 10;
+    private AIState state = AIState.READY;
+    private int bestEval;
+
+    volatile private int bestMove;
+
+    public enum AIState {
+        READY,
+        THINKING,
+        IDLE
+    }
 
     // private float player1PositionScore = 0f;
     // private float player2PositionScore = 0f;
@@ -42,9 +52,24 @@ public class GomokuAI {
         }
     }
 
-    public GomokuAI(Board board, BoardAnalyser boardAnalyser) {
-        this.board = board;
-        this.boardAnalyser = boardAnalyser;
+    public GomokuAI() {
+    }
+
+    public AIState getState(){
+        return state;
+    }
+
+    public void setState(AIState state){
+        this.state = state;
+    }
+
+    public int getBestMove(){
+        return bestMove;
+    }
+
+    public int getComputationResult(){
+        setState(AIState.READY);
+        return bestMove;
     }
 
     public void reset() {
@@ -52,19 +77,31 @@ public class GomokuAI {
         start = 0;
     }
 
-    public int getBestMove() {
-        return getBestMove(MAX_DEPTH);
+    // public int getBestMove() {
+    //     return getBestMove(MAX_DEPTH);
+    // }
+
+    public void makeBestMove(BoardAnalyser boardAnalyser) {
+        state = AIState.THINKING;
+        this.boardAnalyser = boardAnalyser.deepCopy();
+        this.board = this.boardAnalyser.board;
+        System.out.println("make best move called");
+        new Thread(() -> {
+            reset();
+            // System.out.println("Ai calculate best move for player: " + (board.getCurrentPlayer() == 1 ? " white" : " black"));
+            start = System.currentTimeMillis();
+    
+            computeBestEval();
+    
+            printThinkingResult(bestEval, bestMove);
+    
+        }).start();
     }
 
-    public int getBestMove(int depth) {
-        reset();
-        int player = board.getCurrentPlayer();
-        System.out.println("Ai calculate best move for player: " + player + (board.getCurrentPlayer() == 1 ? " white" : " black"));
-        start = System.currentTimeMillis();
+    private void computeBestEval(){
         List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
-        
-        int bestEval = Integer.MIN_VALUE + 1;
-        int bestMove = 0;
+        bestEval = Integer.MIN_VALUE + 1;
+        bestMove = 0;
 
         ExecutorService executor = Executors.newFixedThreadPool(sortedPos.size());
         List<Future<Integer>> result = new ArrayList<>(sortedPos.size());
@@ -73,6 +110,7 @@ public class GomokuAI {
             board.placePieceAt(pos.index);
             // boardAnalyser.scanLastMove();
             // System.out.println("----------- Ai launch thread " + i + "\n" + board.toString());
+            // System.out.println("Laucnh Bot for move " + GomokuUtils.indexToString(pos.index));
             
             GomokuBot bot = new GomokuBot(boardAnalyser, MAX_DEPTH, i);
             Future<Integer> future = executor.submit(bot);
@@ -85,7 +123,7 @@ public class GomokuAI {
             PosScore pos = sortedPos.get(i);
             int score = 0;
             try {
-                score = result.get(i).get().intValue();
+                score = result.get(i).get().intValue(); // blocking
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -100,10 +138,7 @@ public class GomokuAI {
         }
 
         executor.shutdown();
-
-        printThinkingResult(bestEval, bestMove);
-
-        return bestMove;
+        state = AIState.IDLE;
     }
 
     private void printThinkingResult(int bestEval, int bestMove) {

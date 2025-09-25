@@ -17,7 +17,7 @@ class GomokuBot implements Callable<Integer> {
 
     public final int INF = 1_000_000;
     public final int MAX_DEPTH;
-    public final int[] captureScore = new int[]{0, 1000, 2000, 5000, 10000, 50000};
+    public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 4000, 50000};
     public int[] iterationPerDepth;
     public int[] prunningPerDepth;
     public int prunningCount = 0;
@@ -99,16 +99,16 @@ class GomokuBot implements Callable<Integer> {
 
         int value = -INF;
         for (PosScore pos : sortedPos) {
-            if (depth <= MAX_DEPTH - 2 && pos.score <= 1) {
+            if (depth <= MAX_DEPTH - 1 && pos.score <= 1) {
                 break;
             }
-            if (depth <= MAX_DEPTH - 3 && pos.score <= 2) {
+            if (depth <= MAX_DEPTH - 2 && pos.score <= 2) {
                 break;
             }
-            if (depth <= MAX_DEPTH - 4 && pos.score < 20) {
+            if (depth <= MAX_DEPTH - 3 && pos.score < 20) {
                 break;
             }
-            if (depth <= MAX_DEPTH - 5 && pos.score < 100) {
+            if (depth <= MAX_DEPTH - 4 && pos.score < 100) {
                 break;
             }
             board.placePieceAt(pos.index);

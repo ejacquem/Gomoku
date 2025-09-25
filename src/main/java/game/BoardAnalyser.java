@@ -37,8 +37,6 @@ public class BoardAnalyser implements BoardListener {
     public void onMovePlaced() {
         updateMoveCount();
         scanLastMove();
-        System.out.println("onMovePlaced");
-        System.out.println("moveCount: " + moveCount);
     }
 
     @Override
@@ -199,6 +197,11 @@ public class BoardAnalyser implements BoardListener {
 
     public List<PosScore> getSortedPositions() {
         updateMoveCount();
+
+        if (moveCount == 0){
+            return List.of(new PosScore(Board.BOARD_MAX_INDEX / 2, 0));
+        }
+
         List<PosScore>filteredCell = new ArrayList<>();
     
         // Build list of PosScore with score computed once

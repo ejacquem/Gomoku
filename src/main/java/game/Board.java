@@ -129,9 +129,16 @@ public class Board {
             return;
         }
         moveCount++;
-        addPieceAt(Math.abs(pipHistory()), currentPlayer);
+        int placedPiece = Math.abs(pipHistory());
+        addPieceAt(placedPiece, currentPlayer);
         while (peekFuture() < 0) {
             removePieceAt(Math.abs(pipHistory()));
+        }
+        // check back for winner, could be more efficient but since it's not used by AI it's ok
+        checkWinnerEndGameCapture();
+        if (getWinner() == 0) { // only check winner if EGC failed
+            checkWinnerAt(placedPiece, currentPlayer);
+            checkWinnerCapture();
         }
         switchPlayer();
         if (listener != null) listener.onRedo();
@@ -184,7 +191,6 @@ public class Board {
         for (int i = 0; i < BOARD_MAX_INDEX; i++) {
             if (getPieceAt(i) == 0 && Math.random() < density) {
                 placePieceAt(i);
-                analyser.scanLastMove();
             }
         }
     }
@@ -472,6 +478,10 @@ public class Board {
         return player == GameSettings.FIRST_PLAYER ? 1 : 0;
     }
 
+    public boolean isInPresent(){
+        return moveCount == maxMove;
+    }
+
     /* setter */
 
     private void setPieceAt(int index, int value) {
@@ -515,6 +525,10 @@ public class Board {
 
     public int getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public String getCurrentPlayerColor() {
+        return (getCurrentPlayer() == 1) ? "white" : "black";
     }
 
     public int getCurrentOpponent() {

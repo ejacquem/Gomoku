@@ -9,6 +9,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.util.Duration;
 import main.java.app.GameSettings;
+import main.java.game.GomokuAI.AIState;
+import main.java.utils.GomokuUtils;
 
 public class BoardGame {
     public final int BOARD_SIZE = GameSettings.BOARD_SIZE;
@@ -45,13 +47,46 @@ public class BoardGame {
     public LongProperty player1TimerProperty() { return player1Timer; }
     public LongProperty player2TimerProperty() { return player2Timer; }
 
-    public BoardGame(GomokuAI AI, Board board) {
+    public BoardGame(Board board, BoardAnalyser boardAnalyser, GomokuAI AI) {
         this.board = board;
+        this.boardAnalyser = boardAnalyser;
         this.AI = AI;
-        this.boardAnalyser = AI.boardAnalyser;
         gameState = GameState.NOT_STARTED;
         timeline1 = createTimeline(player1Timer);
         timeline2 = createTimeline(player2Timer);
+        startGameLoop();
+    }
+
+    public void startGameLoop() {
+        // Create a Timeline that runs indefinitely
+        Timeline loop = new Timeline(
+            new KeyFrame(Duration.seconds(0.1), event -> {
+                gameLoop();
+            })
+        );
+        loop.setCycleCount(Timeline.INDEFINITE); // repeat forever
+        loop.play();
+    }
+
+    private void gameLoop(){
+        int player = board.getCurrentPlayer();
+        // System.out.println("gameLoop");
+        if (gameState != GameState.STARTED || !board.isInPresent()){
+            return ;
+        }
+        if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
+            if (AI.getState() == AIState.READY){
+                System.out.println("LaunchAi");
+                AI.makeBestMove(boardAnalyser);
+            }
+            else if (AI.getState() == AIState.IDLE){
+                System.out.println("PlayAi");
+                bestMove = AI.getComputationResult();
+                board.goToMove(10000);
+                placePieceAttempt(bestMove, true);
+                tick();
+            }
+        }
     }
 
     public void undo() {
@@ -77,7 +112,7 @@ public class BoardGame {
         tick();
     }
 
-    public void startGame() {    
+    public void startGame() {
         System.out.println("Game started");
         reset();
         gameState = GameState.STARTED;
@@ -111,12 +146,12 @@ public class BoardGame {
     }
 
     public void handleInput(Coords pos) {
-        System.out.println("Handle Input");
+        // System.out.println("Handle Input");
         Coords realPos = pos.add(GameSettings.BOARD_WALL_WIDTH);
         if (gameState == GameState.NOT_STARTED) {
             startGame();
         }
-        System.out.println("Trying to place a piece at pos " + pos);
+        // System.out.println("Trying to place a piece at pos " + pos);
         placePieceAttempt(realPos);
 
         if (gameState == GameState.GAME_OVER) {
@@ -125,47 +160,35 @@ public class BoardGame {
     }
 
     private void placePieceAttempt(Coords pos) {
-        placePieceAttempt(pos.getId());
+        placePieceAttempt(pos.getId(), false);
     }
 
-    private void placePieceAttempt(int index) {
+    private void placePieceAttempt(int index, boolean isAI) {
+        if (!isAI && ((GameSettings.player1AI && board.getCurrentPlayer() == 1) || (GameSettings.player2AI && board.getCurrentPlayer() == 2))){
+            System.out.println("Not your turn");
+            return;
+        }
         if (gameState == GameState.GAME_OVER) {
-            System.out.println("Can't place piece: Game Over");
+            System.out.printf("Can't place piece at %s Game Over", GomokuUtils.indexToString(index));
             return;
         }
         if (!board.isInBound(index)) {
-            System.out.println("Can't place piece: Out of Bound");
+            System.out.printf("Can't place piece at %s Out of Bound", GomokuUtils.indexToString(index));
             return;
         }
-
-        if (board.getPieceAt(index) != 0) return;
+        if (board.getPieceAt(index) != 0){
+            System.out.printf("Can't place piece at %s Occupied Cell", GomokuUtils.indexToString(index));
+            return;
+        }
         // if (cell.isDoubleFreeThree()) return;
         
-        System.out.println("Placing a " + ((board.getCurrentPlayer() == 1) ? "white" : "black") + " piece at index: " + index);
+        System.out.println("Placing a " + board.getCurrentPlayerColor() + " piece at index: " + GomokuUtils.indexToString(index));
         board.placePieceAt(index);
-
         tick();
-
-        boolean analysed = false;
-        if (GameSettings.analyseBoard) {
-            analysed = true;
-            bestMove = AI.getBestMove();
-        }
-        if (GameSettings.player1AI && board.getCurrentPlayer() == 1) {
-            if (!analysed) {
-                bestMove = AI.getBestMove();
-            }
-            placePieceAttempt(bestMove);
-        }
-        if (GameSettings.player2AI && board.getCurrentPlayer() == 2) {
-            if (!analysed) {
-                bestMove = AI.getBestMove();
-            }
-            placePieceAttempt(bestMove);
-        }
     }
 
     public void tick() {
+        System.out.println("tick called");
         player1CapturedPieces.set(board.getCaptureCount(1));
         player2CapturedPieces.set(board.getCaptureCount(2));
         switchPlayerTo(board.getCurrentPlayer());

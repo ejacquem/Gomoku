@@ -23,8 +23,8 @@ public class GameApp extends Application {
     public void start(Stage stage) {
         Board board = new Board();
         BoardAnalyser boardAnalyser = new BoardAnalyser(board);
-        GomokuAI AI = new GomokuAI(board, boardAnalyser);
-        BoardGame game = new BoardGame(AI, board);
+        GomokuAI AI = new GomokuAI();
+        BoardGame game = new BoardGame(board, boardAnalyser, AI);
 
         GameUI gameUI = new GameUI(game, AI);
         new GameUISettings(gameUI, stage);

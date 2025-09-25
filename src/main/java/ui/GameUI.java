@@ -36,6 +36,7 @@ import javafx.scene.text.FontWeight;
 import java.util.Arrays;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
@@ -401,7 +402,7 @@ public class GameUI {
         });
 
         evaluateButton.setOnAction(e -> {
-            game.AI.getBestMove(game.AI.MAX_DEPTH);
+            // game.AI.getBestMove(game.AI.MAX_DEPTH);
             renderer.draw();
         });
 
@@ -445,12 +446,18 @@ public class GameUI {
         game.winnerProperty().addListener((obs, oldVal, newVal) -> {
             renderer.draw();
             if (newVal.intValue() != 0) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Game Over");
-                alert.setHeaderText(null);
-                alert.setContentText("Player " + newVal.intValue() + " is the Winner !!!");
-                alert.showAndWait();
+                Platform.runLater(() -> {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Game Over");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Player " + newVal.intValue() + " is the Winner !!!");
+                    alert.showAndWait();
+                });
             }
+        });
+
+        game.moveCountProperty().addListener((obs, oldVal, newVal) -> {
+            update();
         });
 
         AI.percentageProperty().addListener((obs, oldVal, newVal) -> {
