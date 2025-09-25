@@ -132,10 +132,34 @@ public class Board {
         switchPlayer();
     }
 
+    public void goToMove(int move){
+        System.out.println("GotoMove: " + move);
+        move = Math.max(0, Math.min(move, maxMove));
+        int dir = Integer.signum(move - moveCount);
+        System.out.println("maxMove: " + maxMove);
+        System.out.println("moveCount: " + moveCount);
+        System.out.println("dir: " + dir);
+        while (move != moveCount){
+            if (dir < 0){
+                undo();
+                System.out.println("undo");
+            }
+            else{
+                redo();
+                System.out.println("redo");
+            }
+            System.out.println("move: " + move);
+            if (moveCount == 0 || moveCount == maxMove)
+                break;
+        }
+    }
+
     public void reset() {
         initBoard();
         moveCount = 0;
+        maxMove = 0;
         historyIndex = 0;
+        maxHistoryIndex = 0;
         setWinner(0);
         currentPlayer = GameSettings.FIRST_PLAYER;
         pieceCount[0] = 0;

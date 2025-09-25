@@ -46,7 +46,7 @@ public class MoveHistoryPanel {
 
         // Make clickable
         row.setOnMouseClicked((MouseEvent e) -> {
-            onClick.accept(moveNumber - 1); // zero-based index
+            onClick.accept(moveNumber - 1);
         });
 
         // Optional: highlight on hover
@@ -56,14 +56,17 @@ public class MoveHistoryPanel {
         return row;
     }
 
-    // Set/update the move history
     public void setMoveHistoryData(List<String> moves, Consumer<Integer> onClick) {
-        moveList.getChildren().clear();
+        clearMoveHistoryData();
 
         for (int i = 0; i < moves.size(); i++) {
             HBox row = createMoveHistoryRow(i + 1, moves.get(i), onClick);
             moveList.getChildren().add(row);
         }
+    }
+
+    public void clearMoveHistoryData(){
+        moveList.getChildren().clear();
     }
 }
 

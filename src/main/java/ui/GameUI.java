@@ -343,18 +343,18 @@ public class GameUI {
         // Restart button action
         restartButton.setOnAction(e -> {
             game.startGame();
-            renderer.draw();
+            update();
         });
 
         startButton.setOnAction(e -> {
             game.startGame();
-            renderer.draw();
+            update();
         });
 
         randomButton.setOnAction(e -> {
             game.startGame();
             game.board.random(.2f, game.boardAnalyser);
-            renderer.draw();
+            update();
         });
 
         evaluateButton.setOnAction(e -> {
@@ -364,12 +364,12 @@ public class GameUI {
 
         undoButton.setOnAction(e -> {
             game.undo();
-            renderer.draw();
+            update();
         });
 
         redoButton.setOnAction(e -> {
             game.redo();
-            renderer.draw();
+            update();
         });
 
         playerLabel.textProperty().bind(
@@ -412,13 +412,13 @@ public class GameUI {
         game.startGame();
         game.board.importPosition(boardSgtring);
         game.tick();
-        renderer.draw();
+        update();
     }
 
     public void importGame(String boardSgtring){
         game.startGame();
         game.board.importGame(boardSgtring);
-        renderer.draw();
+        update();
     }
 
     public String exportBoard(){
@@ -434,6 +434,7 @@ public class GameUI {
     // }
 
     public void update() {
+        updateMoveHsitory();
         renderer.draw();
     }
 
@@ -456,19 +457,24 @@ public class GameUI {
     private void handleClick(MouseEvent e) {
         Coords pos = renderer.pixelPosToCoords(e.getX(), e.getY());
         game.handleInput(pos);
-        updateMoveHsitory();
-        renderer.draw();
+        update();
     }
 
     private void updateMoveHsitory(){
 
         String gameString = game.board.exportGame();
+        if (gameString.isEmpty()) {
+            history.clearMoveHistoryData();
+            return;
+        }
         String[] movesArr = gameString.split("\n");
         List<String> moves = Arrays.asList(movesArr);
-        // Update panel with click handler
+
         history.setMoveHistoryData(moves, moveIndex -> {
             System.out.println("Clicked move index: " + moveIndex);
             System.out.println("moves: " + moves.get(moveIndex));
+            game.board.goToMove(moveIndex + 1);
+            renderer.draw();
             // Here you can jump to that move in the game
         });
     }
