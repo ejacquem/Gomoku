@@ -120,10 +120,11 @@ public class GameUISettings {
         Menu fileMenu = new Menu("File");
 
         MenuItem importItem = new MenuItem("Import Position");
+        MenuItem importGameItem = new MenuItem("Import Game");
         MenuItem exportItem = new MenuItem("Export Position");
         MenuItem exportAsItem = new MenuItem("Export Position As");
-        MenuItem importGameItem = new MenuItem("Import Game");
         MenuItem exportGameItem = new MenuItem("Export Game");
+        MenuItem exportGameAsItem = new MenuItem("Export Game As");
 
         importItem.setOnAction(e -> {
             try {
@@ -161,6 +162,15 @@ public class GameUISettings {
             }
         });
 
+        exportGameAsItem.setOnAction(e -> {
+            try {
+                String boardString = gameUI.exportGame();
+                fileHelper.saveFileAt("saves/games", "game_", "game", boardString);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+
         importGameItem.setOnAction(e -> {
             try {
                 String boardString = fileHelper.readFileAt("saves/games", "game");
@@ -174,7 +184,8 @@ public class GameUISettings {
             }
         });
 
-        fileMenu.getItems().addAll(importItem, exportItem, exportAsItem, new SeparatorMenuItem(), importGameItem, exportGameItem);
+        fileMenu.getItems().addAll(importItem, exportAsItem, new SeparatorMenuItem(), importGameItem, exportGameItem);
+        // fileMenu.getItems().addAll(importItem, importGameItem, new SeparatorMenuItem(), exportItem, exportAsItem, exportGameItem, exportGameAsItem);
         return fileMenu;
     }
 }

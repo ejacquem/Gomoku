@@ -125,30 +125,23 @@ public class Board {
             return;
         }
         moveCount++;
-        addPieceAt(pipHistory(), currentPlayer);
-        while (peekHistory() < 0) {
+        addPieceAt(Math.abs(pipHistory()), currentPlayer);
+        while (peekFuture() < 0) {
             removePieceAt(Math.abs(pipHistory()));
         }
         switchPlayer();
     }
 
     public void goToMove(int move){
-        System.out.println("GotoMove: " + move);
         move = Math.max(0, Math.min(move, maxMove));
         int dir = Integer.signum(move - moveCount);
-        System.out.println("maxMove: " + maxMove);
-        System.out.println("moveCount: " + moveCount);
-        System.out.println("dir: " + dir);
         while (move != moveCount){
             if (dir < 0){
                 undo();
-                System.out.println("undo");
             }
             else{
                 redo();
-                System.out.println("redo");
             }
-            System.out.println("move: " + move);
             if (moveCount == 0 || moveCount == maxMove)
                 break;
         }
@@ -576,6 +569,10 @@ public class Board {
 
     private int peekHistory() {
         return history[historyIndex - 1];
+    }
+
+    private int peekFuture() {
+        return history[historyIndex];
     }
 
     private int peekLastPlacedMoveHistory() {
