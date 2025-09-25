@@ -10,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
@@ -158,8 +159,8 @@ public class GameUI {
             // startButton, 
             randomButton, 
             evaluateButton, 
-            undoButton, 
-            redoButton, 
+            // undoButton, 
+            // redoButton, 
             // infoLabel, 
             moveLabel, 
             // playerLabel, 
@@ -405,13 +406,11 @@ public class GameUI {
         });
 
         undoButton.setOnAction(e -> {
-            game.undo();
-            update();
+            undo();
         });
 
         redoButton.setOnAction(e -> {
-            game.redo();
-            update();
+            redo();
         });
 
         moveHomeButton.setOnAction(e -> {
@@ -419,13 +418,11 @@ public class GameUI {
         });
 
         moveBackButton.setOnAction(e -> {
-            game.undo();
-            update();
+            undo();
         });
 
         moveForwardButton.setOnAction(e -> {
-            game.redo();
-            update();
+            redo();
         });
 
         moveEndButton.setOnAction(e -> {
@@ -459,6 +456,21 @@ public class GameUI {
         AI.percentageProperty().addListener((obs, oldVal, newVal) -> {
             System.out.printf("percentage score: %1.3f\n", newVal);
             setBarPercentage(evalBar, (double)newVal);
+        });
+
+        root.addEventFilter(ScrollEvent.SCROLL, event -> {
+            // System.out.println("scrollEvent");
+            // System.out.println("event.isShiftDown(): " + event.isShiftDown());
+            // System.out.println("event.getDeltaY(): " + event.getDeltaY());
+            // System.out.println("event.getDeltaX(): " + event.getDeltaX());
+            if (event.isShiftDown()) {
+                if (event.getDeltaX() > 0) {
+                    undo();
+                } else if (event.getDeltaX() < 0) {
+                    redo();
+                }
+                event.consume(); // prevent other scroll handling
+            }
         });
     }
 
@@ -536,6 +548,16 @@ public class GameUI {
 
     public void goToMove(int move){
         game.goToMove(move);
+        update();
+    }
+
+    public void undo(){
+        game.undo();
+        update();
+    }
+
+    public void redo(){
+        game.redo();
         update();
     }
 
