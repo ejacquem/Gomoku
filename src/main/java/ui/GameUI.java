@@ -50,7 +50,7 @@ public class GameUI {
     private HBox player2Panel;
     private Label infoLabel, moveLabel, playerLabel, winnerLabel;
     private VBox historyAndButtonPanel;
-    private Button restartButton, startButton, randomButton, evaluateButton, undoButton, redoButton;
+    private Button resetButton, startButton, randomButton, evaluateButton, undoButton, redoButton;
     private HBox gameButtonPanel;
     private Button moveHomeButton, moveBackButton, moveForwardButton, moveEndButton;
     private Background background;
@@ -101,12 +101,12 @@ public class GameUI {
         playerLabel = creatLabel("Player: ", robotoFont, Color.WHITE);
         winnerLabel = creatLabel("", robotoFont, Color.WHITE);
         startButton = new Button("Start");
-        restartButton = new Button("Restart");
+        resetButton = new Button("Reset");
         randomButton = new Button("Random");
         evaluateButton = new Button("Evaluate");
         undoButton = new Button("Undo");
         redoButton = new Button("Redo");
-        restartButton.getStyleClass().addAll("button-base", "simple-button");
+        resetButton.getStyleClass().addAll("button-base", "simple-button");
         startButton.getStyleClass().addAll("button-base", "simple-button");
         randomButton.getStyleClass().addAll("button-base", "simple-button");
         evaluateButton.getStyleClass().addAll("button-base", "simple-button");
@@ -156,8 +156,8 @@ public class GameUI {
 
         rightPanel = new VBox(15, 
             titlePane, 
-            restartButton, 
-            // startButton, 
+            resetButton, 
+            startButton, 
             randomButton, 
             evaluateButton, 
             // undoButton, 
@@ -385,8 +385,8 @@ public class GameUI {
     private void bindStuff()
     {
         // Restart button action
-        restartButton.setOnAction(e -> {
-            game.startGame();
+        resetButton.setOnAction(e -> {
+            game.reset();
             update();
         });
 
