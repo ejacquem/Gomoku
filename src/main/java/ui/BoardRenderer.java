@@ -50,6 +50,8 @@ public class BoardRenderer {
         if (GameSettings.labelToggle) drawLabel();
         drawPieces();
         if (GameSettings.showSymbolToggle) drawSymbols();
+        highlightLastMove();
+        drawCaptures();
         
         game.boardAnalyser.updateMoveCount();;
         if (GameSettings.drawIndexNumber) drawIndexNumber();
@@ -326,6 +328,41 @@ public class BoardRenderer {
                 //     UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
                 // }
             }
+        }
+    }
+
+    private void highlightLastMove(){
+        int[] lastMove = game.board.getLastMoves();
+        if (lastMove == null) {
+            return;
+        }
+        int lastMovesLength = lastMove[0];
+        gc.setFill(GameSettings.BOARD_COLOR_INVERSE);
+        int index = Math.abs(lastMove[lastMovesLength]); // +1 to skip first elem which is the length
+        Coords pos = Coords.getCoordsById(index, GameSettings.BOARD_SIZE).add(-1);
+        double len = TILE_SIZE / 5.;
+        gc.fillRect(pos.x * TILE_SIZE - len / 2, pos.y * TILE_SIZE - len / 2, len, len);
+
+    }
+
+    private void drawCaptures(){
+        int[] lastMove = game.board.getLastMoves();
+        if (lastMove == null) {
+            return;
+        }
+        int lastMovesLength = lastMove[0];
+        int index = lastMove[lastMovesLength];
+        Coords origin = Coords.getCoordsById(index, GameSettings.BOARD_SIZE).add(-1);
+        for (int i = 1; i < lastMove[0]; i += 2) {
+            index = Math.abs(lastMove[i]);
+            Coords pos = Coords.getCoordsById(index, GameSettings.BOARD_SIZE).add(-1);
+            Coords dir = Coords.getDirection(origin, pos);
+            Coords dest = origin.add(dir.multiply(3));
+
+            Coords p2 = origin.multiply(TILE_SIZE);
+            Coords p1 = dest.multiply(TILE_SIZE);
+
+            UtilsRenderer.drawArrow(gc, p1.x, p1.y, p2.x, p2.y, TILE_SIZE / 3, GameSettings.ARROW_COLOR, 30);
         }
     }
 

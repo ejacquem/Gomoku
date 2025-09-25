@@ -13,6 +13,10 @@ public abstract class GameSettings {
     public static final Color PLAYER1_COLOR = Color.web("#f9f9f9");
     public static final Color PLAYER2_COLOR = Color.web("#202020");
     public static final Color PIECE_BORDER_COLOR = Color.web("#101010");
+    public static final Color ARROW_COLOR = Color.rgb(
+        (int)(BOARD_COLOR_INVERSE.getRed() * 255), 
+        (int)(BOARD_COLOR_INVERSE.getGreen() * 255), 
+        (int)(BOARD_COLOR_INVERSE.getBlue() * 255), 0.5);
 
     public static final int GAME_SIZE = 19;
     public static final int BOARD_PIXEL_SIZE = 800;

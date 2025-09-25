@@ -465,9 +465,9 @@ public class GameUI {
             // System.out.println("event.getDeltaX(): " + event.getDeltaX());
             if (event.isShiftDown()) {
                 if (event.getDeltaX() > 0) {
-                    undo();
-                } else if (event.getDeltaX() < 0) {
                     redo();
+                } else if (event.getDeltaX() < 0) {
+                    undo();
                 }
                 event.consume(); // prevent other scroll handling
             }
@@ -484,6 +484,7 @@ public class GameUI {
     public void importBoard(String boardSgtring){
         game.startGame();
         game.board.importPosition(boardSgtring);
+        game.boardAnalyser.scanBoard();
         game.tick();
         update();
     }
@@ -491,6 +492,8 @@ public class GameUI {
     public void importGame(String boardSgtring){
         game.startGame();
         game.board.importGame(boardSgtring);
+        game.boardAnalyser.scanBoard();
+        game.tick();
         update();
     }
 

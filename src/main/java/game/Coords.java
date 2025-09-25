@@ -194,7 +194,12 @@ public class Coords {
     public static Coords getCoordsById(int id, int gridSize) {
         return new Coords(id % gridSize, id / gridSize);
     }
-    
+
+    // only works for cardinal direction
+    public static Coords getDirection(Coords a, Coords b){
+        return b.subtract(a).divide((int)a.distanceTo(b));
+    }
+
     // Static factory methods
     public static Coords origin() {
         return new Coords(0, 0);
