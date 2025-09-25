@@ -9,58 +9,79 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class MoveHistoryPanel {
 
     private VBox moveList;        // VBox containing rows
     private ScrollPane scrollPane;
+    private GameUI UI;
 
     // Create the scrollable panel
-    public ScrollPane createMoveHistoryPanel() {
+    public ScrollPane createMoveHistoryPanel(GameUI UI) {
+        this.UI = UI;
         moveList = new VBox(2);
         moveList.setPadding(new Insets(5));
         
         scrollPane = new ScrollPane(moveList);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefHeight(200);
+        // scrollPane.setFitToHeight(true);
+        scrollPane.setPrefHeight(300);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        
+        scrollPane.getStyleClass().addAll(".scroll-pane");
+        moveList.getStyleClass().addAll(".scroll-pane-parent");
 
-        scrollPane.vvalueProperty().bind(moveList.heightProperty());
+        // scrollPane.vvalueProperty().bind(moveList.heightProperty());
+
+        moveList.heightProperty().addListener((obs, oldVal, newVal) -> {
+            // only auto-scroll if the user was already at the bottom
+            scrollPane.setVvalue(1.0);
+        });
+        
 
         return scrollPane;
     }
 
     // Create a single move row
-    public HBox createMoveHistoryRow(int moveNumber, String moveText, Consumer<Integer> onClick) {
+    public HBox createMoveHistoryRow(int moveNumber, String moveText, boolean isSelected) {
         Label numberLabel = new Label(moveNumber + ". ");
         numberLabel.setFont(Font.font("Monospaced", 12));
+        numberLabel.setTextFill(Color.WHITE);
 
-        Label moveLabel = new Label(moveText);
+        int i = 0;
+        while (moveText.charAt(i) != ' '){
+            i++;
+        }
+
+        Label moveLabel = new Label(moveText.substring(i));
         moveLabel.setFont(Font.font("Monospaced", 12));
-        moveLabel.setTextFill(Color.BLUE);
+        moveLabel.setTextFill(Color.WHITESMOKE);
 
         HBox row = new HBox(5, numberLabel, moveLabel);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(2));
 
-        // Make clickable
+        // clickable row
         row.setOnMouseClicked((MouseEvent e) -> {
-            onClick.accept(moveNumber - 1);
+            System.out.println("Clicked move index: " + moveNumber);
+            UI.goToMove(moveNumber);
         });
 
-        // Optional: highlight on hover
-        row.setOnMouseEntered(e -> row.setStyle("-fx-background-color: lightgray;"));
-        row.setOnMouseExited(e -> row.setStyle(""));
+        if (isSelected) {
+            row.setStyle("-fx-background-color: #303030;");
+        }
 
         return row;
     }
 
-    public void setMoveHistoryData(List<String> moves, Consumer<Integer> onClick) {
+    public void setMoveHistoryData(List<String> moves, int currentMove) {
         clearMoveHistoryData();
 
+        System.out.println("setMoveHistoryData");
+        System.out.println("currentMove: " + currentMove);
         for (int i = 0; i < moves.size(); i++) {
-            HBox row = createMoveHistoryRow(i + 1, moves.get(i), onClick);
+            System.out.println("i: " + i);
+            HBox row = createMoveHistoryRow(i + 1, moves.get(i), currentMove == (i + 1));
             moveList.getChildren().add(row);
         }
     }

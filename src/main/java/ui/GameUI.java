@@ -109,16 +109,7 @@ public class GameUI {
         redoButton.getStyleClass().addAll("button-base", "undo-button");
 
         history = new MoveHistoryPanel();
-        ScrollPane historyPane = history.createMoveHistoryPanel();
-
-        // List<String> moves = List.of("J10", "K10", "I10", "H10 xI10,J10");
-
-        // // Update panel with click handler
-        // history.setMoveHistoryData(moves, moveIndex -> {
-        //     System.out.println("Clicked move index: " + moveIndex);
-        //     System.out.println("moves: " + moves.get(moveIndex));
-        //     // Here you can jump to that move in the game
-        // });
+        ScrollPane historyPane = history.createMoveHistoryPanel(this);
 
         data1 = new PlayerData(1, "Player 1", GameSettings.PLAYER1_COLOR, game.player1TimerProperty(), game.player1CapturedPiecesProperty());
         data2 = new PlayerData(2, "Player 2", GameSettings.PLAYER2_COLOR, game.player2TimerProperty(), game.player2CapturedPiecesProperty());
@@ -153,7 +144,19 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, overlayCanvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
-        rightPanel = new VBox(15, titlePane, restartButton, startButton, randomButton, evaluateButton, undoButton, redoButton, infoLabel, moveLabel, playerLabel, winnerLabel, historyPane);
+        rightPanel = new VBox(15, 
+            titlePane, 
+            restartButton, 
+            // startButton, 
+            randomButton, 
+            evaluateButton, 
+            undoButton, 
+            redoButton, 
+            // infoLabel, 
+            moveLabel, 
+            // playerLabel, 
+            winnerLabel, 
+            historyPane);
         leftPanel = new VBox(0, player1Panel, canvasStack, player2Panel);
         mainPanel = new HBox(0, evalBar, leftPanel, rightPanel);
         root = new BorderPane(mainPanel);
@@ -470,13 +473,12 @@ public class GameUI {
         String[] movesArr = gameString.split("\n");
         List<String> moves = Arrays.asList(movesArr);
 
-        history.setMoveHistoryData(moves, moveIndex -> {
-            System.out.println("Clicked move index: " + moveIndex);
-            System.out.println("moves: " + moves.get(moveIndex));
-            game.board.goToMove(moveIndex + 1);
-            renderer.draw();
-            // Here you can jump to that move in the game
-        });
+        history.setMoveHistoryData(moves, game.board.getMoveCount());
+    }
+
+    public void goToMove(int move){
+        game.board.goToMove(move);
+        update();
     }
 
     private void handleMouseMove(MouseEvent e) {

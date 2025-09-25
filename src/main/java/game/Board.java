@@ -280,7 +280,7 @@ public class Board {
         boolean first;
         StringBuilder strBuilder = new StringBuilder();
         for (int i = 0; i < maxHistoryIndex;){
-            strBuilder.append(String.format("%2d. %s", _moveCount, GomokuUtils.indexToString(history[i])));
+            strBuilder.append(String.format("%d. %s", _moveCount, GomokuUtils.indexToString(history[i])));
             i++;
             if (history[i] < 0){
                 strBuilder.append(" x");
