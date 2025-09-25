@@ -77,10 +77,10 @@ public class MoveHistoryPanel {
     public void setMoveHistoryData(List<String> moves, int currentMove) {
         clearMoveHistoryData();
 
-        System.out.println("setMoveHistoryData");
-        System.out.println("currentMove: " + currentMove);
+        // System.out.println("setMoveHistoryData");
+        // System.out.println("currentMove: " + currentMove);
         for (int i = 0; i < moves.size(); i++) {
-            System.out.println("i: " + i);
+            // System.out.println("i: " + i);
             HBox row = createMoveHistoryRow(i + 1, moves.get(i), currentMove == (i + 1));
             moveList.getChildren().add(row);
         }

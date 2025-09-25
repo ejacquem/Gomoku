@@ -41,7 +41,7 @@ public class GomokuUtils {
         int x = (index % GameSettings.BOARD_SIZE) - 1;
         int y = (index / GameSettings.BOARD_SIZE) - 1;
         String col = Integer.toString(x + 10, 36).toUpperCase();
-        String row = Integer.toString(GameSettings.GAME_SIZE + 1 - (y + 1));
+        String row = Integer.toString(GameSettings.GAME_SIZE - y);
         return col + row;
     }
 
@@ -56,7 +56,7 @@ public class GomokuUtils {
         for (char c : colStr.toCharArray()) {
             col = col * 26 + (c - 'A');
         }
-        int row = Integer.parseInt(rowStr) - 1;
+        int row = GameSettings.GAME_SIZE - (Integer.parseInt(rowStr));
 
         return (col + 1) + (row + 1) * GameSettings.BOARD_SIZE;
     }

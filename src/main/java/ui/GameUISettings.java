@@ -184,7 +184,7 @@ public class GameUISettings {
             }
         });
 
-        fileMenu.getItems().addAll(importItem, exportAsItem, new SeparatorMenuItem(), importGameItem, exportGameItem);
+        fileMenu.getItems().addAll(importItem, exportAsItem, new SeparatorMenuItem(), importGameItem, exportGameAsItem);
         // fileMenu.getItems().addAll(importItem, importGameItem, new SeparatorMenuItem(), exportItem, exportAsItem, exportGameItem, exportGameAsItem);
         return fileMenu;
     }
