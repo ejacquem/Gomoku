@@ -71,7 +71,7 @@ public class GomokuAI {
         for (int i = 0; i < sortedPos.size(); i++) {
             PosScore pos = sortedPos.get(i);
             board.placePieceAt(pos.index);
-            boardAnalyser.scanLastMove();
+            // boardAnalyser.scanLastMove();
             // System.out.println("----------- Ai launch thread " + i + "\n" + board.toString());
             
             GomokuBot bot = new GomokuBot(boardAnalyser, MAX_DEPTH, i);

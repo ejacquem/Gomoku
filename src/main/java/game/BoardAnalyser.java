@@ -16,7 +16,7 @@ import main.java.app.GameSettings;
  * 
  * special case for capture
  */
-public class BoardAnalyser {
+public class BoardAnalyser implements BoardListener {
     public final Board board;
     // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
     private static final int CELL_INFO_SIZE = 8 + 8 + 1;
@@ -29,7 +29,37 @@ public class BoardAnalyser {
 
     public BoardAnalyser(Board board) {
         this.board = board;
+        this.board.setListener(this);
         this.pieceBoard = board.getBoard();
+    }
+
+    @Override
+    public void onMovePlaced() {
+        updateMoveCount();
+        scanLastMove();
+        System.out.println("onMovePlaced");
+        System.out.println("moveCount: " + moveCount);
+    }
+
+    @Override
+    public void onUndo() {
+        updateMoveCount();
+    }
+
+    @Override
+    public void onRedo() {
+        updateMoveCount();
+    }
+
+    @Override
+    public void onGoto() {
+        updateMoveCount();
+    }
+
+    @Override
+    public void onReset() {
+        reset();
+        updateMoveCount();
     }
 
     public BoardAnalyser deepCopy() {
@@ -198,7 +228,7 @@ public class BoardAnalyser {
     // .......
     // private SequenceData data = new SequenceData();
     public void scanLastMove() {
-        updateMoveCount();
+        // updateMoveCount();
         if (moveCount <= 0){
             return;
         }

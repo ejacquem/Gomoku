@@ -8,6 +8,7 @@ MODULES=javafx.controls,javafx.fxml
 
 SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/game/BoardAnalyser.java \
+		$(SRC)/game/BoardListener.java \
 		$(SRC)/game/BoardGame.java \
 		$(SRC)/game/Cell.java \
 		$(SRC)/game/CellInfo.java \

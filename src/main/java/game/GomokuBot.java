@@ -112,7 +112,6 @@ class GomokuBot implements Callable<Integer> {
                 break;
             }
             board.placePieceAt(pos.index);
-            boardAnalyser.scanLastMove();
             
             value = Math.max(value, -search(depth - 1, -beta, -alpha));
             alpha = Math.max(alpha, value);

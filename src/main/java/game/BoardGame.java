@@ -174,7 +174,7 @@ public class BoardGame {
             setGameOver();
         }
         moveCount.set(board.getMoveCount());
-        boardAnalyser.scanLastMove();
+        // boardAnalyser.scanLastMove();
     }
 
     private void switchPlayerTo(int player) {

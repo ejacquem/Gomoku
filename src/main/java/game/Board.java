@@ -29,6 +29,8 @@ public class Board {
     // private 
     public List<Integer> endGameCapture = new ArrayList<Integer>();
 
+    private BoardListener listener;
+
     private static final int _x = 1;
     private static final int _y = BOARD_SIZE;
     public static final int[] DIRECTION8 = {
@@ -72,7 +74,7 @@ public class Board {
     /* Core Action */
 
     private void addPieceAt(int index, int player) {
-        if (!isSpaceAt(index)) {
+        if (!isSpaceAt(index)) { // remove later for efficiency
             throw new IllegalStateException("No space at index " + index); 
         }
         pieceCount[player - 1]++;
@@ -98,6 +100,7 @@ public class Board {
             checkWinnerCapture();
         }
         switchPlayer();
+        if (listener != null) listener.onMovePlaced();
     }
 
     public void undo() {
@@ -118,6 +121,7 @@ public class Board {
             endGameCapture.clear();
         }
         switchPlayer();
+        if (listener != null) listener.onUndo();
     }
 
     public void redo() {
@@ -130,6 +134,7 @@ public class Board {
             removePieceAt(Math.abs(pipHistory()));
         }
         switchPlayer();
+        if (listener != null) listener.onRedo();
     }
 
     public void goToMove(int move){
@@ -145,6 +150,7 @@ public class Board {
             if (moveCount == 0 || moveCount == maxMove)
                 break;
         }
+        if (listener != null) listener.onGoto();
     }
 
     public void reset() {
@@ -157,6 +163,7 @@ public class Board {
         currentPlayer = GameSettings.FIRST_PLAYER;
         pieceCount[0] = 0;
         pieceCount[1] = 0;
+        if (listener != null) listener.onReset();
     }
 
     private void initBoard() {
@@ -473,6 +480,10 @@ public class Board {
 
     private void setWinner(int player) {
         winner = player;
+    }
+
+    public void setListener(BoardListener l) {
+        this.listener = l;
     }
 
     /* getter */
