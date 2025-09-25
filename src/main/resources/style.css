@@ -122,7 +122,7 @@
 } */
 
 .scroll-pane-parent {
-    -fx-background-color: #202020;
+    -fx-background-color: #272523;
 }
 
 .scroll-pane {
@@ -158,9 +158,28 @@
 
 /* Make track transparent */
 .scroll-pane .scroll-bar .track {
-    -fx-background-color: #202020;
+    -fx-background-color: #272523;
 }
 
 .scroll-pane > .viewport {
-    -fx-background-color: #202020;
+    -fx-background-color: #272523;
+}
+
+
+
+.move-button {
+    -fx-background-color: #363431;
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: transparent;
+    -fx-font-size: 14px;
+}
+
+.move-button:hover {
+    -fx-background-color: #555555;
+}
+
+.move-button:pressed {
+    -fx-background-color: derive(#272523, -30%);
 }

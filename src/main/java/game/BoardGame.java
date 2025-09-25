@@ -56,7 +56,7 @@ public class BoardGame {
 
     public void undo() {
         System.out.println("Undo Called");
-        if (board.getMoveCount() == 0)
+        if (board.getMoveCount() == 0 || board.getMoveCount() == 1)
             return;
         if (gameState == GameState.GAME_OVER) {
             System.out.println("Undo Game Over");
@@ -69,6 +69,11 @@ public class BoardGame {
 
     public void redo(){
         board.redo();
+        tick();
+    }
+
+    public void goToMove(int move){
+        board.goToMove(move);
         tick();
     }
 

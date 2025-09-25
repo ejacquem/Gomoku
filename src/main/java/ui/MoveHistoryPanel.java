@@ -24,8 +24,8 @@ public class MoveHistoryPanel {
         
         scrollPane = new ScrollPane(moveList);
         scrollPane.setFitToWidth(true);
-        // scrollPane.setFitToHeight(true);
-        scrollPane.setPrefHeight(300);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setPrefHeight(600);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         
         scrollPane.getStyleClass().addAll(".scroll-pane");
@@ -36,6 +36,12 @@ public class MoveHistoryPanel {
         moveList.heightProperty().addListener((obs, oldVal, newVal) -> {
             // only auto-scroll if the user was already at the bottom
             scrollPane.setVvalue(1.0);
+        });
+
+        final double SPEED = 0.001;
+        scrollPane.getContent().setOnScroll(scrollEvent -> {
+            double deltaY = scrollEvent.getDeltaY() * SPEED;
+            scrollPane.setVvalue(scrollPane.getVvalue() - deltaY);
         });
         
 
@@ -68,7 +74,7 @@ public class MoveHistoryPanel {
         });
 
         if (isSelected) {
-            row.setStyle("-fx-background-color: #303030;");
+            row.setStyle("-fx-background-color: #404040;");
         }
 
         return row;
@@ -88,6 +94,10 @@ public class MoveHistoryPanel {
 
     public void clearMoveHistoryData(){
         moveList.getChildren().clear();
+    }
+
+    public VBox getRoot(){
+        return moveList;
     }
 }
 

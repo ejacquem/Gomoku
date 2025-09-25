@@ -47,7 +47,10 @@ public class GameUI {
     private HBox player1Panel;
     private HBox player2Panel;
     private Label infoLabel, moveLabel, playerLabel, winnerLabel;
+    private VBox historyAndButtonPanel;
     private Button restartButton, startButton, randomButton, evaluateButton, undoButton, redoButton;
+    private HBox gameButtonPanel;
+    private Button moveHomeButton, moveBackButton, moveForwardButton, moveEndButton;
     private Background background;
     private VBox titlePane;
     private StackPane evalBar;
@@ -144,6 +147,11 @@ public class GameUI {
         renderer = new BoardRenderer(canvas, overlayCanvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
+        gameButtonPanel = createButtonPanel();
+
+        historyAndButtonPanel = new VBox(0, historyPane, gameButtonPanel);
+        historyAndButtonPanel.setBackground(createBackground(GameSettings.UI_BACKGROUND_DARKER));
+
         rightPanel = new VBox(15, 
             titlePane, 
             restartButton, 
@@ -156,7 +164,7 @@ public class GameUI {
             moveLabel, 
             // playerLabel, 
             winnerLabel, 
-            historyPane);
+            historyAndButtonPanel);
         leftPanel = new VBox(0, player1Panel, canvasStack, player2Panel);
         mainPanel = new HBox(0, evalBar, leftPanel, rightPanel);
         root = new BorderPane(mainPanel);
@@ -173,6 +181,37 @@ public class GameUI {
         HBox.setMargin(rightPanel, new Insets(10, 10, 10, 10)); // top right bot left
 
         bindStuff();
+    }
+
+    private HBox createButtonPanel() {
+        moveHomeButton = new Button("\u23EE");
+        moveBackButton = new Button("\u25C0");
+        moveForwardButton = new Button("\u25B6");
+        moveEndButton = new Button("\u23ED");
+
+        HBox panel = new HBox(5, moveHomeButton, moveBackButton, moveForwardButton, moveEndButton);
+        panel.setMinHeight(50);
+        panel.setPrefHeight(50);
+        panel.setPadding(new Insets(5));
+        panel.setBackground(createBackground(GameSettings.UI_BACKGROUND_DARKER));
+        panel.setAlignment(Pos.CENTER);
+            
+        HBox.setHgrow(moveHomeButton, Priority.ALWAYS);
+        HBox.setHgrow(moveBackButton, Priority.ALWAYS);
+        HBox.setHgrow(moveForwardButton, Priority.ALWAYS);
+        HBox.setHgrow(moveEndButton, Priority.ALWAYS);
+    
+        moveHomeButton.setMaxWidth(Double.MAX_VALUE);
+        moveBackButton.setMaxWidth(Double.MAX_VALUE);
+        moveForwardButton.setMaxWidth(Double.MAX_VALUE);
+        moveEndButton.setMaxWidth(Double.MAX_VALUE);
+
+        moveHomeButton.getStyleClass().addAll("move-button");
+        moveBackButton.getStyleClass().addAll("move-button");
+        moveForwardButton.getStyleClass().addAll("move-button");
+        moveEndButton.getStyleClass().addAll("move-button");
+        
+        return panel;
     }
 
     private Label creatLabel(String text, Font font, Color color) {
@@ -296,7 +335,7 @@ public class GameUI {
         //     new BackgroundFill(GameSettings.PLAYER1_COLOR, new CornerRadii(2), Insets.EMPTY) // rounded corners
         // ));
     
-        Rectangle fill = new Rectangle(width, 50); // start at 0
+        Rectangle fill = new Rectangle(width, 50);
         fill.setFill(GameSettings.PLAYER2_COLOR);
         StackPane.setAlignment(fill, Pos.BOTTOM_CENTER);
     
@@ -374,6 +413,25 @@ public class GameUI {
             game.redo();
             update();
         });
+
+        moveHomeButton.setOnAction(e -> {
+            goToMove(1);
+        });
+
+        moveBackButton.setOnAction(e -> {
+            game.undo();
+            update();
+        });
+
+        moveForwardButton.setOnAction(e -> {
+            game.redo();
+            update();
+        });
+
+        moveEndButton.setOnAction(e -> {
+            goToMove(10000);
+        });
+
 
         playerLabel.textProperty().bind(
             game.currentPlayerProperty().asString("Player %d's turn")
@@ -477,7 +535,7 @@ public class GameUI {
     }
 
     public void goToMove(int move){
-        game.board.goToMove(move);
+        game.goToMove(move);
         update();
     }
 

@@ -7,8 +7,9 @@ public abstract class GameSettings {
     // public static final Color BOARD_COLOR1 = Color.web("#F2F4F3");
     public static final Color BOARD_COLOR2 = Color.web("#a8693f");
     public static final Color BOARD_COLOR_INVERSE = Color.web("#3F7EA8");
+    public static final Color UI_BACKGROUND_LIGHTER = Color.web("#363431");
     public static final Color UI_BACKGROUND = Color.web("#302e2b");
-    // public static final Color UI_BACKGROUND = Color.web("#373533");
+    public static final Color UI_BACKGROUND_DARKER = Color.web("#272523");
     public static final Color PLAYER1_COLOR = Color.web("#f9f9f9");
     public static final Color PLAYER2_COLOR = Color.web("#202020");
     public static final Color PIECE_BORDER_COLOR = Color.web("#101010");
