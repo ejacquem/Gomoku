@@ -1,5 +1,5 @@
 {
     "java.project.referencedLibraries": [
-        "/home/ljacquem/javafx-sdk-17.0.16/lib/*.jar"
+        "lib/javafx-sdk-17.0.16/lib/*.jar"
     ]
 }
