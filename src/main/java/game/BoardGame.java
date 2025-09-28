@@ -188,7 +188,7 @@ public class BoardGame {
     }
 
     public void tick() {
-        System.out.println("tick called");
+        // System.out.println("tick called");
         player1CapturedPieces.set(board.getCaptureCount(1));
         player2CapturedPieces.set(board.getCaptureCount(2));
         switchPlayerTo(board.getCurrentPlayer());

@@ -78,16 +78,18 @@ public class GameUISettings {
             createSettingItem("Draw Best Move",          () -> GameSettings.drawBestMove,           val -> GameSettings.drawBestMove = val),
             createSettingItem("Draw Evaluated Position", () -> GameSettings.drawEvaluatedPosition,  val -> GameSettings.drawEvaluatedPosition = val),
             createSettingItem("Draw Sorted Position",    () -> GameSettings.drawSortedPosition,     val -> GameSettings.drawSortedPosition = val),
+            createSettingItem("Draw Current Search Depth",() -> GameSettings.drawCurrentSearchDepth,  val -> GameSettings.drawCurrentSearchDepth = val),
             new SeparatorMenuItem(),
-            createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawScoreHeatmap,       val -> GameSettings.drawScoreHeatmap = val),
-            createSettingItem("Draw Score Number",       () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
-            createSettingItem("Draw Score Bucket Number",       () -> GameSettings.drawBucketScoreNumber,  val -> GameSettings.drawBucketScoreNumber = val),
-            createSettingItem("Draw Score Player Number",() -> GameSettings.drawScorePlayerNumber,  val -> GameSettings.drawScorePlayerNumber = val),
+            createSettingItem("Draw Heatmap Score",       () -> GameSettings.drawScoreHeatmap,       val -> GameSettings.drawScoreHeatmap = val),
+            createSettingItem("Draw Score Number",        () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
+            createSettingItem("Draw Score Bucket Number", () -> GameSettings.drawBucketScoreNumber,  val -> GameSettings.drawBucketScoreNumber = val),
+            createSettingItem("Draw Score Player Number", () -> GameSettings.drawScorePlayerNumber,  val -> GameSettings.drawScorePlayerNumber = val),
             new SeparatorMenuItem(),
             createSettingItem("Draw Mouse Pos",             () -> GameSettings.drawMousePos,           val -> GameSettings.drawMousePos = val),
             createSettingItem("Draw Mouse Grid Pos",        () -> GameSettings.drawMouseGridPos,       val -> GameSettings.drawMouseGridPos = val),
             createSettingItem("Draw Mouse Cell Pos",        () -> GameSettings.drawMouseCellPos,       val -> GameSettings.drawMouseCellPos = val)
             );
+
         settingsMenu.getItems().addAll(
             createSettingItem("Analyse Board",             () -> GameSettings.analyseBoard,              val -> GameSettings.analyseBoard = val),
             new SeparatorMenuItem(),

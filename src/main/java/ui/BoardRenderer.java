@@ -1,9 +1,12 @@
 package main.java.ui;
 import java.util.List;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import main.java.app.GameSettings;
 import main.java.game.BoardAnalyser.PosScore;
 import main.java.game.BoardGame;
@@ -17,15 +20,18 @@ public class BoardRenderer {
 
     private Canvas canvas;
     private Canvas overlayCanvas;
+    private Canvas renderLoopCanvas;
     private BoardGame game;
     private GraphicsContext gc;
     private GraphicsContext overlayGc;
+    private GraphicsContext renderLoopGc;
     private double canvasWidth;
     private double canvasHeight;
 
-    public BoardRenderer(Canvas canvas, Canvas overlayCanvas, BoardGame game) {
+    public BoardRenderer(Canvas canvas, Canvas overlayCanvas, Canvas renderLoopCanvas, BoardGame game) {
         this.canvas = canvas;
         this.overlayCanvas = overlayCanvas;
+        this.renderLoopCanvas = renderLoopCanvas;
         this.game = game;
 
         canvasWidth = canvas.getWidth();
@@ -33,6 +39,22 @@ public class BoardRenderer {
 
         gc = canvas.getGraphicsContext2D();
         overlayGc = overlayCanvas.getGraphicsContext2D();
+        renderLoopGc = renderLoopCanvas.getGraphicsContext2D();
+    }
+
+    public void startRenderLoop() {
+        Timeline loop = new Timeline(
+            new KeyFrame(Duration.seconds(0.1), event -> {
+                renderLoop();
+            })
+        );
+        loop.setCycleCount(Timeline.INDEFINITE);
+        loop.play();
+    }
+
+    private void renderLoop(){
+        renderLoopGc.clearRect(0, 0, renderLoopCanvas.getWidth(), renderLoopCanvas.getHeight());
+        if (GameSettings.drawCurrentSearchDepth) drawCurrentSearchDepth();
     }
 
     public void draw() {
@@ -211,6 +233,22 @@ public class BoardRenderer {
             // }
             gc.setFill(Color.WHITE);
             gc.fillText(n, px - w * n.length() / 2, py + h / 2);
+        }
+    }
+
+    private void drawCurrentSearchDepth() {
+        final int w = 8, h = 8; // size of a letter
+        for (PosScore posScore : game.AI.getCurrentSearchDepth()) {
+            float radius = TILE_SIZE * 0.8f / 2f;
+            Coords pos = Coords.getCoordsById(posScore.index).add(0);
+            int px = pos.x * TILE_SIZE;
+            int py = pos.y * TILE_SIZE;
+            renderLoopGc.setFill(Color.rgb(0, 0, 0, 0.3f));
+            renderLoopGc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+
+            String n = Integer.toString(posScore.score);
+            renderLoopGc.setFill(Color.WHITE);
+            renderLoopGc.fillText(n, px - w * n.length() / 2, py + h / 2);
         }
     }
 

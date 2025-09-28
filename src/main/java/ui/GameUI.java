@@ -63,6 +63,7 @@ public class GameUI {
 
     private Canvas canvas;
     private Canvas overlayCanvas;
+    private Canvas renderLoopCanvas;
     private BoardRenderer renderer;
     private BoardGame game;
     private GomokuAI AI;
@@ -129,24 +130,30 @@ public class GameUI {
             canvas.getWidth(),
             canvas.getHeight()
         );
+
+        renderLoopCanvas = new Canvas(
+            canvas.getWidth(),
+            canvas.getHeight()
+        );
             
         canvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
         canvas.addEventHandler(MouseEvent.MOUSE_MOVED, e -> handleMouseMove(e));
         overlayCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
         overlayCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, e -> handleMouseMove(e));
+        renderLoopCanvas.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> handleClick(e));
+        renderLoopCanvas.addEventHandler(MouseEvent.MOUSE_MOVED, e -> handleMouseMove(e));
         
         Rectangle clip = new Rectangle(canvas.getWidth(), canvas.getHeight());
         clip.setArcWidth(10);
         clip.setArcHeight(10);
         canvas.setClip(clip);
-        // overlayCanvas.setClip(clip);
 
-        StackPane canvasStack = new StackPane(canvas, overlayCanvas);
+        StackPane canvasStack = new StackPane(canvas, overlayCanvas, renderLoopCanvas);
 
         evalBar = createEvaluationBar(20);
         setBarPercentage(evalBar, 0.5);
 
-        renderer = new BoardRenderer(canvas, overlayCanvas, game);
+        renderer = new BoardRenderer(canvas, overlayCanvas, renderLoopCanvas, game);
         player1Panel = createPlayerPanel(data1, GameSettings.PLAYER2_COLOR);
         player2Panel = createPlayerPanel(data2, GameSettings.PLAYER1_COLOR);
         gameButtonPanel = createButtonPanel();

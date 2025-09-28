@@ -67,7 +67,8 @@ public abstract class GameSettings {
     public static boolean drawScoreNumber = false;
     public static boolean drawBucketScoreNumber = false;
     public static boolean drawScorePlayerNumber = false;
-
+    public static boolean drawCurrentSearchDepth = false;
+    
     public static boolean analyseBoard = false;
     public static boolean player1AI = false;
     public static boolean player2AI = false;

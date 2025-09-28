@@ -39,6 +39,7 @@ public class GameApp extends Application {
         stage.show();
 
         gameUI.update();
+        gameUI.getRenderer().startRenderLoop();
     }
 
     private void setupCursor(Scene scene, BoardGame game) {

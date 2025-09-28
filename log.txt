@@ -1,0 +1,814 @@
+Best Move Score: 0
+Execution time: 2 ms
+prunningCount: 0
+Iteration at depth  1: 1, 0
+Iteration at depth  2: 0, 0
+Iteration at depth  3: 0, 0
+Iteration at depth  4: 0, 0
+Iteration at depth  5: 0, 0
+Iteration at depth  6: 0, 0
+Iteration at depth  7: 0, 0
+Iteration at depth  8: 0, 0
+Iteration at depth  9: 0, 0
+Iteration at depth 10: 0, 0
+Iteration at depth 11: 0, 0
+Iteration at depth 12: 0, 0
+Iteration at depth 13: 0, 0
+Iteration at depth 14: 0, 0
+Iteration at depth 15: 0, 0
+Iteration at depth 16: 0, 0
+Best move: 220
+PlayAi
+Placing a black piece at index: J10
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 24 ms
+prunningCount: 0
+Iteration at depth  1: 8, 0
+Iteration at depth  2: 24, 16
+Iteration at depth  3: 64, 40
+Iteration at depth  4: 234, 178
+Iteration at depth  5: 256, 0
+Iteration at depth  6: 32, 0
+Iteration at depth  7: 0, 0
+Iteration at depth  8: 0, 0
+Iteration at depth  9: 0, 0
+Iteration at depth 10: 0, 0
+Iteration at depth 11: 0, 0
+Iteration at depth 12: 0, 0
+Iteration at depth 13: 0, 0
+Iteration at depth 14: 0, 0
+Iteration at depth 15: 0, 0
+Iteration at depth 16: 0, 0
+Best move: 198
+PlayAi
+Placing a white piece at index: I11
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 62 ms
+prunningCount: 0
+Iteration at depth  1: 12, 0
+Iteration at depth  2: 63, 50
+Iteration at depth  3: 142, 74
+Iteration at depth  4: 667, 532
+Iteration at depth  5: 613, 9
+Iteration at depth  6: 485, 234
+Iteration at depth  7: 244, 2
+Iteration at depth  8: 4, 0
+Iteration at depth  9: 0, 0
+Iteration at depth 10: 0, 0
+Iteration at depth 11: 0, 0
+Iteration at depth 12: 0, 0
+Iteration at depth 13: 0, 0
+Iteration at depth 14: 0, 0
+Iteration at depth 15: 0, 0
+Iteration at depth 16: 0, 0
+Best move: 199
+PlayAi
+Placing a black piece at index: J11
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 65 ms
+prunningCount: 0
+Iteration at depth  1: 12, 0
+Iteration at depth  2: 88, 75
+Iteration at depth  3: 185, 91
+Iteration at depth  4: 1032, 768
+Iteration at depth  5: 951, 89
+Iteration at depth  6: 354, 78
+Iteration at depth  7: 82, 0
+Iteration at depth  8: 1, 0
+Iteration at depth  9: 0, 0
+Iteration at depth 10: 0, 0
+Iteration at depth 11: 0, 0
+Iteration at depth 12: 0, 0
+Iteration at depth 13: 0, 0
+Iteration at depth 14: 0, 0
+Iteration at depth 15: 0, 0
+Iteration at depth 16: 0, 0
+Best move: 178
+PlayAi
+Placing a white piece at index: J12
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 77 ms
+prunningCount: 0
+Iteration at depth  1: 14, 0
+Iteration at depth  2: 134, 120
+Iteration at depth  3: 317, 139
+Iteration at depth  4: 2241, 1929
+Iteration at depth  5: 2216, 102
+Iteration at depth  6: 1444, 648
+Iteration at depth  7: 700, 45
+Iteration at depth  8: 350, 151
+Iteration at depth  9: 192, 33
+Iteration at depth 10: 77, 8
+Iteration at depth 11: 29, 5
+Iteration at depth 12: 7, 2
+Iteration at depth 13: 2, 0
+Iteration at depth 14: 0, 0
+Iteration at depth 15: 0, 0
+Iteration at depth 16: 0, 0
+Best move: 241
+PlayAi
+Placing a black piece at index: J9
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 48 ms
+prunningCount: 0
+Iteration at depth  1: 16, 0
+Iteration at depth  2: 177, 156
+Iteration at depth  3: 412, 230
+Iteration at depth  4: 2660, 2016
+Iteration at depth  5: 2175, 50
+Iteration at depth  6: 928, 375
+Iteration at depth  7: 399, 5
+Iteration at depth  8: 70, 18
+Iteration at depth  9: 31, 3
+Iteration at depth 10: 9, 0
+Iteration at depth 11: 3, 2
+Iteration at depth 12: 3, 0
+Iteration at depth 13: 0, 0
+Iteration at depth 14: 0, 0
+Iteration at depth 15: 0, 0
+Iteration at depth 16: 0, 0
+Best move: 262
+PlayAi
+Placing a white piece at index: J8
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 83 ms
+prunningCount: 0
+Iteration at depth  1: 18, 0
+Iteration at depth  2: 223, 195
+Iteration at depth  3: 650, 355
+Iteration at depth  4: 4566, 3815
+Iteration at depth  5: 4654, 420
+Iteration at depth  6: 2944, 996
+Iteration at depth  7: 1485, 318
+Iteration at depth  8: 719, 187
+Iteration at depth  9: 612, 184
+Iteration at depth 10: 315, 75
+Iteration at depth 11: 225, 60
+Iteration at depth 12: 105, 21
+Iteration at depth 13: 60, 22
+Iteration at depth 14: 45, 21
+Iteration at depth 15: 38, 13
+Iteration at depth 16: 17, 0
+Best move: 158
+PlayAi
+Placing a black piece at index: K13
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 92 ms
+prunningCount: 0
+Iteration at depth  1: 22, 0
+Iteration at depth  2: 280, 256
+Iteration at depth  3: 583, 269
+Iteration at depth  4: 5253, 4580
+Iteration at depth  5: 5413, 360
+Iteration at depth  6: 3860, 1469
+Iteration at depth  7: 2087, 480
+Iteration at depth  8: 1472, 514
+Iteration at depth  9: 939, 284
+Iteration at depth 10: 662, 196
+Iteration at depth 11: 502, 181
+Iteration at depth 12: 372, 108
+Iteration at depth 13: 325, 160
+Iteration at depth 14: 244, 50
+Iteration at depth 15: 239, 129
+Iteration at depth 16: 189, 0
+Best move: 218
+PlayAi
+Placing a white piece at index: H10
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 109 ms
+prunningCount: 0
+Iteration at depth  1: 25, 0
+Iteration at depth  2: 351, 324
+Iteration at depth  3: 873, 454
+Iteration at depth  4: 7293, 5202
+Iteration at depth  5: 5859, 268
+Iteration at depth  6: 3817, 1711
+Iteration at depth  7: 2220, 300
+Iteration at depth  8: 1889, 1032
+Iteration at depth  9: 1722, 378
+Iteration at depth 10: 920, 284
+Iteration at depth 11: 836, 304
+Iteration at depth 12: 542, 85
+Iteration at depth 13: 374, 188
+Iteration at depth 14: 288, 73
+Iteration at depth 15: 339, 207
+Iteration at depth 16: 322, 0
+Best move: 238
+PlayAi
+Placing a black piece at index: G9
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 138 ms
+prunningCount: 0
+Iteration at depth  1: 29, 0
+Iteration at depth  2: 432, 379
+Iteration at depth  3: 1282, 754
+Iteration at depth  4: 10166, 8549
+Iteration at depth  5: 10962, 1372
+Iteration at depth  6: 10873, 6606
+Iteration at depth  7: 8797, 1316
+Iteration at depth  8: 4998, 2216
+Iteration at depth  9: 4180, 1290
+Iteration at depth 10: 3621, 1389
+Iteration at depth 11: 3440, 1270
+Iteration at depth 12: 3962, 1429
+Iteration at depth 13: 3818, 1644
+Iteration at depth 14: 3932, 1566
+Iteration at depth 15: 5419, 2813
+Iteration at depth 16: 6643, 0
+Best move: 240
+PlayAi
+Placing a white piece at index: I9
+LaunchAi
+make best move called
+Best Move Score: -900
+Execution time: 96 ms
+prunningCount: 0
+Iteration at depth  1: 28, 0
+Iteration at depth  2: 474, 438
+Iteration at depth  3: 1082, 597
+Iteration at depth  4: 9628, 8574
+Iteration at depth  5: 9044, 265
+Iteration at depth  6: 7691, 4478
+Iteration at depth  7: 4838, 266
+Iteration at depth  8: 4554, 3454
+Iteration at depth  9: 3987, 301
+Iteration at depth 10: 4244, 3076
+Iteration at depth 11: 3745, 455
+Iteration at depth 12: 3945, 2551
+Iteration at depth 13: 3272, 491
+Iteration at depth 14: 3742, 2644
+Iteration at depth 15: 3385, 572
+Iteration at depth 16: 4408, 0
+Best move: 196
+PlayAi
+Placing a black piece at index: G11
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 201 ms
+prunningCount: 0
+Iteration at depth  1: 30, 0
+Iteration at depth  2: 522, 489
+Iteration at depth  3: 1137, 544
+Iteration at depth  4: 12025, 10615
+Iteration at depth  5: 12449, 803
+Iteration at depth  6: 7680, 3555
+Iteration at depth  7: 5293, 1205
+Iteration at depth  8: 5617, 2648
+Iteration at depth  9: 5303, 1844
+Iteration at depth 10: 8036, 3160
+Iteration at depth 11: 7621, 3222
+Iteration at depth 12: 10360, 3919
+Iteration at depth 13: 13272, 6707
+Iteration at depth 14: 17864, 7262
+Iteration at depth 15: 29905, 15368
+Iteration at depth 16: 41353, 0
+Best move: 284
+PlayAi
+Placing a white piece at index: K7
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 150 ms
+prunningCount: 0
+Iteration at depth  1: 34, 0
+Iteration at depth  2: 647, 612
+Iteration at depth  3: 662, 36
+Iteration at depth  4: 13002, 10769
+Iteration at depth  5: 10981, 76
+Iteration at depth  6: 12765, 8189
+Iteration at depth  7: 8519, 180
+Iteration at depth  8: 7819, 5558
+Iteration at depth  9: 6140, 337
+Iteration at depth 10: 6948, 5282
+Iteration at depth 11: 6002, 458
+Iteration at depth 12: 8164, 6253
+Iteration at depth 13: 6962, 486
+Iteration at depth 14: 9643, 7452
+Iteration at depth 15: 8251, 510
+Iteration at depth 16: 12898, 0
+Best move: 306
+PlayAi
+Placing a black piece at index: L6
+LaunchAi
+make best move called
+Best Move Score: 0
+Execution time: 340 ms
+prunningCount: 0
+Iteration at depth  1: 38, 0
+Iteration at depth  2: 746, 673
+Iteration at depth  3: 2708, 1541
+Iteration at depth  4: 27478, 20660
+Iteration at depth  5: 26478, 3935
+Iteration at depth  6: 23690, 11584
+Iteration at depth  7: 16903, 3687
+Iteration at depth  8: 17981, 8353
+Iteration at depth  9: 15042, 5076
+Iteration at depth 10: 18897, 8477
+Iteration at depth 11: 20100, 9217
+Iteration at depth 12: 23309, 9395
+Iteration at depth 13: 34816, 18506
+Iteration at depth 14: 43023, 17801
+Iteration at depth 15: 77076, 43424
+Iteration at depth 16: 104492, 0
+Best move: 217
+PlayAi
+Placing a white piece at index: G10
+LaunchAi
+make best move called
+Best Move Score: -400
+Execution time: 1224 ms
+prunningCount: 0
+Iteration at depth  1: 37, 0
+Iteration at depth  2: 777, 710
+Iteration at depth  3: 2359, 1300
+Iteration at depth  4: 26462, 23497
+Iteration at depth  5: 30205, 4144
+Iteration at depth  6: 45162, 31712
+Iteration at depth  7: 41373, 5588
+Iteration at depth  8: 65458, 46616
+Iteration at depth  9: 74502, 18339
+Iteration at depth 10: 112570, 74525
+Iteration at depth 11: 141449, 46960
+Iteration at depth 12: 209440, 128106
+Iteration at depth 13: 292863, 112401
+Iteration at depth 14: 435135, 261047
+Iteration at depth 15: 646777, 260316
+Iteration at depth 16: 1148759, 0
+Best move: 216
+PlayAi
+Placing a black piece at index: F10
+LaunchAi
+make best move called
+Best Move Score: 500
+Execution time: 1283 ms
+prunningCount: 0
+Iteration at depth  1: 39, 0
+Iteration at depth  2: 840, 790
+Iteration at depth  3: 2298, 1189
+Iteration at depth  4: 26800, 25055
+Iteration at depth  5: 32532, 6081
+Iteration at depth  6: 41303, 27579
+Iteration at depth  7: 39834, 8966
+Iteration at depth  8: 48351, 27169
+Iteration at depth  9: 45566, 13185
+Iteration at depth 10: 67964, 36477
+Iteration at depth 11: 74226, 25970
+Iteration at depth 12: 115755, 59911
+Iteration at depth 13: 158785, 66881
+Iteration at depth 14: 282309, 150887
+Iteration at depth 15: 485359, 225796
+Iteration at depth 16: 999153, 0
+Best move: 219
+PlayAi
+Placing a white piece at index: I10
+LaunchAi
+make best move called
+Best Move Score: -500
+Execution time: 558 ms
+prunningCount: 0
+Iteration at depth  1: 38, 0
+Iteration at depth  2: 801, 736
+Iteration at depth  3: 2285, 1384
+Iteration at depth  4: 22830, 20751
+Iteration at depth  5: 24517, 2308
+Iteration at depth  6: 31307, 23620
+Iteration at depth  7: 27185, 1797
+Iteration at depth  8: 38177, 30818
+Iteration at depth  9: 35560, 2524
+Iteration at depth 10: 50234, 39827
+Iteration at depth 11: 46350, 3939
+Iteration at depth 12: 89705, 71150
+Iteration at depth 13: 84410, 9151
+Iteration at depth 14: 198087, 145059
+Iteration at depth 15: 197289, 36791
+Iteration at depth 16: 473346, 0
+Best move: 177
+PlayAi
+Placing a black piece at index: I12
+LaunchAi
+make best move called
+Best Move Score: 1000
+Execution time: 3376 ms
+prunningCount: 0
+Iteration at depth  1: 38, 0
+Iteration at depth  2: 816, 742
+Iteration at depth  3: 3531, 2305
+Iteration at depth  4: 32001, 28614
+Iteration at depth  5: 40166, 8732
+Iteration at depth  6: 47197, 26537
+Iteration at depth  7: 40922, 10097
+Iteration at depth  8: 66289, 36272
+Iteration at depth  9: 59857, 17990
+Iteration at depth 10: 104563, 54070
+Iteration at depth 11: 113190, 46548
+Iteration at depth 12: 196724, 103557
+Iteration at depth 13: 292644, 151477
+Iteration at depth 14: 537656, 271032
+Iteration at depth 15: 972047, 578180
+Iteration at depth 16: 1809116, 0
+Best move: 155
+PlayAi
+Placing a white piece at index: H13
+LaunchAi
+make best move called
+Best Move Score: -600
+Execution time: 8332 ms
+prunningCount: 0
+Iteration at depth  1: 41, 0
+Iteration at depth  2: 905, 832
+Iteration at depth  3: 2906, 1682
+Iteration at depth  4: 33350, 30910
+Iteration at depth  5: 44039, 10802
+Iteration at depth  6: 79797, 63957
+Iteration at depth  7: 105579, 23928
+Iteration at depth  8: 159106, 114959
+Iteration at depth  9: 212880, 59153
+Iteration at depth 10: 327378, 227458
+Iteration at depth 11: 460431, 143396
+Iteration at depth 12: 811488, 578742
+Iteration at depth 13: 1198192, 387834
+Iteration at depth 14: 2616515, 1954048
+Iteration at depth 15: 3957248, 1327308
+Iteration at depth 16: 10636821, 0
+Best move: 194
+PlayAi
+Placing a black piece at index: E11
+LaunchAi
+make best move called
+Best Move Score: 1100
+Execution time: 7826 ms
+prunningCount: 0
+Iteration at depth  1: 44, 0
+Iteration at depth  2: 1043, 948
+Iteration at depth  3: 3806, 2428
+Iteration at depth  4: 38357, 34801
+Iteration at depth  5: 49344, 11421
+Iteration at depth  6: 112871, 88843
+Iteration at depth  7: 115534, 19763
+Iteration at depth  8: 284063, 194077
+Iteration at depth  9: 242781, 36595
+Iteration at depth 10: 560160, 359098
+Iteration at depth 11: 485772, 97308
+Iteration at depth 12: 1171752, 746840
+Iteration at depth 13: 1133326, 310332
+Iteration at depth 14: 2837952, 1799434
+Iteration at depth 15: 3227158, 1194088
+Iteration at depth 16: 7966843, 0
+Best move: 282
+PlayAi
+Placing a white piece at index: I7
+LaunchAi
+make best move called
+Best Move Score: -1100
+Execution time: 4306 ms
+prunningCount: 0
+Iteration at depth  1: 46, 0
+Iteration at depth  2: 1194, 1144
+Iteration at depth  3: 1379, 122
+Iteration at depth  4: 30718, 30474
+Iteration at depth  5: 31513, 840
+Iteration at depth  6: 74990, 72615
+Iteration at depth  7: 75567, 2316
+Iteration at depth  8: 152708, 135255
+Iteration at depth  9: 143785, 6097
+Iteration at depth 10: 302961, 254806
+Iteration at depth 11: 277118, 15002
+Iteration at depth 12: 672421, 572699
+Iteration at depth 13: 630329, 38350
+Iteration at depth 14: 1835502, 1515374
+Iteration at depth 15: 1676505, 113970
+Iteration at depth 16: 5347832, 0
+Best move: 261
+PlayAi
+Placing a black piece at index: I8
+LaunchAi
+make best move called
+Best Move Score: 1000
+Execution time: 14868 ms
+prunningCount: 0
+Iteration at depth  1: 45, 0
+Iteration at depth  2: 1150, 1048
+Iteration at depth  3: 3888, 2670
+Iteration at depth  4: 39929, 35682
+Iteration at depth  5: 59212, 17448
+Iteration at depth  6: 126071, 97650
+Iteration at depth  7: 142988, 30752
+Iteration at depth  8: 321950, 216029
+Iteration at depth  9: 291796, 56083
+Iteration at depth 10: 681265, 439190
+Iteration at depth 11: 643712, 147913
+Iteration at depth 12: 1589872, 1044110
+Iteration at depth 13: 1703620, 501741
+Iteration at depth 14: 4305002, 2848442
+Iteration at depth 15: 5523918, 2162490
+Iteration at depth 16: 14125688, 0
+Best move: 236
+PlayAi
+Placing a white piece at index: E9
+LaunchAi
+make best move called
+Best Move Score: -1000
+Execution time: 30039 ms
+prunningCount: 0
+Iteration at depth  1: 47, 0
+Iteration at depth  2: 1262, 1154
+Iteration at depth  3: 4051, 2456
+Iteration at depth  4: 50202, 45604
+Iteration at depth  5: 73255, 19964
+Iteration at depth  6: 181997, 143658
+Iteration at depth  7: 248808, 64415
+Iteration at depth  8: 521893, 390341
+Iteration at depth  9: 738983, 205637
+Iteration at depth 10: 1398961, 1045786
+Iteration at depth 11: 2107843, 635490
+Iteration at depth 12: 4160128, 3055594
+Iteration at depth 13: 6196853, 1954789
+Iteration at depth 14: 13743332, 10082112
+Iteration at depth 15: 19264505, 5940544
+Iteration at depth 16: 50971832, 0
+Best move: 176
+PlayAi
+Placing a black piece at index: H12
+LaunchAi
+make best move called
+Best Move Score: 1000
+Execution time: 30006 ms
+prunningCount: 0
+Iteration at depth  1: 46, 0
+Iteration at depth  2: 1224, 1068
+Iteration at depth  3: 5153, 3798
+Iteration at depth  4: 45601, 40231
+Iteration at depth  5: 74950, 28506
+Iteration at depth  6: 176817, 132676
+Iteration at depth  7: 216960, 66651
+Iteration at depth  8: 591564, 360840
+Iteration at depth  9: 565524, 167119
+Iteration at depth 10: 1630329, 930242
+Iteration at depth 11: 1507809, 467136
+Iteration at depth 12: 4402243, 2660674
+Iteration at depth 13: 4712416, 1670273
+Iteration at depth 14: 13497769, 8563232
+Iteration at depth 15: 17801015, 7797480
+Iteration at depth 16: 50031914, 0
+Best move: 175
+PlayAi
+Placing a white piece at index: G12
+LaunchAi
+make best move called
+Best Move Score: -2000
+Execution time: 13836 ms
+prunningCount: 0
+Iteration at depth  1: 48, 0
+Iteration at depth  2: 1378, 1277
+Iteration at depth  3: 4531, 2953
+Iteration at depth  4: 50176, 45289
+Iteration at depth  5: 61752, 8563
+Iteration at depth  6: 101793, 80177
+Iteration at depth  7: 112404, 17426
+Iteration at depth  8: 216571, 163461
+Iteration at depth  9: 251439, 48708
+Iteration at depth 10: 558769, 455327
+Iteration at depth 11: 697334, 136376
+Iteration at depth 12: 1764670, 1419640
+Iteration at depth 13: 2048020, 346720
+Iteration at depth 14: 6247084, 4845556
+Iteration at depth 15: 6606838, 1059028
+Iteration at depth 16: 23751603, 0
+Best move: 156
+PlayAi
+Placing a black piece at index: I13
+LaunchAi
+make best move called
+Best Move Score: 49880
+Execution time: 15933 ms
+prunningCount: 0
+Iteration at depth  1: 47, 0
+Iteration at depth  2: 1379, 1332
+Iteration at depth  3: 2666, 1283
+Iteration at depth  4: 43417, 41280
+Iteration at depth  5: 42483, 725
+Iteration at depth  6: 191846, 69832
+Iteration at depth  7: 73150, 2202
+Iteration at depth  8: 202818, 139433
+Iteration at depth  9: 153934, 12498
+Iteration at depth 10: 556332, 257384
+Iteration at depth 11: 345083, 75654
+Iteration at depth 12: 1053270, 563957
+Iteration at depth 13: 1022638, 370128
+Iteration at depth 14: 2790241, 1482940
+Iteration at depth 15: 3269214, 1352981
+Iteration at depth 16: 8417161, 0
+Best move: 176
+PlayAi
+Placing a white piece at index: H12
+LaunchAi
+make best move called
+Best Move Score: -49890
+Execution time: 30978 ms
+prunningCount: 0
+Iteration at depth  1: 48, 0
+Iteration at depth  2: 1423, 354
+Iteration at depth  3: 1705, 27
+Iteration at depth  4: 11939, 11212
+Iteration at depth  5: 11474, 126
+Iteration at depth  6: 47827, 46428
+Iteration at depth  7: 47153, 376
+Iteration at depth  8: 211989, 206939
+Iteration at depth  9: 208986, 1100
+Iteration at depth 10: 922125, 865682
+Iteration at depth 11: 868750, 895
+Iteration at depth 12: 4123321, 3590418
+Iteration at depth 13: 3596107, 3946
+Iteration at depth 14: 17584135, 13838682
+Iteration at depth 15: 13856895, 11083
+Iteration at depth 16: 70015469, 0
+Best move: 196
+PlayAi
+Placing a black piece at index: G11
+LaunchAi
+make best move called
+Best Move Score: 49940
+Execution time: 30971 ms
+prunningCount: 0
+Iteration at depth  1: 47, 0
+Iteration at depth  2: 1336, 144
+Iteration at depth  3: 2157, 1266
+Iteration at depth  4: 10280, 5714
+Iteration at depth  5: 23300, 15735
+Iteration at depth  6: 50150, 23567
+Iteration at depth  7: 112237, 82080
+Iteration at depth  8: 204507, 71368
+Iteration at depth  9: 517396, 413221
+Iteration at depth 10: 761548, 211409
+Iteration at depth 11: 2523620, 2065420
+Iteration at depth 12: 2713223, 246143
+Iteration at depth 13: 11041795, 8571112
+Iteration at depth 14: 9649592, 516015
+Iteration at depth 15: 44930507, 32166784
+Iteration at depth 16: 34916146, 0
+Best move: 177
+PlayAi
+Placing a white piece at index: I12
+LaunchAi
+make best move called
+Best Move Score: -49950
+Execution time: 30908 ms
+prunningCount: 0
+Iteration at depth  1: 46, 0
+Iteration at depth  2: 1321, 320
+Iteration at depth  3: 1680, 129
+Iteration at depth  4: 11508, 10553
+Iteration at depth  5: 11803, 278
+Iteration at depth  6: 51664, 50762
+Iteration at depth  7: 51242, 318
+Iteration at depth  8: 243716, 234024
+Iteration at depth  9: 234761, 351
+Iteration at depth 10: 1010179, 865838
+Iteration at depth 11: 866858, 578
+Iteration at depth 12: 4398847, 3397086
+Iteration at depth 13: 3399121, 1193
+Iteration at depth 14: 18065726, 12551572
+Iteration at depth 15: 12557373, 3581
+Iteration at depth 16: 70523030, 0
+Best move: 174
+PlayAi
+Placing a black piece at index: F12
+LaunchAi
+make best move called
+Best Move Score: 49960
+Execution time: 30848 ms
+prunningCount: 0
+Iteration at depth  1: 46, 0
+Iteration at depth  2: 1387, 208
+Iteration at depth  3: 1928, 866
+Iteration at depth  4: 12393, 5083
+Iteration at depth  5: 17418, 11445
+Iteration at depth  6: 39486, 18630
+Iteration at depth  7: 90667, 68102
+Iteration at depth  8: 153204, 57645
+Iteration at depth  9: 457545, 359901
+Iteration at depth 10: 619517, 172268
+Iteration at depth 11: 2066578, 1505527
+Iteration at depth 12: 2386201, 534755
+Iteration at depth 13: 8675815, 5924315
+Iteration at depth 14: 9689736, 2304269
+Iteration at depth 15: 38341765, 24078119
+Iteration at depth 16: 45137488, 0
+Best move: 179
+PlayAi
+Placing a white piece at index: K12
+LaunchAi
+make best move called
+Best Move Score: -49970
+Execution time: 1456 ms
+prunningCount: 0
+Iteration at depth  1: 46, 0
+Iteration at depth  2: 61, 59
+Iteration at depth  3: 116, 0
+Iteration at depth  4: 1969, 1967
+Iteration at depth  5: 1967, 0
+Iteration at depth  6: 9682, 9627
+Iteration at depth  7: 9627, 0
+Iteration at depth  8: 22944, 17227
+Iteration at depth  9: 17227, 0
+Iteration at depth 10: 47746, 31995
+Iteration at depth 11: 31995, 0
+Iteration at depth 12: 95027, 61188
+Iteration at depth 13: 61188, 0
+Iteration at depth 14: 219280, 121154
+Iteration at depth 15: 121154, 0
+Iteration at depth 16: 498030, 0
+Best move: 154
+PlayAi
+Placing a black piece at index: G13
+LaunchAi
+make best move called
+Best Move Score: 49980
+Execution time: 23021 ms
+prunningCount: 0
+Iteration at depth  1: 48, 0
+Iteration at depth  2: 1541, 1461
+Iteration at depth  3: 3272, 1712
+Iteration at depth  4: 50363, 6358
+Iteration at depth  5: 30802, 23284
+Iteration at depth  6: 47828, 17625
+Iteration at depth  7: 86305, 44288
+Iteration at depth  8: 119172, 51668
+Iteration at depth  9: 271427, 148147
+Iteration at depth 10: 412865, 194580
+Iteration at depth 11: 1033390, 594576
+Iteration at depth 12: 1576078, 705117
+Iteration at depth 13: 4174395, 2288931
+Iteration at depth 14: 5772487, 2368725
+Iteration at depth 15: 15652142, 8123989
+Iteration at depth 16: 17070218, 0
+Best move: 176
+PlayAi
+Placing a white piece at index: H12
+LaunchAi
+make best move called
+Best Move Score: -49990
+Execution time: 1443 ms
+prunningCount: 0
+Iteration at depth  1: 47, 0
+Iteration at depth  2: 32, 31
+Iteration at depth  3: 31, 0
+Iteration at depth  4: 1071, 1070
+Iteration at depth  5: 1070, 0
+Iteration at depth  6: 4487, 4477
+Iteration at depth  7: 4477, 0
+Iteration at depth  8: 8664, 7952
+Iteration at depth  9: 7952, 0
+Iteration at depth 10: 27375, 21085
+Iteration at depth 11: 21085, 0
+Iteration at depth 12: 79588, 43960
+Iteration at depth 13: 43960, 0
+Iteration at depth 14: 159155, 58560
+Iteration at depth 15: 58560, 0
+Iteration at depth 16: 245093, 0
+Best move: 133
+PlayAi
+Placing a black piece at index: G14
+LaunchAi
+make best move called
+Best Move Score: 50000
+Execution time: 30247 ms
+prunningCount: 0
+Iteration at depth  1: 51, 0
+Iteration at depth  2: 1656, 1572
+Iteration at depth  3: 3367, 1720
+Iteration at depth  4: 8840, 2137
+Iteration at depth  5: 25219, 22456
+Iteration at depth  6: 34775, 8844
+Iteration at depth  7: 53097, 36848
+Iteration at depth  8: 95445, 30345
+Iteration at depth  9: 204134, 125620
+Iteration at depth 10: 448496, 192556
+Iteration at depth 11: 933527, 344450
+Iteration at depth 12: 1991278, 934530
+Iteration at depth 13: 3110317, 828642
+Iteration at depth 14: 6051684, 2853259
+Iteration at depth 15: 8118472, 2035533
+Iteration at depth 16: 14742332, 0
+Best move: 177
+PlayAi
+Placing a white piece at index: I12

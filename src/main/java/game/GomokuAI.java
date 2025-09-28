@@ -13,7 +13,6 @@ import javafx.beans.property.SimpleLongProperty;
 import main.java.game.BoardAnalyser.PosScore;
 
 public class GomokuAI {
-    private Board board;
     public BoardAnalyser boardAnalyser;
 
     private final LongProperty player1Score = new SimpleLongProperty(1);
@@ -30,7 +29,7 @@ public class GomokuAI {
     private List<GomokuBot> bots = new ArrayList<>();
 
     private long start = 0;
-    public final int MAX_DEPTH = 16;
+    public final int MAX_DEPTH = 30;
     private AIState state = AIState.READY;
     private int bestEval;
 
@@ -80,6 +79,7 @@ public class GomokuAI {
     public void reset() {
         evaluatedPos.clear();
         start = 0;
+        bots.clear();
     }
 
     // public int getBestMove() {
@@ -89,7 +89,6 @@ public class GomokuAI {
     public void makeBestMove(BoardAnalyser boardAnalyser) {
         state = AIState.THINKING;
         this.boardAnalyser = boardAnalyser.deepCopy();
-        this.board = this.boardAnalyser.board;
         System.out.println("make best move called");
         new Thread(() -> {
             reset();
@@ -116,15 +115,11 @@ public class GomokuAI {
         bots.clear();
         for (int i = 0; i < sortedPos.size(); i++) {
             PosScore pos = sortedPos.get(i);
-            board.placePieceAt(pos.index);
-            // boardAnalyser.scanLastMove();
             // System.out.println("----------- Ai launch thread " + i + "\n" + board.toString());
             // System.out.println("Laucnh Bot for move " + GomokuUtils.indexToString(pos.index));
-            bots.add(new GomokuBot(boardAnalyser, MAX_DEPTH, i));
+            bots.add(new GomokuBot(boardAnalyser, MAX_DEPTH, i, pos.index));
             Future<Integer> future = executor.submit(bots.get(i));
             result.add(future);
-
-            board.undo();
         }
 
         for (int i = 0; i < sortedPos.size(); i++) {
@@ -147,6 +142,14 @@ public class GomokuAI {
 
         executor.shutdown();
         state = AIState.IDLE;
+    }
+
+    public List<PosScore> getCurrentSearchDepth() {
+        List<PosScore> list = new ArrayList<>();
+        for (GomokuBot bot : bots){
+            list.add(new PosScore(bot.startIndex, bot.currentDepth));
+        }
+        return list;
     }
 
     // private void printThinkingResult(int bestEval, int bestMove) {
