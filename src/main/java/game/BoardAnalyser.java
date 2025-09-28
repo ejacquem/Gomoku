@@ -111,29 +111,47 @@ public class BoardAnalyser implements BoardListener {
         }
     }
 
+    private static final int SCORE_OFFSET = 9;
+    private static final int[][] SCORE_LOOK_TABLE = new int[19][19]; // -9 to 9
+
+    static {
+        for (int left = -9; left <= 9; left++){
+            for (int right = -9; right <= 9; right++){
+                SCORE_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(left, right);
+            }
+        }
+    }
+
     private void computeScoreAtPos(int index) {
         int[] grid = getCurrentScoreGrid();
         int score = 0;
+        int cellInfoIndex = index * CELL_INFO_SIZE;
         for (int i = 0; i < 4; i++) {
-            int left = grid[index * CELL_INFO_SIZE + i];
-            int right = grid[index * CELL_INFO_SIZE + (7 - i)];
-            if (left != 0 && Integer.signum(left) == Integer.signum(right)) {
-                 // if capture or enough space add score
-                if (Math.abs(left) == 9 || Math.abs(right) == 9 || isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i])) {
-                    score += getScoreFromDoublePieceNumber(Math.abs(left), Math.abs(right));
-                }
-            }
-            else{
-                if (Math.abs(left) == 9 || isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i]))
-                    score += getScoreFromPieceNumber(Math.abs(left));
-                if (Math.abs(right) == 9 || isEnoughSpace(index, (Integer.signum(right) == 1 ? 1 : 2), Board.DIRECTION4[i]))
-                    score += getScoreFromPieceNumber(Math.abs(right));
-            }
+            int left = grid[cellInfoIndex + i];
+            int right = grid[cellInfoIndex + (7 - i)];
+            // score += computeScoreFromPieceNumber(left, right);
+            score += SCORE_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right];
+            // if (Math.abs(left) != 9 && Math.abs(right) != 9 && !isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i])){
+            //     score = 0;
+            // }
         }
         setScoreAtPos(index, score);
     }
 
-    private int getScoreFromPieceNumber(int pieceNumber) {
+    private static int computeScoreFromPieceNumber(int left, int right){
+        int score = 0;
+        if (left != 0 && Integer.signum(left) == Integer.signum(right)) {
+            // if capture or enough space add score
+            score += getScoreFromDoublePieceNumber(Math.abs(left), Math.abs(right));
+       }
+       else{
+            score += getScoreFromPieceNumber(Math.abs(left));
+            score += getScoreFromPieceNumber(Math.abs(right));
+       }
+       return score;
+    }
+
+    private static int getScoreFromPieceNumber(int pieceNumber) {
         switch (pieceNumber) {
             case 1: return 1;
             case 2: return 2;
@@ -144,7 +162,7 @@ public class BoardAnalyser implements BoardListener {
         return 0;
     }
 
-    private int getScoreFromDoublePieceNumber(int leftPieceNumber, int rightPieceNumber) {
+    private static int getScoreFromDoublePieceNumber(int leftPieceNumber, int rightPieceNumber) {
         switch (leftPieceNumber + rightPieceNumber) {
             case 0: return 0;
             case 1: return 1;
