@@ -81,6 +81,7 @@ public class GameUISettings {
             new SeparatorMenuItem(),
             createSettingItem("Draw Heatmap Score",      () -> GameSettings.drawScoreHeatmap,       val -> GameSettings.drawScoreHeatmap = val),
             createSettingItem("Draw Score Number",       () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
+            createSettingItem("Draw Score Bucket Number",       () -> GameSettings.drawBucketScoreNumber,  val -> GameSettings.drawBucketScoreNumber = val),
             createSettingItem("Draw Score Player Number",() -> GameSettings.drawScorePlayerNumber,  val -> GameSettings.drawScorePlayerNumber = val),
             new SeparatorMenuItem(),
             createSettingItem("Draw Mouse Pos",             () -> GameSettings.drawMousePos,           val -> GameSettings.drawMousePos = val),

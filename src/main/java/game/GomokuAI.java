@@ -30,7 +30,7 @@ public class GomokuAI {
     private List<GomokuBot> bots = new ArrayList<>();
 
     private long start = 0;
-    public final int MAX_DEPTH = 12;
+    public final int MAX_DEPTH = 16;
     private AIState state = AIState.READY;
     private int bestEval;
 

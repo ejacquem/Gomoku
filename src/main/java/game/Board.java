@@ -73,9 +73,16 @@ public class Board {
 
     /* Core Action */
 
+    private void setPieceAt(int index, int value) {
+        board[index] = value;
+    }
+
     private void addPieceAt(int index, int player) {
         if (!isSpaceAt(index)) { // remove later for efficiency
-            throw new IllegalStateException("No space at index " + index); 
+            System.out.println("Can't place at index " + index);
+            printAll();
+            System.exit(0);
+            // throw new IllegalStateException("No space at index " + index); 
         }
         pieceCount[player - 1]++;
         setPieceAt(index, player);
@@ -484,10 +491,6 @@ public class Board {
 
     /* setter */
 
-    private void setPieceAt(int index, int value) {
-        board[index] = value;
-    }
-
     private void setWinner(int player) {
         winner = player;
     }
@@ -640,9 +643,9 @@ public class Board {
     public void printAll(){
         System.out.println("Print Board: ");
         while (moveCount > 0){
-            EGChistory[moveCount] = false;
             printBoard();
             undo();
+            if (moveCount == 0 || historyIndex == 0) break;
         }
     }
 }

@@ -60,6 +60,7 @@ public class BoardRenderer {
         if (GameSettings.drawSortedPosition) drawSortedPosition();
         if (GameSettings.drawScoreHeatmap) drawScoreHeatmap();
         if (GameSettings.drawScoreNumber) drawScoreNumber();
+        if (GameSettings.drawBucketScoreNumber) drawBucketScoreNumber();
         if (GameSettings.drawScorePlayerNumber) drawScorePlayerNumber();
         gc.translate(-MARGIN, -MARGIN);
     }
@@ -254,6 +255,15 @@ public class BoardRenderer {
                 int score = game.boardAnalyser.getScoreAtPos(pos.add(1).getId());
                 if (score != 0)
                     drawNumberAt(pos, 0, 0, Math.abs(score), Color.ORANGE);
+            }
+        }
+    }
+
+    private void drawBucketScoreNumber() {
+        for (int score = game.boardAnalyser.scoreBuckets.buckets.length - 1; score > 0; score--) {
+            for (int index : game.boardAnalyser.scoreBuckets.buckets[score]){
+                Coords pos = Coords.getCoordsById(index, GameSettings.BOARD_SIZE).add(-1);
+                drawNumberAt(pos, 0, 2, Math.abs(score), Color.ORANGE);
             }
         }
     }

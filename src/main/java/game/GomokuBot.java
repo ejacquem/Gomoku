@@ -3,8 +3,6 @@ package main.java.game;
 import java.util.List;
 import java.util.concurrent.*;
 
-import main.java.game.BoardAnalyser.PosScore;
-
 // Worker that evaluates a single move
 class GomokuBot implements Callable<Integer> {
     private final BoardAnalyser boardAnalyser;
@@ -24,7 +22,7 @@ class GomokuBot implements Callable<Integer> {
 
     public GomokuBot(BoardAnalyser boardAnalyser, int maxDepth, int id) {
         // deep copy so each thread works independently
-        this.boardAnalyser = boardAnalyser.deepCopy(); 
+        this.boardAnalyser = boardAnalyser.deepCopy();
         this.board = this.boardAnalyser.board;
         this.MAX_DEPTH = maxDepth;
         this.id = id;
@@ -44,7 +42,7 @@ class GomokuBot implements Callable<Integer> {
         return -search(MAX_DEPTH, -INF, INF);
     }
 
-    private int[] playerPositionScore = new int[2];
+    // private int[] playerPositionScore = new int[2];
     public int evaluate(int depth) {
         if (board.getWinner() != 0) {
             int score = (50_000 - (MAX_DEPTH - depth) * 10);
@@ -54,7 +52,7 @@ class GomokuBot implements Callable<Integer> {
             return score;
         }
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
-        boardAnalyser.getPlayerScore(playerPositionScore);
+        // boardAnalyser.getPlayerScore(playerPositionScore);
         int player1CaptureScore = captureScore[board.getCaptureCount(1) / 2];
         int player2CaptureScore = captureScore[board.getCaptureCount(2) / 2];
         if (player1CaptureScore > 0) player1CaptureScore -= (MAX_DEPTH - depth) * 100;
@@ -95,23 +93,25 @@ class GomokuBot implements Callable<Integer> {
             return evaluate(depth);
         }
 
-        List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
+        // List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
+
+
+        int minScore = 1;
+        if (depth <= MAX_DEPTH - 2) {
+            minScore = 2;
+        }
+        if (depth <= MAX_DEPTH - 3) {
+            minScore = 20;
+        }
+        if (depth <= MAX_DEPTH - 4) {
+            minScore = 75;
+        }
+
+        List<Integer> sortedPos = boardAnalyser.scoreBuckets.getMovesSortedAbove(minScore);
 
         int value = -INF;
-        for (PosScore pos : sortedPos) {
-            if (depth <= MAX_DEPTH - 1 && pos.score <= 1) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 2 && pos.score <= 2) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 3 && pos.score < 20) {
-                break;
-            }
-            if (depth <= MAX_DEPTH - 4 && pos.score < 100) {
-                break;
-            }
-            board.placePieceAt(pos.index);
+        for (int index : sortedPos) {
+            board.placePieceAt(index);
             
             value = Math.max(value, -search(depth - 1, -beta, -alpha));
             alpha = Math.max(alpha, value);

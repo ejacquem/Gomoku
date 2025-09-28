@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import main.java.app.GameSettings;
+import main.java.utils.ScoreBuckets;
 /*
  * 
  * Todo :
@@ -19,34 +20,49 @@ import main.java.app.GameSettings;
 public class BoardAnalyser implements BoardListener {
     public final Board board;
     // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
-    private static final int CELL_INFO_SIZE = 8 + 8 + 1;
-    private static final int CELL_INFO_SCORE_INDEX = 8 + 8;
+    private static final int CELL_INFO_SIZE = 8 + 1;
+    private static final int CELL_INFO_SCORE_INDEX = 8;
     private static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX * CELL_INFO_SIZE;
     private static final int MAX_HISTORY_LEN = 500;
     private int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
     private int[] pieceBoard; // to avoid board.getPieceAt() call
     private int moveCount = 0;
 
+    public static final int MAX_SCORE = 100;
+    public final ScoreBuckets scoreBuckets;
+
+    public BoardAnalyser(Board board, ScoreBuckets scoreBuckets) {
+        this.board = board;
+        this.board.setListener(this);
+        this.pieceBoard = board.getBoard();
+        this.scoreBuckets = scoreBuckets;
+    }
+
     public BoardAnalyser(Board board) {
         this.board = board;
         this.board.setListener(this);
         this.pieceBoard = board.getBoard();
+        this.scoreBuckets = new ScoreBuckets(MAX_SCORE);
     }
 
     @Override
     public void onMovePlaced() {
         updateMoveCount();
+        scoreBuckets.startMove();
         scanLastMove();
+        // scoreBuckets.printCurrentBuckets();
     }
 
     @Override
     public void onUndo() {
         updateMoveCount();
+        scoreBuckets.undoMove();
     }
 
     @Override
     public void onRedo() {
         updateMoveCount();
+        scoreBuckets.redoMove();
     }
 
     @Override
@@ -58,12 +74,13 @@ public class BoardAnalyser implements BoardListener {
     public void onReset() {
         reset();
         updateMoveCount();
+        scoreBuckets.reset();
     }
 
     public BoardAnalyser deepCopy() {
         Board boardCopy = this.board.deepCopy();
     
-        BoardAnalyser copy = new BoardAnalyser(boardCopy);
+        BoardAnalyser copy = new BoardAnalyser(boardCopy, scoreBuckets.deepCopy());
     
         copy.scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
         for (int i = 0; i < MAX_HISTORY_LEN; i++) {
@@ -78,10 +95,6 @@ public class BoardAnalyser implements BoardListener {
 
     private int[] getCurrentScoreGrid() {
         return scoreGridHistory[moveCount];
-    }
-
-    public int getScoreAtPos(int index) {
-        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_SCORE_INDEX];
     }
 
     public void getPlayerScore(int[] playerScore) {
@@ -117,7 +130,7 @@ public class BoardAnalyser implements BoardListener {
                     score += getScoreFromPieceNumber(Math.abs(right));
             }
         }
-        setScoreAtPosAtDir(index, CELL_INFO_SCORE_INDEX, score);
+        setScoreAtPos(index, score);
     }
 
     private int getScoreFromPieceNumber(int pieceNumber) {
@@ -125,8 +138,8 @@ public class BoardAnalyser implements BoardListener {
             case 1: return 1;
             case 2: return 2;
             case 3: return 20;
-            case 4: return 1000;
-            case 9: return 100; // capture
+            case 4: return 100;
+            case 9: return 50; // capture
         }
         return 0;
     }
@@ -135,14 +148,14 @@ public class BoardAnalyser implements BoardListener {
         switch (leftPieceNumber + rightPieceNumber) {
             case 0: return 0;
             case 1: return 1;
-            case 2: return 5;
-            case 3: return 50;
-            case 4: return 1000;
-            case 5: return 1000;
-            case 6: return 1000;
-            case 7: return 1000;
-            case 8: return 1000;
-            default: return 150; // capture
+            case 2: return 3;
+            case 3: return 30;
+            case 4: return 100;
+            case 5: return 100;
+            case 6: return 100;
+            case 7: return 100;
+            case 8: return 100;
+            default: return 75; // capture
         }
     }
 
@@ -172,8 +185,19 @@ public class BoardAnalyser implements BoardListener {
     }
 
     private void setScoreAtPosAtDir(int posIndex, int flagIndex, int score) {
-        // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);
+        // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);        
         scoreGridHistory[moveCount][posIndex * CELL_INFO_SIZE + flagIndex] = score;
+    }
+
+    private void setScoreAtPos(int posIndex, int score) {
+        // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);
+        if (score > MAX_SCORE) score = MAX_SCORE;
+        scoreBuckets.update(posIndex, getScoreAtPos(posIndex), score);
+        scoreGridHistory[moveCount][posIndex * CELL_INFO_SIZE + CELL_INFO_SCORE_INDEX] = score;
+    }
+
+    public int getScoreAtPos(int index) {
+        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_SCORE_INDEX];
     }
 
     // go through every cell and calculate a rough score

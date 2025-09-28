@@ -44,7 +44,7 @@ public class GameApp extends Application {
     private void setupCursor(Scene scene, BoardGame game) {
         Image cursorImageLight = new Image("file:src/main/resources/CursorLight96_32.png", 96, 96, true, false);
         Image cursorImageDark = new Image("file:src/main/resources/CursorDark96_32.png", 96, 96, true, false);
-    
+
         cursorLight = new ImageCursor(cursorImageLight);
         cursorDark = new ImageCursor(cursorImageDark);
     

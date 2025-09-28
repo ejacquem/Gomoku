@@ -22,6 +22,7 @@ public abstract class GameSettings {
     public static final int BOARD_PIXEL_SIZE = 800;
     public static final int BOARD_WALL_WIDTH = 1;
     public static final int BOARD_SIZE = GAME_SIZE + 2 * BOARD_WALL_WIDTH;
+    public static final int BOARD_MAX_INDEX_SIZE = BOARD_SIZE * BOARD_SIZE;
     public static final int FIRST_PLAYER = 2;
     public static final int WINNING_PIECES = 5;
     public static final int WINNING_CAPTURED_PIECES = 10;
@@ -64,6 +65,7 @@ public abstract class GameSettings {
     public static boolean drawSortedPosition = false;
     public static boolean drawScoreHeatmap = false;
     public static boolean drawScoreNumber = false;
+    public static boolean drawBucketScoreNumber = false;
     public static boolean drawScorePlayerNumber = false;
 
     public static boolean analyseBoard = false;

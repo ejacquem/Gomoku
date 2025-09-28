@@ -29,6 +29,7 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/app/GameSettings.java \
 		$(SRC)/utils/GomokuUtils.java \
 		$(SRC)/utils/FileHelper.java \
+		$(SRC)/utils/ScoreBuckets.java \
 
 CLASSES=$(SOURCES:$(SRC)/%.java=$(BIN)/%.class)
 
