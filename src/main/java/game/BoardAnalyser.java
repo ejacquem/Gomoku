@@ -6,16 +6,17 @@ import java.util.List;
 import main.java.app.GameSettings;
 import main.java.utils.ScoreBuckets;
 /*
+ * BoardAnalyser class
  * 
- * Todo :
- * rework the scanning
- * idea, place a piece and get the nearest space in all direction,
- *      if in range (4 max from current)
- *      if piece swap < 2           // if black is found, then white, the sequence is broken
- * calculate the score in the opposite direction // x110 then recompute only west
- * also compute east and multiply the result if they are the same color
+ * This class is responsible for analysing the board and assigning a rough score to a cell
+ * For performance, it will only compute the score (scan) of pieces that have been impacted by the last move
+ * each impacted is scanned and the number of consecutive pieces is stored in an array of int scoreGrid
+ * each cell has 9 attributes, 1 for each direction (8), 1 for the final score
+ * With this system, each Cell knows how many consecutive cells there are in any direction.
+ * The number can go from 0 to 5, and if there is a capture in that square, the number is 9
+ * The score is then computed based on the number of cell there are left and right.
  * 
- * special case for capture
+ * The score is precomputed in a lookup table for performance.
  */
 public class BoardAnalyser implements BoardListener {
     public final Board board;
@@ -27,6 +28,7 @@ public class BoardAnalyser implements BoardListener {
     private int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
     private int[] pieceBoard; // to avoid board.getPieceAt() call
     private int moveCount = 0;
+    private int maxHistory = 0;
 
     public static final int MAX_SCORE = 100;
     public final ScoreBuckets scoreBuckets;
@@ -50,6 +52,7 @@ public class BoardAnalyser implements BoardListener {
         updateMoveCount();
         scoreBuckets.startMove();
         scanLastMove();
+        maxHistory = moveCount;
         // scoreBuckets.printCurrentBuckets();
     }
 
@@ -83,12 +86,14 @@ public class BoardAnalyser implements BoardListener {
         BoardAnalyser copy = new BoardAnalyser(boardCopy, scoreBuckets.deepCopy());
     
         copy.scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
-        for (int i = 0; i < MAX_HISTORY_LEN; i++) {
-            copy.scoreGridHistory[i] = this.scoreGridHistory[i].clone();
+        for (int i = 0; i <= maxHistory; i++) {
+            // copy.scoreGridHistory[i] = this.scoreGridHistory[i].clone();
+            System.arraycopy(this.scoreGridHistory[i], 0, copy.scoreGridHistory[i], 0, SCOREGRID_LENGTH);
         }
 
         copy.moveCount = this.moveCount;
         copy.pieceBoard = boardCopy.getBoard();
+        copy.maxHistory = this.maxHistory;
 
         return copy;
     }
@@ -179,7 +184,7 @@ public class BoardAnalyser implements BoardListener {
         }
     }
 
-    private boolean isEnoughSpace(int index, int player, int dir){
+    public boolean isEnoughSpace(int index, int player, int dir){
         // System.out.println("isEnoughSpace for " + player + " at index: " + index + " in dir " + dir);
         int count = 1;
         int left = index + dir;
