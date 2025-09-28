@@ -159,7 +159,7 @@ public class BoardAnalyser implements BoardListener {
     private static int getScoreFromPieceNumber(int pieceNumber) {
         switch (pieceNumber) {
             case 1: return 1;
-            case 2: return 2;
+            case 2: return 3;
             case 3: return 20;
             case 4: return 100;
             case 9: return 50; // capture
@@ -171,7 +171,7 @@ public class BoardAnalyser implements BoardListener {
         switch (leftPieceNumber + rightPieceNumber) {
             case 0: return 0;
             case 1: return 1;
-            case 2: return 3;
+            case 2: return 5;
             case 3: return 30;
             case 4: return 100;
             case 5: return 100;
@@ -210,7 +210,6 @@ public class BoardAnalyser implements BoardListener {
     }
 
     private void setScoreAtPosAtDir(int posIndex, int flagIndex, int score) {
-        // System.out.printf("scanLastMove setScoreAtPosAtDir posIndex: %d, dirInded: %d, score: %d\n", posIndex, flagIndex, score);        
         scoreGridHistory[moveCount][posIndex * CELL_INFO_SIZE + flagIndex] = score;
     }
 
@@ -311,56 +310,48 @@ public class BoardAnalyser implements BoardListener {
     // scan the position at the current move, the move is the position where a piece a modified
     // positive if placed
     // negative if removed
-    private int[] dirCount = new int[8];
+    // private int[] dirCount = new int[8];
     private void scanMove(int move) {
-        // System.out.println("\nScan move: " + move);
         int index = Math.abs(move);
         int placedPieceSign = Board.getPlayerSign(pieceBoard[index]);
-        // System.out.println("scanLastMove: " + move);
-        for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
-            int dir = Board.DIRECTION8[dirIndex];
-            dirCount[dirIndex] = countSamePiecesInDir(index + dir, dir);
-        }
-        for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
-            int dir = Board.DIRECTION8[dirIndex];
-            int right = dirCount[dirIndex];
-            int left = dirCount[7 - dirIndex]; // opposite dir
-            int rightEndIndex = index + (1 + Math.abs(right)) * dir;
-            int score = 0;
-            int capturesign;
-            if (move < 0) {
-                score = left;
-                capturesign = checkCaptureFromRunLength(left, index, dir);
-                if (capturesign != 0) {
-                    score = 9 * -capturesign;
-                }
-            }
-            setScoreAtPosAtDir(index, dirIndex, score); // compute the score of the current cell, set to 0 if placed
-            if (pieceBoard[rightEndIndex] == 0) { // if cell is empty at the end of sequence, compute the score
-                score = computeCountDir(right, placedPieceSign, left);
-                capturesign = checkCaptureFromRunLength(score, rightEndIndex, dir);
-                if (capturesign != 0) {
-                    score = 9 * -capturesign;
-                }
-                setScoreAtPosAtDir(rightEndIndex, dirIndex, score);
-                computeScoreAtPos(rightEndIndex);
-            }
+        for (int dirIndex = 0; dirIndex < 4; dirIndex++) {
+            int dir = Board.DIRECTION4[dirIndex];
+            int right = countSamePiecesInDir(index + dir, dir);
+            int left = countSamePiecesInDir(index - dir, -dir);
+            processScan(left, right, index, dir, dirIndex, move, placedPieceSign);
+            processScan(right, left, index, -dir, 7 - dirIndex, move, placedPieceSign);
         }
         computeScoreAtPos(index);
     }
 
-    private int checkCaptureFromRunLength(Integer runLength, int endIndex, int dir) {
+    private void processScan(int left, int right, int index, int dir, int dirIndex, int move, int placedPieceSign){
+        int rightEndIndex = index + (1 + Math.abs(right)) * dir;
+        int score = 0;
+        if (move < 0) {
+            score = checkCaptureFromRunLength(left, index, dir);
+        }
+        setScoreAtPosAtDir(index, dirIndex, score); // compute the score of the current cell, set to 0 if placed
+        if (pieceBoard[rightEndIndex] == 0) { // if cell is empty at the end of sequence, compute the score
+            score = computeCountDir(right, placedPieceSign, left);
+            score = checkCaptureFromRunLength(score, rightEndIndex, dir);
+            setScoreAtPosAtDir(rightEndIndex, dirIndex, score);
+            computeScoreAtPos(rightEndIndex);
+        }
+    }
+
+    // return 9 or -9 if there is a capture, otherwise return runLength
+    private int checkCaptureFromRunLength(int runLength, int endIndex, int dir) {
         if (Math.abs(runLength) == 2) {
             // System.out.println("endIndex: " + endIndex);
             // System.out.println("dir: " + dir);
             // System.out.println("endIndex - dir * 3: " + (endIndex - dir * 3));
             // System.out.println("board.getPieceAt(endIndex - dir * 3): " + board.getPieceAt(endIndex - dir * 3));
             int potentialCapturePiece = pieceBoard[endIndex - dir * 3];
-            if (runLength == -2 && potentialCapturePiece == 1 || runLength == 2 && potentialCapturePiece == 2) { // can't check sign here, pcp could be a wall
-                return Board.getPlayerSign(potentialCapturePiece);
+            if ((runLength == -2 && potentialCapturePiece == 1) || (runLength == 2 && potentialCapturePiece == 2)) { // can't check sign here, pcp could be a wall
+                return 9 * -Board.getPlayerSign(potentialCapturePiece);
             }
         }
-        return 0;
+        return runLength;
     }
 
     // p1p ppp : left + 1 + right
@@ -375,7 +366,7 @@ public class BoardAnalyser implements BoardListener {
     // 02n 0nn : left + 1 + right
     // n2p nnp : left + 1
     // n2n nnn : left + 1 + right
-    private int computeCountDir(int left, int placedPieceSign, int right) {
+    private static int computeCountDir(int left, int placedPieceSign, int right) {
         if (placedPieceSign == 0)
             return left;
         int score = left;
