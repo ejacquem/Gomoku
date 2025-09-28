@@ -155,7 +155,9 @@ public class BoardAnalyser implements BoardListener {
             case 6: return 100;
             case 7: return 100;
             case 8: return 100;
-            default: return 75; // capture
+            case 9: return 75; // capture
+            case 10: return 90;
+            default: return 100; // capture and more
         }
     }
 
@@ -307,7 +309,7 @@ public class BoardAnalyser implements BoardListener {
                 score = left;
                 capturesign = checkCaptureFromRunLength(left, index, dir);
                 if (capturesign != 0) {
-                    score = 9 * capturesign;
+                    score = 9 * -capturesign;
                 }
             }
             setScoreAtPosAtDir(index, dirIndex, score); // compute the score of the current cell, set to 0 if placed
@@ -315,7 +317,7 @@ public class BoardAnalyser implements BoardListener {
                 score = computeCountDir(right, placedPieceSign, left);
                 capturesign = checkCaptureFromRunLength(score, rightEndIndex, dir);
                 if (capturesign != 0) {
-                    score = 9 * capturesign;
+                    score = 9 * -capturesign;
                 }
                 setScoreAtPosAtDir(rightEndIndex, dirIndex, score);
                 computeScoreAtPos(rightEndIndex);
