@@ -113,6 +113,19 @@ public class BoardAnalyser implements BoardListener {
         return ((double) playerScoreHistory[moveCount][1]) / 8.;
     }
 
+    public double getEvaluationPercentage(){
+        double score1 = getPlayer1Score();
+        double score2 = getPlayer2Score() - (moveCount % 2 == 0 ? 0 : 0.85);
+        double p;
+        if (getPlayer1Score() == 0 || getPlayer2Score() == 0 || score1 + score2 == 0){
+            p = 0.5;
+        } else {
+            p = score1 / (score1 + score2);
+        }
+        // p = (p - 0.5) * 2; // goes -1 to 1
+        return p;
+    }
+
     private static final int SCORE_OFFSET = 9;
     private static final int[][] SCORE_LOOK_TABLE = new int[19][19]; // -9 to 9
 

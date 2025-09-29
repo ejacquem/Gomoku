@@ -524,6 +524,7 @@ public class GameUI {
     // }
 
     public void update() {
+        setBarPercentage(evalBar, 1. - (double) game.boardAnalyser.getEvaluationPercentage());
         updateMoveHsitory();
         renderer.draw();
     }
