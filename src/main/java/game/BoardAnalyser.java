@@ -128,11 +128,32 @@ public class BoardAnalyser implements BoardListener {
 
     private static final int SCORE_OFFSET = 9;
     private static final int[][] SCORE_LOOK_TABLE = new int[19][19]; // -9 to 9
+    private static final int[][] SCORE_P1_LOOK_TABLE = new int[19][19]; // -9 to 9
+    private static final int[][] SCORE_P2_LOOK_TABLE = new int[19][19]; // -9 to 9
 
     static {
+        int l, r;
         for (int left = -9; left <= 9; left++){
             for (int right = -9; right <= 9; right++){
                 SCORE_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(left, right);
+                l = left;
+                r = right;
+                if (l == 9) l = 0; // if 9, its means black can capture white, white score is not counted 
+                if (r == 9) r = 0;
+                if (l == -9) l = 9; // if -9, it means white can capture black, white score is evaluated
+                if (r == -9) r = 9;
+                if (l < 0) l = 0;
+                if (r < 0) r = 0;
+                SCORE_P1_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(l, r);
+                l = left;
+                r = right;
+                if (l == -9) l = 0; // same logic as above 
+                if (r == -9) r = 0;
+                if (l == 9) l = -9;
+                if (r == 9) r = -9;
+                if (l > 0) l = 0;
+                if (r > 0) r = 0;
+                SCORE_P2_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(l, r);
             }
         }
     }
@@ -148,12 +169,8 @@ public class BoardAnalyser implements BoardListener {
             int right = grid[cellInfoIndex + (7 - i)];
             // score += computeScoreFromPieceNumber(left, right);
             score += SCORE_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right];
-            if (Math.abs(left) == 9) left = -left;
-            if (Math.abs(right) == 9) right = -right;
-            if (left > 0) { p1Score += left * left; }
-            else { p2Score += left * left; }
-            if (right > 0) { p1Score += right * right; }
-            else { p2Score += right * right; }
+            p1Score += SCORE_P1_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right];
+            p2Score += SCORE_P2_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right];
             // if (Math.abs(left) != 9 && Math.abs(right) != 9 && !isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i])){
             //     score = 0;
             // }
@@ -247,6 +264,14 @@ public class BoardAnalyser implements BoardListener {
         return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_SCORE_INDEX];
     }
 
+    public int getPlayer1ScoreAtPos(int index) {
+        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_PLAYER1_SCORE_INDEX];
+    }
+
+    public int getPlayer2ScoreAtPos(int index) {
+        return scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_PLAYER2_SCORE_INDEX];
+    }
+
     // go through every cell and calculate a rough score
     // public void scanBoard() {
     //     int[] scoregrid = getCurrentScoreGrid();
@@ -315,8 +340,6 @@ public class BoardAnalyser implements BoardListener {
         for (int i = 0; i < lastMove[0]; i++) {
             scanMove(lastMove[i + 1]); // +1 to skip first elem which is the length
         }
-        System.out.println("player1score: " + getPlayer1Score());
-        System.out.println("player2score: " + getPlayer2Score());
     }
 
     public void updateMoveCount() {

@@ -55,6 +55,7 @@ public class BoardRenderer {
     private void renderLoop(){
         renderLoopGc.clearRect(0, 0, renderLoopCanvas.getWidth(), renderLoopCanvas.getHeight());
         if (GameSettings.drawCurrentSearchDepth) drawCurrentSearchDepth();
+        if (GameSettings.drawCurrentBestEval) drawCurrentBestEval();
     }
 
     public void draw() {
@@ -83,6 +84,7 @@ public class BoardRenderer {
         if (GameSettings.drawScoreHeatmap) drawScoreHeatmap();
         if (GameSettings.drawScoreNumber) drawScoreNumber();
         if (GameSettings.drawBucketScoreNumber) drawBucketScoreNumber();
+        if (GameSettings.drawDirScorePlayerNumber) drawDirScorePlayerNumber();
         if (GameSettings.drawScorePlayerNumber) drawScorePlayerNumber();
         gc.translate(-MARGIN, -MARGIN);
     }
@@ -252,6 +254,22 @@ public class BoardRenderer {
         }
     }
 
+    private void drawCurrentBestEval() {
+        final int w = 8, h = 8; // size of a letter
+        for (PosScore posScore : game.AI.getCurrentBestEvals()) {
+            float radius = TILE_SIZE * 0.8f / 2f;
+            Coords pos = Coords.getCoordsById(posScore.index).add(0);
+            int px = pos.x * TILE_SIZE;
+            int py = pos.y * TILE_SIZE;
+            renderLoopGc.setFill(Color.rgb(0, 0, 0, 0.3f));
+            renderLoopGc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+
+            String n = Integer.toString(posScore.score);
+            renderLoopGc.setFill(Color.WHITE);
+            renderLoopGc.fillText(n, px - w * n.length() / 2, py + h / 2);
+        }
+    }
+
     private void drawSortedPosition() {
         List<PosScore> sortedPos = game.boardAnalyser.getSortedPositions();
         // final int w = 8, h = 8; // size of a letter
@@ -306,7 +324,7 @@ public class BoardRenderer {
         }
     }
 
-    private void drawScorePlayerNumber() {
+    private void drawDirScorePlayerNumber() {
         int size = GameSettings.GAME_SIZE;
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -323,6 +341,24 @@ public class BoardRenderer {
                     if (score != 0)
                         drawNumberAt(pos, dirCoords.x, dirCoords.y, score, color);
                     dirIndex++;
+                }
+            }
+        }
+    }
+
+    private void drawScorePlayerNumber() {
+        int size = GameSettings.GAME_SIZE;
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                Coords pos = new Coords(col, row);
+                int index = pos.add(1).getId();
+                int score = game.boardAnalyser.getPlayer1ScoreAtPos(index);
+                if (score != 0){
+                    drawNumberAt(pos, 0, 1, Math.abs(score), Color.WHITE);
+                }
+                score = game.boardAnalyser.getPlayer2ScoreAtPos(index);
+                if (score != 0){
+                    drawNumberAt(pos, 0, -1, Math.abs(score), Color.BLACK);
                 }
             }
         }

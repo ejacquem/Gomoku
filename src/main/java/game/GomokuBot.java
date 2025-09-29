@@ -17,12 +17,13 @@ class GomokuBot implements Callable<Integer> {
     public final int INF = 1_000_000;
     public final int MAX_DEPTH;
     private int maxDepth;
-    public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 4000, 50000};
+    public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 5000, 10000};
     public int[] iterationPerDepth;
     public int[] prunningPerDepth;
     public int prunningCount = 0;
 
     public volatile int currentDepth = 0;
+    public volatile int currentBestEval = 0;
 
     public GomokuBot(BoardAnalyser boardAnalyser, int maxDepth, int id, int startIndex) {
         // deep copy so each thread works independently
@@ -52,6 +53,7 @@ class GomokuBot implements Callable<Integer> {
             maxDepth = i;
             if (!timeLimitExceeded()) {
                 score = temp;
+                currentBestEval = score;
             }
             else {
                 break;
@@ -72,16 +74,16 @@ class GomokuBot implements Callable<Integer> {
             return score;
         }
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
-        // boardAnalyser.getPlayerScore(playerPositionScore);
         int player1CaptureScore = captureScore[board.getCaptureCount(1) / 2];
         int player2CaptureScore = captureScore[board.getCaptureCount(2) / 2];
         if (player1CaptureScore > 0) player1CaptureScore -= (depth) * 10;
         if (player2CaptureScore > 0) player2CaptureScore -= (depth) * 10;
-        // int player1Score = playerPositionScore[0] + player1CaptureScore;
-        // int player2Score = playerPositionScore[1] + player2CaptureScore;
-        // int positionScore = player1Score - player2Score;
-        int positionScore = player1CaptureScore - player2CaptureScore;
-        return color * positionScore;
+        int captureScore = player1CaptureScore - player2CaptureScore;
+
+        double p = boardAnalyser.getEvaluationPercentage();
+        p = (p - 0.5) * 2.; // -1 to 1
+        int positionScore = (int)(p * 100.);
+        return color * (positionScore + captureScore);
     }
 
     public boolean timeLimitExceeded() {

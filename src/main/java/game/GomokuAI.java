@@ -79,23 +79,6 @@ public class GomokuAI {
     }
 
     public void reset() {
-        // setState(AIState.IDLE);
-        // executor.shutdownNow();
-        // if (executor != null){
-        //     setState(AIState.STOP);
-        //     executor.shutdownNow();
-
-        //     new Thread(() -> {
-        //         try {
-        //             if (executor.awaitTermination(5, TimeUnit.SECONDS)) {
-        //                 setState(AIState.IDLE);
-        //             }
-        //         } catch (InterruptedException e) {
-        //             Thread.currentThread().interrupt();
-        //         }
-        //     }).start();
-        // }
-
         evaluatedPos.clear();
         start = 0;
         bots.clear();
@@ -171,6 +154,14 @@ public class GomokuAI {
         return list;
     }
 
+    public List<PosScore> getCurrentBestEvals() {
+        List<PosScore> list = new ArrayList<>();
+        for (GomokuBot bot : bots){
+            list.add(new PosScore(bot.startIndex, bot.currentBestEval));
+        }
+        return list;
+    }
+
     // private void printThinkingResult(int bestEval, int bestMove) {
     //     System.out.println("Best Move Score: " + bestEval);
 
@@ -201,5 +192,4 @@ public class GomokuAI {
         // percentage.set(evaluatepercent(1));
         System.out.println("Best move: " + bestMove);
     }
-
 }

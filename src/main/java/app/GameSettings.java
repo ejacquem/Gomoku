@@ -66,8 +66,10 @@ public abstract class GameSettings {
     public static boolean drawScoreHeatmap = false;
     public static boolean drawScoreNumber = false;
     public static boolean drawBucketScoreNumber = false;
+    public static boolean drawDirScorePlayerNumber = false;
     public static boolean drawScorePlayerNumber = false;
     public static boolean drawCurrentSearchDepth = false;
+    public static boolean drawCurrentBestEval = false;
     
     public static boolean analyseBoard = false;
     public static boolean player1AI = false;
