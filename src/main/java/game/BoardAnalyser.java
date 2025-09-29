@@ -21,11 +21,14 @@ import main.java.utils.ScoreBuckets;
 public class BoardAnalyser implements BoardListener {
     public final Board board;
     // public int[] scoreGrid = new int[Board.BOARD_MAX_INDEX];
-    private static final int CELL_INFO_SIZE = 8 + 1;
+    private static final int CELL_INFO_SIZE = 8 + 1 + 2;
     private static final int CELL_INFO_SCORE_INDEX = 8;
+    private static final int CELL_INFO_PLAYER1_SCORE_INDEX = 8 + 1;
+    private static final int CELL_INFO_PLAYER2_SCORE_INDEX = 8 + 2;
     private static final int SCOREGRID_LENGTH = Board.BOARD_MAX_INDEX * CELL_INFO_SIZE;
     private static final int MAX_HISTORY_LEN = 500;
     private int[][] scoreGridHistory = new int[MAX_HISTORY_LEN][SCOREGRID_LENGTH];
+    private int[][] playerScoreHistory = new int[MAX_HISTORY_LEN][2];
     private int[] pieceBoard; // to avoid board.getPieceAt() call
     private int moveCount = 0;
     private int maxHistory = 0;
@@ -102,18 +105,12 @@ public class BoardAnalyser implements BoardListener {
         return scoreGridHistory[moveCount];
     }
 
-    public void getPlayerScore(int[] playerScore) {
-        playerScore[0] = 0;
-        playerScore[1] = 0;
-        for (int i = 0; i < Board.BOARD_MAX_INDEX; i++) {
-            if (Math.abs(getScoreAtPos(i)) != 0) {
-                for (int dirIndex = 0; dirIndex < 8; dirIndex++) {
-                    int score = getScoreAtPosAtDir(i, dirIndex);
-                    int index = score > 0 ? 0 : 1;
-                    playerScore[index] += Math.abs(score);
-                }
-            }
-        }
+    public double getPlayer1Score() {
+        return ((double) playerScoreHistory[moveCount][0]) / 8.;
+    }
+
+    public double getPlayer2Score() {
+        return ((double) playerScoreHistory[moveCount][1]) / 8.;
     }
 
     private static final int SCORE_OFFSET = 9;
@@ -130,16 +127,29 @@ public class BoardAnalyser implements BoardListener {
     private void computeScoreAtPos(int index) {
         int[] grid = getCurrentScoreGrid();
         int score = 0;
+        int p1Score = 0;
+        int p2Score = 0;
         int cellInfoIndex = index * CELL_INFO_SIZE;
         for (int i = 0; i < 4; i++) {
             int left = grid[cellInfoIndex + i];
             int right = grid[cellInfoIndex + (7 - i)];
             // score += computeScoreFromPieceNumber(left, right);
             score += SCORE_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right];
+            if (Math.abs(left) == 9) left = -left;
+            if (Math.abs(right) == 9) right = -right;
+            if (left > 0) { p1Score += left * left; }
+            else { p2Score += left * left; }
+            if (right > 0) { p1Score += right * right; }
+            else { p2Score += right * right; }
             // if (Math.abs(left) != 9 && Math.abs(right) != 9 && !isEnoughSpace(index, (Integer.signum(left) == 1 ? 1 : 2), Board.DIRECTION4[i])){
             //     score = 0;
             // }
         }
+
+        playerScoreHistory[moveCount][0] += p1Score - scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_PLAYER1_SCORE_INDEX];
+        playerScoreHistory[moveCount][1] += p2Score - scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_PLAYER2_SCORE_INDEX];
+        scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_PLAYER1_SCORE_INDEX] = p1Score;
+        scoreGridHistory[moveCount][index * CELL_INFO_SIZE + CELL_INFO_PLAYER2_SCORE_INDEX] = p2Score;
         setScoreAtPos(index, score);
     }
 
@@ -292,6 +302,8 @@ public class BoardAnalyser implements BoardListener {
         for (int i = 0; i < lastMove[0]; i++) {
             scanMove(lastMove[i + 1]); // +1 to skip first elem which is the length
         }
+        System.out.println("player1score: " + getPlayer1Score());
+        System.out.println("player2score: " + getPlayer2Score());
     }
 
     public void updateMoveCount() {
@@ -393,6 +405,8 @@ public class BoardAnalyser implements BoardListener {
     }
 
     private void copyLastHistory() {
+        playerScoreHistory[moveCount][0] = playerScoreHistory[moveCount - 1][0];
+        playerScoreHistory[moveCount][1] = playerScoreHistory[moveCount - 1][1];
         System.arraycopy(scoreGridHistory[moveCount - 1], 0,
                  scoreGridHistory[moveCount], 0,
                  SCOREGRID_LENGTH);

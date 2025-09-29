@@ -1,14 +1,14 @@
-Board Analyser
-    link it to game
 
 AI
-    optimize sorting
-    GomokuAi in thread
+    correct shutdown function
+    evaluate based on position score
+    board analysing at all time
 
 Game
-    redo button
     doube free three
 
-capture animation?
+eval bar
+live evaluation per move
+
 sound?
 

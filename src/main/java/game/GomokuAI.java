@@ -27,6 +27,7 @@ public class GomokuAI {
     public int[] prunningPerDepth;
     public int prunningCount = 0;
     private List<GomokuBot> bots = new ArrayList<>();
+    private ExecutorService executor;
 
     private long start = 0;
     public final int MAX_DEPTH = 30;
@@ -38,7 +39,8 @@ public class GomokuAI {
     public enum AIState {
         READY,
         THINKING,
-        IDLE
+        IDLE,
+        STOP
     }
 
     // private float player1PositionScore = 0f;
@@ -77,6 +79,23 @@ public class GomokuAI {
     }
 
     public void reset() {
+        // setState(AIState.IDLE);
+        // executor.shutdownNow();
+        // if (executor != null){
+        //     setState(AIState.STOP);
+        //     executor.shutdownNow();
+
+        //     new Thread(() -> {
+        //         try {
+        //             if (executor.awaitTermination(5, TimeUnit.SECONDS)) {
+        //                 setState(AIState.IDLE);
+        //             }
+        //         } catch (InterruptedException e) {
+        //             Thread.currentThread().interrupt();
+        //         }
+        //     }).start();
+        // }
+
         evaluatedPos.clear();
         start = 0;
         bots.clear();
@@ -110,7 +129,7 @@ public class GomokuAI {
         bestEval = Integer.MIN_VALUE + 1;
         bestMove = 0;
 
-        ExecutorService executor = Executors.newFixedThreadPool(sortedPos.size());
+        executor = Executors.newFixedThreadPool(sortedPos.size());
         List<Future<Integer>> result = new ArrayList<>(sortedPos.size());
         bots.clear();
         for (int i = 0; i < sortedPos.size(); i++) {
