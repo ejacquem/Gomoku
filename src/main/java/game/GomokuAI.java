@@ -79,9 +79,19 @@ public class GomokuAI {
     }
 
     public void reset() {
+        // private ExecutorService executor;
         evaluatedPos.clear();
         start = 0;
         bots.clear();
+        iterationPerDepth = new int[MAX_DEPTH];
+        prunningPerDepth = new int[MAX_DEPTH];
+
+        prunningCount = 0;
+
+        state = AIState.READY;
+        bestEval = 0;
+        bestMove = 0;
+        boardAnalyser = null;
     }
 
     // public int getBestMove() {
@@ -89,17 +99,14 @@ public class GomokuAI {
     // }
 
     public void makeBestMove(BoardAnalyser boardAnalyser) {
-        state = AIState.THINKING;
-        this.boardAnalyser = boardAnalyser.deepCopy();
         System.out.println("make best move called");
         new Thread(() -> {
             reset();
+            this.boardAnalyser = boardAnalyser.deepCopy();
+            state = AIState.THINKING;
             // System.out.println("Ai calculate best move for player: " + (board.getCurrentPlayer() == 1 ? " white" : " black"));
             start = System.currentTimeMillis();
 
-            iterationPerDepth = new int[MAX_DEPTH];
-            prunningPerDepth = new int[MAX_DEPTH];
-    
             computeBestEval();
     
             printThinkingResult(bestEval, bestMove);

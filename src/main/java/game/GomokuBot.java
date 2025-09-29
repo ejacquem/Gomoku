@@ -17,7 +17,8 @@ class GomokuBot implements Callable<Integer> {
     public final int INF = 1_000_000;
     public final int MAX_DEPTH;
     private int maxDepth;
-    public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 5000, 10000};
+    public final int WIN_SCORE = 10000;
+    public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 5000, WIN_SCORE};
     public int[] iterationPerDepth;
     public int[] prunningPerDepth;
     public int prunningCount = 0;
@@ -67,7 +68,7 @@ class GomokuBot implements Callable<Integer> {
     // private int[] playerPositionScore = new int[2];
     public int evaluate(int depth) {
         if (board.getWinner() != 0) {
-            int score = (50_000 - (depth) * 10);
+            int score = (WIN_SCORE - (depth) * 10);
             if (board.getWinner() != board.getCurrentPlayer()) {
                 return -score;
             }
@@ -83,6 +84,7 @@ class GomokuBot implements Callable<Integer> {
         double p = boardAnalyser.getEvaluationPercentage();
         p = (p - 0.5) * 2.; // -1 to 1
         int positionScore = (int)(p * 100.);
+        // int positionScore = 0;
         return color * (positionScore + captureScore);
     }
 
@@ -118,18 +120,10 @@ class GomokuBot implements Callable<Integer> {
         // List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
 
         int minScore = 1;
-        // switch (depth) {
-        //     case 0: minScore = 1; break;
-        //     case 1: minScore = 1; break;
-        //     case 2: minScore = 2; break;
-        //     case 3: minScore = 20; break;
-        //     default: minScore = 50; break;
-        // }
         switch (depth) {
             case 0, 1, 2: minScore = 1; break;
-            case 3: minScore = 1; break;
-            case 4: minScore = 2; break;
-            case 5: minScore = 20; break;
+            case 3: minScore = 2; break;
+            case 4: minScore = 20; break;
             default: minScore = 50; break;
         }
 

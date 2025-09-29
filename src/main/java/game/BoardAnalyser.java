@@ -138,19 +138,19 @@ public class BoardAnalyser implements BoardListener {
                 SCORE_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(left, right);
                 l = left;
                 r = right;
-                if (l == 9) l = 0; // if 9, its means black can capture white, white score is not counted 
-                if (r == 9) r = 0;
-                if (l == -9) l = 9; // if -9, it means white can capture black, white score is evaluated
-                if (r == -9) r = 9;
+                if (l == 9) l = -2; // if 9, its means black can capture white, white score is not counted 
+                if (r == 9) r = -2;
+                // if (l == -9) l = 2;  // if -9, it means white can capture black, white score is evaluated
+                // if (r == -9) r = 2;
                 if (l < 0) l = 0;
                 if (r < 0) r = 0;
                 SCORE_P1_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(l, r);
                 l = left;
                 r = right;
-                if (l == -9) l = 0; // same logic as above 
-                if (r == -9) r = 0;
-                if (l == 9) l = -9;
-                if (r == 9) r = -9;
+                if (l == -9) l = 2; // same logic as above 
+                if (r == -9) r = 2;
+                // if (l == 9) l = 2;
+                // if (r == 9) r = 2;
                 if (l > 0) l = 0;
                 if (r > 0) r = 0;
                 SCORE_P2_LOOK_TABLE[SCORE_OFFSET + left][SCORE_OFFSET + right] = computeScoreFromPieceNumber(l, r);
