@@ -27,6 +27,8 @@ SOURCES=$(SRC)/game/Board.java \
 		$(SRC)/utils/GomokuUtils.java \
 		$(SRC)/utils/FileHelper.java \
 		$(SRC)/utils/ScoreBuckets.java \
+		$(SRC)/utils/Zobrist.java \
+		$(SRC)/utils/TranspositionTable.java \
 
 CLASSES=$(SOURCES:$(SRC)/%.java=$(BIN)/%.class)
 

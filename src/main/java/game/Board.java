@@ -5,6 +5,7 @@ import java.util.List;
 
 import main.java.app.GameSettings;
 import main.java.utils.GomokuUtils;
+import main.java.utils.Zobrist;
 
 public class Board {
     public static final int BOARD_SIZE = GameSettings.BOARD_SIZE;
@@ -30,6 +31,7 @@ public class Board {
     public List<Integer> endGameCapture = new ArrayList<Integer>();
 
     private BoardListener listener;
+    private Zobrist zobrist;
 
     private static final int _x = 1;
     private static final int _y = BOARD_SIZE;
@@ -86,11 +88,14 @@ public class Board {
         }
         pieceCount[player - 1]++;
         setPieceAt(index, player);
+        zobrist.makeMove(index, player - 1);
     }
 
     private void removePieceAt(int index) {
-        pieceCount[getPieceAt(index) - 1]--;
+        int player = getPieceAt(index);
+        pieceCount[player - 1]--;
         setPieceAt(index, 0);
+        zobrist.undoMove(index, player - 1);
     }
 
     /* Board Action */
@@ -121,7 +126,7 @@ public class Board {
             addPieceAt(popHistory() * -1, currentPlayer);
         }
         removePieceAt(popHistory()); // remove the placed piece
-        if (EGChistory[moveCount]) { // if the flag was set for this move, recalculate the egc for this. better solution would be to store the RGC index per move
+        if (EGChistory[moveCount]) { // if the flag was set for this move, recalculate the egc for this. better solution would be to store the EGC index per move
             checkWinnerAt(peekLastPlacedMoveHistory(), getCurrentPlayer());
         }
         else {
@@ -169,6 +174,7 @@ public class Board {
 
     public void reset() {
         initBoard();
+        zobrist = new Zobrist();
         moveCount = 0;
         maxMove = 0;
         historyIndex = 0;
@@ -544,6 +550,10 @@ public class Board {
 
     public int getWinner() {
         return winner;
+    }
+
+    public long getZobristKey(){
+        return zobrist.getHash();
     }
 
     // return 0 if 0, 1 if 1, -1 if 2

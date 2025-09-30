@@ -25,14 +25,17 @@ public class GomokuAI {
 
     public int[] iterationPerDepth;
     public int[] prunningPerDepth;
+    public int[] ttPrunningPerDepth;
     public int prunningCount = 0;
     private List<GomokuBot> bots = new ArrayList<>();
     private ExecutorService executor;
 
     private long start = 0;
-    public final int MAX_DEPTH = 30;
+    public final int MAX_DEPTH = 16;
     private AIState state = AIState.READY;
     private int bestEval;
+
+    public static boolean useTT = true;
 
     volatile private int bestMove;
 
@@ -85,6 +88,7 @@ public class GomokuAI {
         bots.clear();
         iterationPerDepth = new int[MAX_DEPTH];
         prunningPerDepth = new int[MAX_DEPTH];
+        ttPrunningPerDepth = new int[MAX_DEPTH];
 
         prunningCount = 0;
 
@@ -188,13 +192,15 @@ public class GomokuAI {
             for (int i = 0; i < MAX_DEPTH; i++) {
                 iterationPerDepth[i] += bot.iterationPerDepth[i];
                 prunningPerDepth[i] += bot.prunningPerDepth[i];
+                ttPrunningPerDepth[i] += bot.ttPrunningPerDepth[i];
             }
         }
 
         System.out.println("prunningCount: " + prunningCount);
         // System.out.println("weakPrunningCount: " + weakPrunningCount);
         for (int i = 0; i < MAX_DEPTH; i++) {
-            System.out.println("Iteration at depth " + (i + 1 < 10 ? " " : "") + (i + 1) + ": " + iterationPerDepth[i] + ", " + prunningPerDepth[i]);
+            System.out.printf("Iteration at depth %2d: %8d, %8d, %8d%n",
+            i + 1, iterationPerDepth[i], prunningPerDepth[i], ttPrunningPerDepth[i]);
         }
         // percentage.set(evaluatepercent(1));
         System.out.println("Best move: " + bestMove);

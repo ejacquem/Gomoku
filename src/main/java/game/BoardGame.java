@@ -77,6 +77,7 @@ public class BoardGame {
         if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
             if (AI.getState() == AIState.READY){
                 System.out.println("LaunchAi");
+                GomokuAI.useTT = player == 2;
                 AI.makeBestMove(boardAnalyser);
             }
             else if (AI.getState() == AIState.IDLE){
