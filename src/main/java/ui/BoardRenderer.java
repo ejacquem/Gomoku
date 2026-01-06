@@ -76,7 +76,7 @@ public class BoardRenderer {
         highlightLastMove();
         drawCaptures();
         
-        game.boardAnalyser.updateMoveCount();;
+        game.boardAnalyser.updateMoveCount();
         if (GameSettings.drawIndexNumber) drawIndexNumber();
         if (GameSettings.drawBestMove) drawBestMove();
         if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
@@ -205,10 +205,11 @@ public class BoardRenderer {
     }
 
     private void drawBestMove() {
-        if (!game.board.isInBound(game.bestMove))
+        int bestMove = game.AI.getBestMove();
+        if (!game.board.isInBound(bestMove))
             return;
         float radius = TILE_SIZE * 0.8f / 2f;
-        Coords pos = Coords.getCoordsById(game.bestMove).add(-1);
+        Coords pos = Coords.getCoordsById(bestMove).add(-1);
         int px = pos.x * TILE_SIZE;
         int py = pos.y * TILE_SIZE;
         gc.setFill(Color.rgb(255, 255, 255, 0.5f));
@@ -406,11 +407,11 @@ public class BoardRenderer {
                     }
                     UtilsRenderer.drawMinus(gc, px, py, (int)(TILE_SIZE * 0.4), 5, color);
                 }
-                // if (cell.winning)
-                // {
-                //     UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
-                //     UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
-                // }
+                if (game.board.checkWinnerAt(index, game.board.getCurrentOpponent()))
+                {
+                    UtilsRenderer.drawStarFull(gc, px, py, (int)(TILE_SIZE * 0.25), Color.YELLOW);
+                    UtilsRenderer.drawStarOutline(gc, px, py, (int)(TILE_SIZE * 0.25), 1, Color.BLACK);
+                }
             }
         }
     }

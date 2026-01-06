@@ -10,7 +10,9 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
+import main.java.app.GameSettings;
 import main.java.game.BoardAnalyser.PosScore;
+import main.java.utils.GomokuUtils;
 
 public class GomokuAI {
     public BoardAnalyser boardAnalyser;
@@ -35,7 +37,7 @@ public class GomokuAI {
     private AIState state = AIState.READY;
     private int bestEval;
 
-    public static boolean useTT = true;
+    public static boolean useTT = false;
 
     volatile private int bestMove;
 
@@ -130,7 +132,7 @@ public class GomokuAI {
             PosScore pos = sortedPos.get(i);
             // System.out.println("----------- Ai launch thread " + i + "\n" + board.toString());
             // System.out.println("Laucnh Bot for move " + GomokuUtils.indexToString(pos.index));
-            bots.add(new GomokuBot(boardAnalyser, MAX_DEPTH, i, pos.index));
+            bots.add(new GomokuBot(boardAnalyser, GameSettings.analysisDepth, i, pos.index));
             Future<Integer> future = executor.submit(bots.get(i));
             result.add(future);
         }
@@ -152,6 +154,8 @@ public class GomokuAI {
                 bestMove = pos.index;
             }
         }
+
+        System.out.println("AI best move: " + GomokuUtils.indexToString(bestMove));
 
         executor.shutdown();
         state = AIState.IDLE;
@@ -189,7 +193,7 @@ public class GomokuAI {
         System.out.printf("Execution time: %d ms%n", totalTime);
 
         for (GomokuBot bot : bots) {
-            for (int i = 0; i < MAX_DEPTH; i++) {
+            for (int i = 0; i < GameSettings.analysisDepth; i++) {
                 iterationPerDepth[i] += bot.iterationPerDepth[i];
                 prunningPerDepth[i] += bot.prunningPerDepth[i];
                 ttPrunningPerDepth[i] += bot.ttPrunningPerDepth[i];
@@ -198,7 +202,8 @@ public class GomokuAI {
 
         System.out.println("prunningCount: " + prunningCount);
         // System.out.println("weakPrunningCount: " + weakPrunningCount);
-        for (int i = 0; i < MAX_DEPTH; i++) {
+        System.out.printf("Iteration at depth i + 1, iterationPerDepth[i], prunningPerDepth[i], ttPrunningPerDepth[i]\n");
+        for (int i = 0; i < GameSettings.analysisDepth; i++) {
             System.out.printf("Iteration at depth %2d: %8d, %8d, %8d%n",
             i + 1, iterationPerDepth[i], prunningPerDepth[i], ttPrunningPerDepth[i]);
         }

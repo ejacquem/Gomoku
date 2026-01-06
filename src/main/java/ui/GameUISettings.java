@@ -27,6 +27,7 @@ public class GameUISettings {
         Menu debugSettingsMenu = new Menu("Debug");
         Menu visualMenu = new Menu("Visual");
         Menu settingsMenu = new Menu("Settings");
+        Menu aiMenu = new Menu("Ai");
         Menu fileMenu = createFileMenu();
 
         /* Board setting Toggle */
@@ -57,6 +58,31 @@ public class GameUISettings {
 
         CustomMenuItem gridWidthItem = new CustomMenuItem(gridWidthSlider);
         gridWidthItem.setHideOnClick(false);
+
+        /* AI menu element */
+
+        Slider analysisDepthSlider = new Slider(0, 15, GameSettings.analysisDepth); // min, max, initial
+        analysisDepthSlider.setBlockIncrement(0);
+        analysisDepthSlider.setMinorTickCount(5);
+        analysisDepthSlider.setMajorTickUnit(5);
+        analysisDepthSlider.setShowTickMarks(true);
+        analysisDepthSlider.setShowTickLabels(true);
+        analysisDepthSlider.setSnapToTicks(true);
+
+        Label depthValueLabel = new Label("Depth: " + String.valueOf(GameSettings.analysisDepth));
+
+        analysisDepthSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int value = newVal.intValue();
+            GameSettings.analysisDepth = value;
+            depthValueLabel.setText("Depth: " + String.valueOf(value));
+            renderer.draw();
+        });
+
+        CustomMenuItem analysisDepthItem = new CustomMenuItem(analysisDepthSlider);
+        analysisDepthItem.setHideOnClick(false);
+
+        CustomMenuItem labelItem = new CustomMenuItem(depthValueLabel);
+        labelItem.setHideOnClick(false);
 
         /* Menu */
         visualMenu.getItems().addAll(
@@ -98,11 +124,18 @@ public class GameUISettings {
             createSettingItem("Player 1 AI",             () -> GameSettings.player1AI,              val -> GameSettings.player1AI = val),
             createSettingItem("Player 2 AI",             () -> GameSettings.player2AI,              val -> GameSettings.player2AI = val)
         );
+        
+        aiMenu.getItems().addAll(
+            createSettingBtnItem("Launch Analysis", () -> GameSettings.launchAnalysis = true),
+            labelItem,
+            analysisDepthItem
+        );
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(fileMenu);
         menuBar.getMenus().add(settingsMenu);
         menuBar.getMenus().add(visualMenu);
+        menuBar.getMenus().add(aiMenu);
         menuBar.getMenus().add(debugSettingsMenu);
 
         gameUI.getRoot().setTop(menuBar);
@@ -118,6 +151,18 @@ public class GameUISettings {
 
         CustomMenuItem item = new CustomMenuItem(box);
         item.setHideOnClick(false); // keeps menu open after clicking
+        return item;
+    }
+
+    private CustomMenuItem createSettingBtnItem(String label, Runnable action) {
+        Button btn = new Button(label);
+        btn.setOnAction(e -> {
+            action.run();
+            renderer.draw();
+        });
+    
+        CustomMenuItem item = new CustomMenuItem(btn);
+        item.setHideOnClick(false); // keep menu open after click
         return item;
     }
 

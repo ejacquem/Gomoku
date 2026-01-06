@@ -425,10 +425,11 @@ public class Board {
         }
     }
 
-    private void checkWinnerAt(int index, int player) {
+    public boolean checkWinnerAt(int index, int player) {
         EGChistory[moveCount] = false;
         if (getPieceAt(index) != player)
-            return;
+            return false;
+        boolean iswinner = false;
         int right, left, count;
         for (int dir : DIRECTION4) {
             count = 1;
@@ -458,9 +459,11 @@ public class Board {
                 }
                 if (maxChain >= 5) {
                     setWinner(player);
+                    iswinner = true;
                 }
             }
         }
+        return iswinner;
     }
 
     private void capture(int index) {

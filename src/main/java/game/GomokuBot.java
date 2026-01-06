@@ -3,6 +3,7 @@ package main.java.game;
 import java.util.List;
 import java.util.concurrent.*;
 
+import main.java.utils.GomokuUtils;
 import main.java.utils.TranspositionTable;
 
 // Worker that evaluates a single move
@@ -10,7 +11,7 @@ class GomokuBot implements Callable<Integer> {
     private final BoardAnalyser boardAnalyser;
     private final Board board;
 
-    public final long TIME_LIMIT = 500;
+    public final long TIME_LIMIT = 2000;
     public boolean limitExcceeded = false;
     private long start = 0;
     public final int startIndex;
@@ -52,18 +53,24 @@ class GomokuBot implements Callable<Integer> {
         board.placePieceAt(startIndex);
         start = System.currentTimeMillis();
         int score = 0;
+        if (this.id == 0) {
+            System.out.printf("Bot %d | startIndex: %3d, %s%n", id, startIndex, GomokuUtils.indexToString(startIndex));
+        }
         for (int i = 2; i <= MAX_DEPTH; i++){
             int temp = -search(0, -INF, INF);
             currentDepth = i;
             maxDepth = i;
-            if (!timeLimitExceeded()) {
-                score = temp;
-                currentBestEval = score;
+            if (this.id == 0) {
+                System.out.printf("Bot %d | depth: %2d, score %8d%n", id, i, temp);
+                if (timeLimitExceeded()) {
+                    System.out.printf("Bot %d | timeLimitExceeded%n", id);
+                }
             }
-            else {
+            score = temp;
+            currentBestEval = score;
+            if (timeLimitExceeded()) {
                 break;
             }
-
         }
         return score;
         // return -search(MAX_DEPTH, -INF, INF);
@@ -72,8 +79,8 @@ class GomokuBot implements Callable<Integer> {
     // private int[] playerPositionScore = new int[2];
     public int evaluate(int depth) {
         if (board.getWinner() != 0) {
-            int score = (WIN_SCORE);
-            // int score = (WIN_SCORE - (depth) * 100);
+            // int score = (WIN_SCORE);
+            int score = (WIN_SCORE - (depth) * 10);
             if (board.getWinner() != board.getCurrentPlayer()) {
                 return -score;
             }
@@ -83,8 +90,8 @@ class GomokuBot implements Callable<Integer> {
         int color = board.getCurrentPlayer() == 1 ? 1 : -1;
         int player1CaptureScore = captureScore[board.getCaptureCount(1) / 2];
         int player2CaptureScore = captureScore[board.getCaptureCount(2) / 2];
-        // if (player1CaptureScore > 0) player1CaptureScore -= (depth) * 10;
-        // if (player2CaptureScore > 0) player2CaptureScore -= (depth) * 10;
+        if (player1CaptureScore > 0) player1CaptureScore -= (depth) * 10;
+        if (player2CaptureScore > 0) player2CaptureScore -= (depth) * 10;
         int captureScore = player1CaptureScore - player2CaptureScore;
 
         double p = boardAnalyser.getEvaluationPercentage();
@@ -121,13 +128,13 @@ class GomokuBot implements Callable<Integer> {
         int alphaOrigin = alpha;
         iterationPerDepth[depth]++;
 
-        if (GomokuAI.useTT){
-            int score = getScoreFromCache(depth, alpha, beta);
-            if (score != -INF){
-                ttPrunningPerDepth[depth]++;
-                return score;
-            }
-        }
+        // if (GomokuAI.useTT){
+        //     int score = getScoreFromCache(depth, alpha, beta);
+        //     if (score != -INF){
+        //         ttPrunningPerDepth[depth]++;
+        //         return score;
+        //     }
+        // }
 
         if (depth == maxDepth || timeLimitExceeded() || board.getWinner() != 0) {
             return evaluate(depth);
@@ -136,12 +143,13 @@ class GomokuBot implements Callable<Integer> {
         // List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
 
         int minScore = 1;
-        switch (depth) {
-            case 0, 1, 2: minScore = 1; break;
-            case 3: minScore = 2; break;
-            case 4: minScore = 20; break;
-            default: minScore = 50; break;
-        }
+        // switch (depth) {
+        //     case 0, 1, 2: minScore = 1; break;
+        //     case 3: minScore = 2; break;
+        //     case 4: minScore = 5; break;
+        //     case 5: minScore = 10; break;
+        //     default: minScore = 20; break;
+        // }
 
         List<Integer> sortedPos = boardAnalyser.scoreBuckets.getMovesSortedAbove(minScore);
 
@@ -171,9 +179,9 @@ class GomokuBot implements Callable<Integer> {
             return evaluate(depth);
         }
 
-        if (GomokuAI.useTT){
-            storeSearch(depth, value, bestMove, alphaOrigin, beta);
-        }
+        // if (GomokuAI.useTT){
+        //     storeSearch(depth, value, bestMove, alphaOrigin, beta);
+        // }
 
         return value;
     }

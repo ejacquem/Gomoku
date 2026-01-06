@@ -80,6 +80,12 @@ public abstract class GameSettings {
     public static boolean drawMouseCellPos = false;
     public static boolean drawSequenceDataOnMouse = false;
 
+    /* AI */
+
+    public static boolean launchAnalysis = false;
+    public static int analysisDepth = 5;
+
+
     public static Color getHeatMapColor(int value, int maxValue) {
         float fvalue = Math.min((float)value / (float)maxValue, 1);
         fvalue *= (HEATMAP_COLOR.length - 1);

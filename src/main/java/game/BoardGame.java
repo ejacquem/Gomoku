@@ -20,7 +20,7 @@ public class BoardGame {
     public GomokuAI AI;
     public BoardAnalyser boardAnalyser;
 
-    public int bestMove = -1;
+    private int bestMove = -1;
 
     public enum GameState {
         NOT_STARTED,
@@ -74,20 +74,28 @@ public class BoardGame {
         if (gameState != GameState.STARTED || !board.isInPresent()){
             return ;
         }
-        if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
-            if (AI.getState() == AIState.READY){
-                System.out.println("LaunchAi");
-                GomokuAI.useTT = player == 2;
-                AI.makeBestMove(boardAnalyser);
-            }
-            else if (AI.getState() == AIState.IDLE){
-                System.out.println("PlayAi");
-                bestMove = AI.getComputationResult();
-                board.goToMove(10000);
-                placePieceAttempt(bestMove, true);
-                tick();
-            }
+        bestMove = AI.getBestMove();
+        // System.out.println("GameSettings.analyseBoard + " + GameSettings.analyseBoard);
+        if (GameSettings.launchAnalysis) {
+            GameSettings.launchAnalysis = false;
+            AI.reset();
+            AI.makeBestMove(boardAnalyser);
         }
+        // if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
+        //     System.out.println("test");
+        //     if (AI.getState() == AIState.READY){
+        //         System.out.println("LaunchAi");
+        //         // GomokuAI.useTT = player == 2;
+        //         AI.makeBestMove(boardAnalyser);
+        //     }
+        //     else if (AI.getState() == AIState.IDLE){
+        //         System.out.println("PlayAi");
+        //         bestMove = AI.getComputationResult();
+        //         board.goToMove(10000);
+        //         placePieceAttempt(bestMove, true);
+        //         tick();
+        //     }
+        // }
     }
 
     public void undo() {
