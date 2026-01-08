@@ -11,7 +11,7 @@ class GomokuBot implements Callable<Integer> {
     private final BoardAnalyser boardAnalyser;
     private final Board board;
 
-    public final long TIME_LIMIT = 2000;
+    public final long TIME_LIMIT;
     public boolean limitExcceeded = false;
     private long start = 0;
     public final int startIndex;
@@ -20,8 +20,8 @@ class GomokuBot implements Callable<Integer> {
     public final int INF = 100_000_000;
     public final int MAX_DEPTH;
     private int maxDepth;
-    public final int WIN_SCORE = 1_000_000;
-    public final int[] captureScore = new int[]{0, 10000, 20000, 30000, 50000, WIN_SCORE};
+    public final int WIN_SCORE = 100_000;
+    public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 5000, WIN_SCORE};
     public int[] iterationPerDepth;
     public int[] prunningPerDepth;
     public int[] ttPrunningPerDepth;
@@ -30,8 +30,9 @@ class GomokuBot implements Callable<Integer> {
     public volatile int currentDepth = 0;
     public volatile int currentBestEval = 0;
 
-    public GomokuBot(BoardAnalyser boardAnalyser, int maxDepth, int id, int startIndex) {
+    public GomokuBot(BoardAnalyser boardAnalyser, int maxDepth, int id, int startIndex, int timeLimit) {
         // deep copy so each thread works independently
+        this.TIME_LIMIT = timeLimit;
         this.boardAnalyser = boardAnalyser.deepCopy();
         this.board = this.boardAnalyser.board;
         this.MAX_DEPTH = maxDepth;
@@ -66,10 +67,11 @@ class GomokuBot implements Callable<Integer> {
                     System.out.printf("Bot %d | timeLimitExceeded%n", id);
                 }
             }
-            score = temp;
-            currentBestEval = score;
             if (timeLimitExceeded()) {
                 break;
+            } else {
+                score = temp;
+                currentBestEval = score;
             }
         }
         return score;
@@ -96,7 +98,7 @@ class GomokuBot implements Callable<Integer> {
 
         double p = boardAnalyser.getEvaluationPercentage();
         p = (p - 0.5) * 2.; // -1 to 1
-        int positionScore = (int)(p * 100.);
+        int positionScore = (int)(p * 50.);
         // int positionScore = 0;
         return color * Math.min(WIN_SCORE, Math.max(-WIN_SCORE, positionScore + captureScore));
     }
@@ -142,14 +144,14 @@ class GomokuBot implements Callable<Integer> {
 
         // List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
 
-        int minScore = 1;
-        // switch (depth) {
-        //     case 0, 1, 2: minScore = 1; break;
-        //     case 3: minScore = 2; break;
-        //     case 4: minScore = 5; break;
-        //     case 5: minScore = 10; break;
-        //     default: minScore = 20; break;
-        // }
+        int minScore = 0;
+        switch (depth) {
+            case 0, 1, 2: minScore = 1; break;
+            case 3: minScore = 2; break;
+            case 4: minScore = 5; break;
+            case 5: minScore = 10; break;
+            default: minScore = 20; break;
+        }
 
         List<Integer> sortedPos = boardAnalyser.scoreBuckets.getMovesSortedAbove(minScore);
 

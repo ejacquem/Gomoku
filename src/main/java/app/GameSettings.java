@@ -60,7 +60,7 @@ public abstract class GameSettings {
     /* Board Debug */
 
     public static boolean drawIndexNumber = false;
-    public static boolean drawBestMove = false;
+    public static boolean drawBestMove = true;
     public static boolean drawEvaluatedPosition = false;
     public static boolean drawSortedPosition = false;
     public static boolean drawScoreHeatmap = false;
@@ -68,10 +68,10 @@ public abstract class GameSettings {
     public static boolean drawBucketScoreNumber = false;
     public static boolean drawDirScorePlayerNumber = false;
     public static boolean drawScorePlayerNumber = false;
-    public static boolean drawCurrentSearchDepth = false;
-    public static boolean drawCurrentBestEval = false;
+    public static boolean drawCurrentSearchDepth = true;
+    public static boolean drawCurrentBestEval = true;
     
-    public static boolean analyseBoard = false;
+    public static boolean analyseBoard = true;
     public static boolean player1AI = false;
     public static boolean player2AI = false;
 
@@ -84,6 +84,7 @@ public abstract class GameSettings {
 
     public static boolean launchAnalysis = false;
     public static int analysisDepth = 5;
+    public static int timeLimit = 2000;
 
 
     public static Color getHeatMapColor(int value, int maxValue) {

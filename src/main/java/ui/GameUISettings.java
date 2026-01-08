@@ -62,7 +62,7 @@ public class GameUISettings {
         /* AI menu element */
 
         Slider analysisDepthSlider = new Slider(0, 15, GameSettings.analysisDepth); // min, max, initial
-        analysisDepthSlider.setBlockIncrement(0);
+        analysisDepthSlider.setBlockIncrement(1);
         analysisDepthSlider.setMinorTickCount(5);
         analysisDepthSlider.setMajorTickUnit(5);
         analysisDepthSlider.setShowTickMarks(true);
@@ -75,14 +75,48 @@ public class GameUISettings {
             int value = newVal.intValue();
             GameSettings.analysisDepth = value;
             depthValueLabel.setText("Depth: " + String.valueOf(value));
+            if (oldVal.intValue() != newVal.intValue()) {
+                GameSettings.launchAnalysis = true;
+            }
             renderer.draw();
         });
 
         CustomMenuItem analysisDepthItem = new CustomMenuItem(analysisDepthSlider);
         analysisDepthItem.setHideOnClick(false);
 
-        CustomMenuItem labelItem = new CustomMenuItem(depthValueLabel);
-        labelItem.setHideOnClick(false);
+        CustomMenuItem analysisDepthLabelItem = new CustomMenuItem(depthValueLabel);
+        analysisDepthLabelItem.setHideOnClick(false);
+
+        Slider timeLimitSlider = new Slider(500, 10_000, GameSettings.timeLimit); // min, max, initial
+        timeLimitSlider.setBlockIncrement(500);
+        timeLimitSlider.setMinorTickCount(10);
+        timeLimitSlider.setMajorTickUnit(10_000);
+        timeLimitSlider.setShowTickMarks(true);
+        timeLimitSlider.setShowTickLabels(true);
+        timeLimitSlider.setSnapToTicks(true);
+
+        Label timeLimitLabel = new Label("time Limit: " + String.valueOf(GameSettings.timeLimit) + "ms");
+
+        timeLimitSlider.valueChangingProperty().addListener((obs, wasChanging, isChanging) -> {
+            if (!isChanging) { // only snap when user releases drag
+                GameSettings.launchAnalysis = true;
+                renderer.draw();
+            }
+        });
+
+        timeLimitSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int value = Math.round(newVal.intValue() / 500) * 500;
+
+            GameSettings.timeLimit = value;
+            timeLimitSlider.setValue(value);
+            timeLimitLabel.setText("time Limit: " + String.valueOf(value) + "ms");
+        });
+
+        CustomMenuItem timeLimitItem = new CustomMenuItem(timeLimitSlider);
+        timeLimitItem.setHideOnClick(false);
+
+        CustomMenuItem timeLimitLabelItem = new CustomMenuItem(timeLimitLabel);
+        timeLimitLabelItem.setHideOnClick(false);
 
         /* Menu */
         visualMenu.getItems().addAll(
@@ -127,8 +161,10 @@ public class GameUISettings {
         
         aiMenu.getItems().addAll(
             createSettingBtnItem("Launch Analysis", () -> GameSettings.launchAnalysis = true),
-            labelItem,
-            analysisDepthItem
+            analysisDepthLabelItem,
+            analysisDepthItem,
+            timeLimitLabelItem,
+            timeLimitItem
         );
 
         MenuBar menuBar = new MenuBar();

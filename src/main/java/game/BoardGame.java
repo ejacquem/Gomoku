@@ -79,7 +79,7 @@ public class BoardGame {
         if (GameSettings.launchAnalysis) {
             GameSettings.launchAnalysis = false;
             AI.reset();
-            AI.makeBestMove(boardAnalyser);
+            AI.calculateBestMove(boardAnalyser);
         }
         // if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
         //     System.out.println("test");
@@ -207,6 +207,11 @@ public class BoardGame {
         }
         moveCount.set(board.getMoveCount());
         // boardAnalyser.scanLastMove();
+
+        if (GameSettings.analyseBoard) {
+            AI.reset();
+            AI.calculateBestMove(boardAnalyser);
+        }
     }
 
     private void switchPlayerTo(int player) {

@@ -1,10 +1,12 @@
 package main.java.game;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.LongProperty;
@@ -29,8 +31,9 @@ public class GomokuAI {
     public int[] prunningPerDepth;
     public int[] ttPrunningPerDepth;
     public int prunningCount = 0;
-    private List<GomokuBot> bots = new ArrayList<>();
+    private List<GomokuBot> bots = new CopyOnWriteArrayList<>();
     private ExecutorService executor;
+    private Thread aiThread;
 
     private long start = 0;
     public final int MAX_DEPTH = 16;
@@ -83,8 +86,26 @@ public class GomokuAI {
         return bestMove;
     }
 
+    private void stopThinking() {
+        state = AIState.STOP;
+        if (executor != null && !executor.isTerminated()) {
+            executor.shutdownNow(); // interrupts all running & queued tasks
+            try {
+                executor.awaitTermination(200, TimeUnit.MILLISECONDS); // give it a tiny moment to die
+            } catch (InterruptedException e) {
+                // ignore, we are resetting anyway
+            }
+        }
+        executor = null;
+
+        if (aiThread != null && aiThread.isAlive()) {
+            aiThread.interrupt();
+        }
+        aiThread = null;
+    }
+
     public void reset() {
-        // private ExecutorService executor;
+        stopThinking();
         evaluatedPos.clear();
         start = 0;
         bots.clear();
@@ -104,36 +125,39 @@ public class GomokuAI {
     //     return getBestMove(MAX_DEPTH);
     // }
 
-    public void makeBestMove(BoardAnalyser boardAnalyser) {
+    public void calculateBestMove(BoardAnalyser boardAnalyser) {
         System.out.println("make best move called");
-        new Thread(() -> {
-            reset();
-            this.boardAnalyser = boardAnalyser.deepCopy();
+        reset();
+        this.boardAnalyser = boardAnalyser.deepCopy();
+        aiThread = new Thread(() -> {
             state = AIState.THINKING;
             // System.out.println("Ai calculate best move for player: " + (board.getCurrentPlayer() == 1 ? " white" : " black"));
             start = System.currentTimeMillis();
-
+            
             computeBestEval();
-    
+            
             printThinkingResult(bestEval, bestMove);
-    
-        }).start();
+        });
+        aiThread.start();
     }
 
-    private void computeBestEval(){
+    private void computeBestEval() {
         List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
         bestEval = Integer.MIN_VALUE + 1;
         bestMove = 0;
 
-        executor = Executors.newFixedThreadPool(sortedPos.size());
+        if (executor == null || executor.isShutdown() || executor.isTerminated()) {
+            executor = Executors.newFixedThreadPool(sortedPos.size());
+        }
         List<Future<Integer>> result = new ArrayList<>(sortedPos.size());
         bots.clear();
         for (int i = 0; i < sortedPos.size(); i++) {
             PosScore pos = sortedPos.get(i);
             // System.out.println("----------- Ai launch thread " + i + "\n" + board.toString());
             // System.out.println("Laucnh Bot for move " + GomokuUtils.indexToString(pos.index));
-            bots.add(new GomokuBot(boardAnalyser, GameSettings.analysisDepth, i, pos.index));
-            Future<Integer> future = executor.submit(bots.get(i));
+            GomokuBot bot = new GomokuBot(boardAnalyser, GameSettings.analysisDepth, i, pos.index, GameSettings.timeLimit); 
+            bots.add(bot);
+            Future<Integer> future = executor.submit(bot); // line 160
             result.add(future);
         }
 

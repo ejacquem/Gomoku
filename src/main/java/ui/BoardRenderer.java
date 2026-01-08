@@ -56,6 +56,7 @@ public class BoardRenderer {
         renderLoopGc.clearRect(0, 0, renderLoopCanvas.getWidth(), renderLoopCanvas.getHeight());
         if (GameSettings.drawCurrentSearchDepth) drawCurrentSearchDepth();
         if (GameSettings.drawCurrentBestEval) drawCurrentBestEval();
+        if (GameSettings.drawBestMove) drawBestMove();
     }
 
     public void draw() {
@@ -78,7 +79,6 @@ public class BoardRenderer {
         
         game.boardAnalyser.updateMoveCount();
         if (GameSettings.drawIndexNumber) drawIndexNumber();
-        if (GameSettings.drawBestMove) drawBestMove();
         if (GameSettings.drawEvaluatedPosition) drawEvaluatedPosition();
         if (GameSettings.drawSortedPosition) drawSortedPosition();
         if (GameSettings.drawScoreHeatmap) drawScoreHeatmap();
@@ -204,22 +204,6 @@ public class BoardRenderer {
         gc.strokeOval(x - radius, y - radius, radius * 2, radius * 2);
     }
 
-    private void drawBestMove() {
-        int bestMove = game.AI.getBestMove();
-        if (!game.board.isInBound(bestMove))
-            return;
-        float radius = TILE_SIZE * 0.8f / 2f;
-        Coords pos = Coords.getCoordsById(bestMove).add(-1);
-        int px = pos.x * TILE_SIZE;
-        int py = pos.y * TILE_SIZE;
-        gc.setFill(Color.rgb(255, 255, 255, 0.5f));
-        gc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
-        //outline
-        gc.setStroke(Color.RED);
-        gc.setLineWidth(2); // thickness 
-        gc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
-    }
-
     private void drawEvaluatedPosition() {
         final int w = 8, h = 8; // size of a letter
         for (GomokuAI.EvaluatedPosition evalpos : game.AI.evaluatedPos) {
@@ -250,7 +234,8 @@ public class BoardRenderer {
             renderLoopGc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
 
             String n = Integer.toString(posScore.score);
-            renderLoopGc.setFill(Color.WHITE);
+            renderLoopGc.setFill(Color.ALICEBLUE);
+            px += 0; py += 10; // text offset
             renderLoopGc.fillText(n, px - w * n.length() / 2, py + h / 2);
         }
     }
@@ -269,6 +254,22 @@ public class BoardRenderer {
             renderLoopGc.setFill(Color.WHITE);
             renderLoopGc.fillText(n, px - w * n.length() / 2, py + h / 2);
         }
+    }
+
+    private void drawBestMove() {
+        int bestMove = game.AI.getBestMove();
+        if (!game.board.isInBound(bestMove))
+            return;
+        float radius = TILE_SIZE * 0.8f / 2f;
+        Coords pos = Coords.getCoordsById(bestMove).add(0);
+        int px = pos.x * TILE_SIZE;
+        int py = pos.y * TILE_SIZE;
+        renderLoopGc.setFill(Color.rgb(255, 255, 255, 0.5f));
+        renderLoopGc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
+        //outline
+        renderLoopGc.setStroke(Color.RED);
+        renderLoopGc.setLineWidth(2); // thickness 
+        renderLoopGc.strokeOval(px - radius, py - radius, radius * 2, radius * 2);
     }
 
     private void drawSortedPosition() {
