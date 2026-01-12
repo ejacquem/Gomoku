@@ -12,3 +12,4 @@ live evaluation per move
 
 sound?
 
+implement back forbiden move: double three, "check" (if opponent align 5, has to capture one of the winning pieces)

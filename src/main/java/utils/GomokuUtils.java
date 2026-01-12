@@ -61,4 +61,10 @@ public class GomokuUtils {
         return (col + 1) + (row + 1) * GameSettings.BOARD_SIZE;
     }
 
+    public static double analysisScoreToReadableScore(int score) {
+        if (score < 10 && score > -10) {
+            return (float)score / 10f;
+        }
+        return Math.log10(Math.abs(score)) * Integer.signum(score);
+    }
 }

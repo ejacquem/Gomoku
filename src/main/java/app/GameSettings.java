@@ -83,7 +83,7 @@ public abstract class GameSettings {
     /* AI */
 
     public static boolean launchAnalysis = false;
-    public static int analysisDepth = 5;
+    public static int analysisDepth = 6;
     public static int timeLimit = 2000;
 
 

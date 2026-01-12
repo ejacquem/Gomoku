@@ -1,5 +1,6 @@
 package main.java.game;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -16,6 +17,20 @@ import main.java.app.GameSettings;
 import main.java.game.BoardAnalyser.PosScore;
 import main.java.utils.GomokuUtils;
 
+
+/*
+This class is responsible to handle how the algorithm to calculate the best move is used. Since it uses thread, its use will be limited to a few function.
+
+AnalysePosition(boardAnalyser) :
+    launch the main thread that analyse the position by launching sub thread for each move.
+
+getBestMove():
+    return the current best move calculated by the engine
+
+
+
+
+*/
 public class GomokuAI {
     public BoardAnalyser boardAnalyser;
 
@@ -199,6 +214,15 @@ public class GomokuAI {
             list.add(new PosScore(bot.startIndex, bot.currentBestEval));
         }
         return list;
+    }
+
+    public int[] getBestEvalPerDepthOfBotAt(int index) {
+        for (GomokuBot bot : bots){
+            if (bot.startIndex == index) {
+                return bot.bestEvalPerDepth.clone();
+            }
+        }
+        return null;
     }
 
     // private void printThinkingResult(int bestEval, int bestMove) {

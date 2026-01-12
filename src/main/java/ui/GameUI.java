@@ -580,8 +580,7 @@ public class GameUI {
     }
 
     private void handleMouseMove(MouseEvent e) {
-        renderer.mouseX = e.getX();
-        renderer.mouseY = e.getY();
+        renderer.setMousePos(e.getX(), e.getY());
         renderer.drawOverlay();
     }
 }

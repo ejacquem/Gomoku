@@ -20,12 +20,13 @@ class GomokuBot implements Callable<Integer> {
     public final int INF = 100_000_000;
     public final int MAX_DEPTH;
     private int maxDepth;
-    public final int WIN_SCORE = 100_000;
+    public static final int WIN_SCORE = 100_000;
     public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 5000, WIN_SCORE};
     public int[] iterationPerDepth;
     public int[] prunningPerDepth;
     public int[] ttPrunningPerDepth;
     public int prunningCount = 0;
+    public int[] bestEvalPerDepth;
 
     public volatile int currentDepth = 0;
     public volatile int currentBestEval = 0;
@@ -36,6 +37,7 @@ class GomokuBot implements Callable<Integer> {
         this.boardAnalyser = boardAnalyser.deepCopy();
         this.board = this.boardAnalyser.board;
         this.MAX_DEPTH = maxDepth;
+        this.bestEvalPerDepth = new int[MAX_DEPTH + 1];
         this.id = id;
         this.startIndex = startIndex;
         iterationPerDepth = new int[MAX_DEPTH + 1];
@@ -53,16 +55,15 @@ class GomokuBot implements Callable<Integer> {
         // return captureScore[board.getCaptureCount(1) / 2];
         board.placePieceAt(startIndex);
         start = System.currentTimeMillis();
-        int score = 0;
         if (this.id == 0) {
             System.out.printf("Bot %d | startIndex: %3d, %s%n", id, startIndex, GomokuUtils.indexToString(startIndex));
         }
         for (int i = 2; i <= MAX_DEPTH; i++){
-            int temp = -search(0, -INF, INF);
+            int score = -search(0, -INF, INF);
             currentDepth = i;
             maxDepth = i;
             if (this.id == 0) {
-                System.out.printf("Bot %d | depth: %2d, score %8d%n", id, i, temp);
+                System.out.printf("Bot %d | depth: %2d, score %8d%n", id, i, score);
                 if (timeLimitExceeded()) {
                     System.out.printf("Bot %d | timeLimitExceeded%n", id);
                 }
@@ -70,11 +71,11 @@ class GomokuBot implements Callable<Integer> {
             if (timeLimitExceeded()) {
                 break;
             } else {
-                score = temp;
                 currentBestEval = score;
+                bestEvalPerDepth[i] = currentBestEval;
             }
         }
-        return score;
+        return currentBestEval;
         // return -search(MAX_DEPTH, -INF, INF);
     }
 

@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import main.java.app.GameSettings;
 import main.java.game.BoardAnalyser.PosScore;
+import main.java.utils.GomokuUtils;
 import main.java.game.BoardGame;
 import main.java.game.Coords;
 import main.java.game.GomokuAI;
@@ -250,7 +251,8 @@ public class BoardRenderer {
             renderLoopGc.setFill(Color.rgb(0, 0, 0, 0.3f));
             renderLoopGc.fillOval(px - radius, py - radius, radius * 2f, radius * 2f);
 
-            String n = Integer.toString(posScore.score);
+            // String n = Integer.toString(posScore.score);
+            String n = String.format("%.1f", GomokuUtils.analysisScoreToReadableScore(posScore.score));
             renderLoopGc.setFill(Color.WHITE);
             renderLoopGc.fillText(n, px - w * n.length() / 2, py + h / 2);
         }
@@ -258,7 +260,7 @@ public class BoardRenderer {
 
     private void drawBestMove() {
         int bestMove = game.AI.getBestMove();
-        if (!game.board.isInBound(bestMove))
+        if (!game.board.isInBound(bestMove) || bestMove == 0)
             return;
         float radius = TILE_SIZE * 0.8f / 2f;
         Coords pos = Coords.getCoordsById(bestMove).add(0);
@@ -452,8 +454,13 @@ public class BoardRenderer {
         }
     }
 
-    public double mouseX = 0;
-    public double mouseY = 0;
+    private double mouseX = 0;
+    private double mouseY = 0;
+
+    public void setMousePos(double x, double y) {
+        mouseX = x;
+        mouseY = y;
+    }
 
     public void drawOverlay() {
         overlayGc.clearRect(0, 0, overlayCanvas.getWidth(), overlayCanvas.getHeight());
@@ -461,6 +468,7 @@ public class BoardRenderer {
         if (GameSettings.drawMousePos) drawMousePos(mouseX, mouseY);
         if (GameSettings.drawMouseGridPos) drawMouseGridPos();
         if (GameSettings.drawMouseCellPos) drawMouseCellPos();
+        drawBotInfo();
         // if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
     }
 
@@ -485,6 +493,25 @@ public class BoardRenderer {
         Coords pos = pixelPosToCoords(mouseX, mouseY);
         overlayGc.setFill(Color.rgb(0, 125, 125, 0.2));
         overlayGc.fillRect(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+    }
+
+    public void drawBotInfo() {
+        Coords pos = pixelPosToCoords(mouseX, mouseY).add(1);
+        int index = pos.getId();
+        int[] scorePerDepth = game.AI.getBestEvalPerDepthOfBotAt(index);
+        if (scorePerDepth == null) {
+            return;
+        }
+
+        final int width = 150;
+        final int titleOffset = 30;
+        overlayGc.setFill(Color.rgb(20, 20, 20, 1));
+        overlayGc.fillRect(0, 0, width, titleOffset + scorePerDepth.length * 12);
+        overlayGc.setFill(Color.WHITE);
+        overlayGc.fillText("Bot : " + GomokuUtils.indexToString(index), 0, 12);
+        for (int i = 0; i < scorePerDepth.length; i++){
+            overlayGc.fillText(i + ": " + scorePerDepth[i], 0, titleOffset + i * 12);
+        }
     }
 
     // public void drawSequenceDataOnMouse() {

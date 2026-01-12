@@ -26,7 +26,7 @@ public class Board {
     private int maxMove = 0;
     private int winner = 0;
     private int[] pieceCount = {0,0};
-    private boolean[] EGChistory = new boolean[BOARD_MAX_INDEX * 2]; // contains a flag per move if the move introduced an EGC
+    private boolean[] EGChistory = new boolean[BOARD_MAX_INDEX * 2]; // contains a flag per move if the move introduced an EGC (End Game Capture)
     // private 
     public List<Integer> endGameCapture = new ArrayList<Integer>();
 
@@ -415,7 +415,8 @@ public class Board {
     }
 
     private void checkWinnerEndGameCapture() {
-        for (int index : endGameCapture) {
+        List<Integer> egcList = new ArrayList<Integer>(endGameCapture);
+        for (int index : egcList) {
             if (getPieceAt(index) != 0) {
                 checkWinnerAt(index, getCurrentOpponent());
             }
@@ -445,7 +446,9 @@ public class Board {
             }
             if (count >= 5) {
                 left += dir;
-                int opponent = getOpponent(currentPlayer); // check only for currentPlayer and not player
+                // changed this to the line below, i doin't remember why it was specifically like that, it introduced a bug
+                // int opponent = getOpponent(currentPlayer); // check only for currentPlayer and not player
+                int opponent = getOpponent(player);
                 int maxChain = 0;
                 while (count > 0) {
                     count--;

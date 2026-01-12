@@ -81,21 +81,20 @@ public class BoardGame {
             AI.reset();
             AI.calculateBestMove(boardAnalyser);
         }
-        // if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
-        //     System.out.println("test");
-        //     if (AI.getState() == AIState.READY){
-        //         System.out.println("LaunchAi");
-        //         // GomokuAI.useTT = player == 2;
-        //         AI.makeBestMove(boardAnalyser);
-        //     }
-        //     else if (AI.getState() == AIState.IDLE){
-        //         System.out.println("PlayAi");
-        //         bestMove = AI.getComputationResult();
-        //         board.goToMove(10000);
-        //         placePieceAttempt(bestMove, true);
-        //         tick();
-        //     }
-        // }
+        if ((GameSettings.player1AI && player == 1) || (GameSettings.player2AI && player == 2)){
+            if (AI.getState() == AIState.READY){
+                System.out.println("LaunchAi");
+                // GomokuAI.useTT = player == 2;
+                AI.calculateBestMove(boardAnalyser);
+            }
+            else if (AI.getState() == AIState.IDLE){
+                System.out.println("PlayAi");
+                bestMove = AI.getComputationResult();
+                board.goToMove(10000);
+                placePieceAttempt(bestMove, true);
+                tick();
+            }
+        }
     }
 
     public void undo() {
