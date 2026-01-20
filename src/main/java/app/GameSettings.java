@@ -83,8 +83,9 @@ public abstract class GameSettings {
     /* AI */
 
     public static boolean launchAnalysis = false;
-    public static int analysisDepth = 6;
+    public static int analysisDepth = 10;
     public static int timeLimit = 2000;
+    public static boolean drawBotInfo = false;
 
 
     public static Color getHeatMapColor(int value, int maxValue) {
@@ -95,5 +96,25 @@ public abstract class GameSettings {
         Color colorStart = HEATMAP_COLOR[Math.max(0, colorStartIndex)];
         Color colorEnd = HEATMAP_COLOR[Math.max(0, colorEndIndex)];
         return colorStart.interpolate(colorEnd, fvalue - colorStartIndex);
+    }
+
+    public static void disableAllDebug() {
+        GameSettings.drawIndexNumber = false;
+        GameSettings.drawBestMove = false;
+        GameSettings.drawSortedPosition = false;
+        GameSettings.drawCurrentSearchDepth = false;
+        GameSettings.drawCurrentBestEval = false;
+        GameSettings.drawEvaluatedPosition = false;
+        GameSettings.drawBotInfo = false;
+
+        GameSettings.drawScoreHeatmap = false;
+        GameSettings.drawScoreNumber = false;
+        GameSettings.drawBucketScoreNumber = false;
+        GameSettings.drawDirScorePlayerNumber = false;
+        GameSettings.drawScorePlayerNumber = false;
+
+        GameSettings.drawMousePos = false;
+        GameSettings.drawMouseGridPos = false;
+        GameSettings.drawMouseCellPos = false;
     }
 }

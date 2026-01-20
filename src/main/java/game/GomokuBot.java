@@ -18,8 +18,8 @@ class GomokuBot implements Callable<Integer> {
     public final int id;
 
     public final int INF = 100_000_000;
-    public final int MAX_DEPTH;
-    private int maxDepth;
+    public final int MAX_DEPTH; // max possible depth to reach, will stop at this depth
+    private int maxDepth; // depth reached, (maxDepth <= MAX_DEPTH)
     public static final int WIN_SCORE = 100_000;
     public final int[] captureScore = new int[]{0, 1000, 2000, 3000, 5000, WIN_SCORE};
     public int[] iterationPerDepth;
@@ -46,6 +46,7 @@ class GomokuBot implements Callable<Integer> {
     }
 
     public void setMaxDepth(int depth){}
+    public int getMaxDepthReached(){return maxDepth;}
     
     @Override
     public Integer call() {
@@ -60,8 +61,6 @@ class GomokuBot implements Callable<Integer> {
         }
         for (int i = 2; i <= MAX_DEPTH; i++){
             int score = -search(0, -INF, INF);
-            currentDepth = i;
-            maxDepth = i;
             if (this.id == 0) {
                 System.out.printf("Bot %d | depth: %2d, score %8d%n", id, i, score);
                 if (timeLimitExceeded()) {
@@ -71,6 +70,8 @@ class GomokuBot implements Callable<Integer> {
             if (timeLimitExceeded()) {
                 break;
             } else {
+                currentDepth = i;
+                maxDepth = i;
                 currentBestEval = score;
                 bestEvalPerDepth[i] = currentBestEval;
             }
@@ -146,11 +147,18 @@ class GomokuBot implements Callable<Integer> {
         // List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
 
         int minScore = 0;
+        // switch (depth) {
+        //     case 0, 1, 2: minScore = 1; break;
+        //     case 3: minScore = 2; break;
+        //     case 4: minScore = 5; break;
+        //     case 5: minScore = 10; break;
+        //     default: minScore = 20; break;
+        // }
         switch (depth) {
-            case 0, 1, 2: minScore = 1; break;
-            case 3: minScore = 2; break;
-            case 4: minScore = 5; break;
-            case 5: minScore = 10; break;
+            case 0, 1: minScore = 1; break;
+            case 2: minScore = 2; break;
+            case 3: minScore = 5; break;
+            case 4: minScore = 10; break;
             default: minScore = 20; break;
         }
 

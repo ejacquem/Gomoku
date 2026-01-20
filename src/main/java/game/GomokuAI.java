@@ -120,6 +120,7 @@ public class GomokuAI {
     }
 
     public void reset() {
+        System.out.println("AI RESET ------------------------");
         stopThinking();
         evaluatedPos.clear();
         start = 0;
@@ -141,8 +142,8 @@ public class GomokuAI {
     // }
 
     public void calculateBestMove(BoardAnalyser boardAnalyser) {
-        System.out.println("make best move called");
         reset();
+        System.out.println("make best move called");
         this.boardAnalyser = boardAnalyser.deepCopy();
         aiThread = new Thread(() -> {
             state = AIState.THINKING;
@@ -158,6 +159,9 @@ public class GomokuAI {
 
     private void computeBestEval() {
         List<PosScore> sortedPos = boardAnalyser.getSortedPositions();
+        if (sortedPos.size() > 10) {
+            sortedPos = sortedPos.subList(0, 10);
+        }
         bestEval = Integer.MIN_VALUE + 1;
         bestMove = 0;
 
@@ -172,10 +176,11 @@ public class GomokuAI {
             // System.out.println("Laucnh Bot for move " + GomokuUtils.indexToString(pos.index));
             GomokuBot bot = new GomokuBot(boardAnalyser, GameSettings.analysisDepth, i, pos.index, GameSettings.timeLimit); 
             bots.add(bot);
-            Future<Integer> future = executor.submit(bot); // line 160
+            Future<Integer> future = executor.submit(bot);
             result.add(future);
         }
 
+        // getting the best score at max depth
         for (int i = 0; i < sortedPos.size(); i++) {
             PosScore pos = sortedPos.get(i);
             int score = 0;
@@ -187,14 +192,32 @@ public class GomokuAI {
                 e.printStackTrace();
             }
 
-            evaluatedPos.add(new EvaluatedPosition(Coords.getCoordsById(pos.index), score));
+            // evaluatedPos.add(new EvaluatedPosition(Coords.getCoordsById(pos.index), score));
             if (score > bestEval) {
                 bestEval = score;
                 bestMove = pos.index;
             }
         }
 
-        System.out.println("AI best move: " + GomokuUtils.indexToString(bestMove));
+        //getting the best score at max universal depth reached
+        evaluatedPos.clear();
+        int maxUniversalDepthReached = 999;
+        for (GomokuBot bot : bots) {
+            maxUniversalDepthReached = Math.min(maxUniversalDepthReached, bot.getMaxDepthReached());
+        }
+        System.out.println("[AI] maxUniversalDepthReached: " + maxUniversalDepthReached);
+        for (GomokuBot bot : bots) {
+            int score = bot.bestEvalPerDepth[maxUniversalDepthReached];
+            evaluatedPos.add(new EvaluatedPosition(Coords.getCoordsById(bot.startIndex), score));
+            if (score > bestEval) {
+                bestEval = score;
+                bestMove = bot.startIndex;
+            }
+        }
+
+        System.out.println();
+
+        System.out.println("[AI] best move: " + GomokuUtils.indexToString(bestMove));
 
         executor.shutdown();
         state = AIState.IDLE;
@@ -223,6 +246,15 @@ public class GomokuAI {
             }
         }
         return null;
+    }
+
+    public boolean getTimeLimitExceededOfBotAt(int index) {
+        for (GomokuBot bot : bots){
+            if (bot.startIndex == index) {
+                return bot.limitExcceeded;
+            }
+        }
+        return false;
     }
 
     // private void printThinkingResult(int bestEval, int bestMove) {

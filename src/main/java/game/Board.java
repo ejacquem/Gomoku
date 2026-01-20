@@ -447,8 +447,8 @@ public class Board {
             if (count >= 5) {
                 left += dir;
                 // changed this to the line below, i doin't remember why it was specifically like that, it introduced a bug
-                // int opponent = getOpponent(currentPlayer); // check only for currentPlayer and not player
-                int opponent = getOpponent(player);
+                int opponent = getOpponent(currentPlayer); // check only for currentPlayer and not player
+                // int opponent = getOpponent(player);
                 int maxChain = 0;
                 while (count > 0) {
                     count--;

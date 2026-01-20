@@ -312,7 +312,7 @@ public class GameUI {
 
         clockLabel.textProperty().bind(
             Bindings.createStringBinding(() -> {
-                long millis = data.timerProperty.get();
+                long millis = Math.max(data.timerProperty.get(), 0);
                 long totalSeconds = millis / 1000;
                 long minutes = totalSeconds / 60;
                 long seconds = totalSeconds % 60;

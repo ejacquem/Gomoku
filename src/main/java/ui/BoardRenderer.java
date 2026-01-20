@@ -47,6 +47,7 @@ public class BoardRenderer {
         Timeline loop = new Timeline(
             new KeyFrame(Duration.seconds(0.1), event -> {
                 renderLoop();
+                draw();
             })
         );
         loop.setCycleCount(Timeline.INDEFINITE);
@@ -468,7 +469,7 @@ public class BoardRenderer {
         if (GameSettings.drawMousePos) drawMousePos(mouseX, mouseY);
         if (GameSettings.drawMouseGridPos) drawMouseGridPos();
         if (GameSettings.drawMouseCellPos) drawMouseCellPos();
-        drawBotInfo();
+        if (GameSettings.drawBotInfo) drawBotInfo();
         // if (GameSettings.drawSequenceDataOnMouse) drawSequenceDataOnMouse();
     }
 
@@ -504,11 +505,14 @@ public class BoardRenderer {
         }
 
         final int width = 150;
-        final int titleOffset = 30;
+        final int titleOffset = 50;
         overlayGc.setFill(Color.rgb(20, 20, 20, 1));
         overlayGc.fillRect(0, 0, width, titleOffset + scorePerDepth.length * 12);
         overlayGc.setFill(Color.WHITE);
         overlayGc.fillText("Bot : " + GomokuUtils.indexToString(index), 0, 12);
+        if (game.AI.getTimeLimitExceededOfBotAt(index)){
+            overlayGc.fillText("Time Limit Exceeded", 0, 24);
+        }
         for (int i = 0; i < scorePerDepth.length; i++){
             overlayGc.fillText(i + ": " + scorePerDepth[i], 0, titleOffset + i * 12);
         }

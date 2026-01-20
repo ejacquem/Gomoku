@@ -133,13 +133,16 @@ public class GameUISettings {
             createSettingItem("Show Symbols",           () -> GameSettings.showSymbolToggle,  val -> GameSettings.showSymbolToggle = val)
         );
         debugSettingsMenu.getItems().addAll(
+            createSettingBtnItem("Disable All", () -> GameSettings.disableAllDebug()),
+            new SeparatorMenuItem(),
             createSettingItem("Draw Index Number",       () -> GameSettings.drawIndexNumber,        val -> GameSettings.drawIndexNumber = val),
             new SeparatorMenuItem(),
             createSettingItem("Draw Best Move",           () -> GameSettings.drawBestMove,           val -> GameSettings.drawBestMove = val),
-            createSettingItem("Draw Evaluated Position",  () -> GameSettings.drawEvaluatedPosition,  val -> GameSettings.drawEvaluatedPosition = val),
             createSettingItem("Draw Sorted Position",     () -> GameSettings.drawSortedPosition,     val -> GameSettings.drawSortedPosition = val),
             createSettingItem("Draw Current Search Depth",() -> GameSettings.drawCurrentSearchDepth,  val -> GameSettings.drawCurrentSearchDepth = val),
             createSettingItem("Draw Current Best Eval",   () -> GameSettings.drawCurrentBestEval,  val -> GameSettings.drawCurrentBestEval = val),
+            createSettingItem("Draw Evaluated Position",  () -> GameSettings.drawEvaluatedPosition,  val -> GameSettings.drawEvaluatedPosition = val),
+            createSettingItem("Draw Bot Info",            () -> GameSettings.drawBotInfo,  val -> GameSettings.drawBotInfo = val),
             new SeparatorMenuItem(),
             createSettingItem("Draw Heatmap Score",           () -> GameSettings.drawScoreHeatmap,       val -> GameSettings.drawScoreHeatmap = val),
             createSettingItem("Draw Score Number",            () -> GameSettings.drawScoreNumber,        val -> GameSettings.drawScoreNumber = val),
@@ -150,7 +153,7 @@ public class GameUISettings {
             createSettingItem("Draw Mouse Pos",             () -> GameSettings.drawMousePos,           val -> GameSettings.drawMousePos = val),
             createSettingItem("Draw Mouse Grid Pos",        () -> GameSettings.drawMouseGridPos,       val -> GameSettings.drawMouseGridPos = val),
             createSettingItem("Draw Mouse Cell Pos",        () -> GameSettings.drawMouseCellPos,       val -> GameSettings.drawMouseCellPos = val)
-            );
+        );
 
         settingsMenu.getItems().addAll(
             createSettingItem("Analyse Board",             () -> GameSettings.analyseBoard,              val -> GameSettings.analyseBoard = val),
